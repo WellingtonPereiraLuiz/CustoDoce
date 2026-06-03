@@ -1,4 +1,4 @@
-package com.custoDoce.custo_doce
+package com.custodoce.app
 
 import io.flutter.embedding.android.FlutterActivity
 
