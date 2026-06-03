@@ -1,0 +1,56 @@
+name: custo_doce
+description: "CustoDoce - Calculadora de custos de receitas e precificação de produtos."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.3.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # Persistence
+  shared_preferences: ^2.3.0
+
+  # State Management
+  flutter_riverpod: ^2.5.1
+
+  # Routing
+  go_router: ^14.2.7
+
+  # Local Database
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+
+  # Monetization
+  purchases_flutter: ^10.2.0
+
+  # Backend / Cloud (future)
+  supabase_flutter: ^2.5.7
+
+  # UI Utilities
+  intl: ^0.20.0
+  flutter_slidable: ^3.1.0
+  google_fonts: ^6.2.1
+  gap: ^3.0.1
+  fl_chart: ^0.70.0
+  shimmer: ^3.0.0
+
+  cupertino_icons: ^1.0.8
+  purchases_ui_flutter: ^10.2.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/images/
+
+

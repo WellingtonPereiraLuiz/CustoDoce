@@ -1,0 +1,537 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:custo_doce/core/l10n/app_strings.dart';
+import 'package:custo_doce/core/providers/settings_provider.dart';
+import 'package:custo_doce/core/theme/app_theme.dart';
+import 'package:custo_doce/data/local/database/database_helper.dart';
+import 'package:custo_doce/core/providers/subscription_provider.dart';
+import 'package:custo_doce/presentation/providers/recipe_providers.dart';
+import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
+
+class SettingsScreen extends ConsumerWidget {
+  const SettingsScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final settingsAsync = ref.watch(settingsProvider);
+    final isProUser = ref.watch(isProUserProvider);
+    final s = AppStrings(Localizations.localeOf(context));
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg = isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight;
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(s.settingsTitle),
+        leading: const BackButton(),
+      ),
+      body: settingsAsync.when(
+        loading: () => const Center(
+          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+        ),
+        error: (e, _) => Center(child: Text('Erro: $e')),
+        data: (settings) => ListView(
+          padding: const EdgeInsets.all(16),
+          children: [
+            // ── Appearance ──────────────────────────────────────────
+            _SectionHeader(title: s.appearance, icon: Icons.palette_outlined),
+            const SizedBox(height: 12),
+            _ThemeSelector(
+              currentMode: settings.themeMode,
+              s: s,
+              onSelect: (mode) =>
+                  ref.read(settingsProvider.notifier).setThemeMode(mode),
+            ),
+            const SizedBox(height: 24),
+
+            // ── Language ────────────────────────────────────────────
+            _SectionHeader(
+                title: s.language, icon: Icons.language_rounded),
+            const SizedBox(height: 12),
+            _LanguageSelector(
+              currentLocale: settings.locale,
+              s: s,
+              onSelect: (locale) =>
+                  ref.read(settingsProvider.notifier).setLocale(locale),
+            ),
+            const SizedBox(height: 24),
+
+            // ── Account ─────────────────────────────────────────────
+            _SectionHeader(title: 'Conta', icon: Icons.person_outline_rounded),
+            const SizedBox(height: 12),
+            if (!isProUser)
+              _SettingsTile(
+                icon: Icons.workspace_premium_rounded,
+                iconColor: AppTheme.primaryColor,
+                title: s.upgradeToPro,
+                subtitle: s.upgradeDescription,
+                trailing: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor,
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: const Text(
+                    'PRO',
+                    style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800),
+                  ),
+                ),
+                onTap: () => context.push('/paywall'),
+                cardBg: cardBg,
+              )
+            else
+              _SettingsTile(
+                icon: Icons.verified_rounded,
+                iconColor: AppTheme.successColor,
+                title: 'CustoDoce Pro',
+                subtitle: 'Gerenciar Assinatura',
+                trailing: const Icon(Icons.open_in_new_rounded,
+                    color: AppTheme.successColor, size: 18),
+                onTap: () {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Gerencie sua assinatura na loja de aplicativos do seu dispositivo.')),
+                    );
+                  }
+                },
+                cardBg: cardBg,
+              ),
+            const SizedBox(height: 24),
+
+            // ── About ───────────────────────────────────────────────
+            _SectionHeader(title: s.about, icon: Icons.info_outline_rounded),
+            const SizedBox(height: 12),
+            _SettingsTile(
+              icon: Icons.cake_rounded,
+              iconColor: AppTheme.primaryColor,
+              title: s.aboutApp,
+              subtitle: s.aboutDescription,
+              trailing: null,
+              onTap: null,
+              cardBg: cardBg,
+            ),
+            const SizedBox(height: 8),
+            _SettingsTile(
+              icon: Icons.tag_rounded,
+              iconColor: const Color(0xFF9E9E9E),
+              title: s.version,
+              subtitle: '1.0.0 (build 1)',
+              trailing: null,
+              onTap: null,
+              cardBg: cardBg,
+            ),
+            const SizedBox(height: 24),
+
+            // ── Data & Privacy ──────────────────────────────────────
+            _SectionHeader(
+                title: s.dataAndPrivacy, icon: Icons.security_rounded),
+            const SizedBox(height: 12),
+            _SettingsTile(
+              icon: Icons.delete_forever_rounded,
+              iconColor: AppTheme.errorColor,
+              title: s.clearAllData,
+              subtitle: s.clearAllDataConfirm,
+              trailing: const Icon(Icons.chevron_right_rounded,
+                  color: AppTheme.errorColor),
+              onTap: () => _confirmClearData(context, ref, s),
+              cardBg: cardBg,
+              titleColor: AppTheme.errorColor,
+            ),
+            const SizedBox(height: 24),
+            TextButton(
+              onPressed: () async {
+                try {
+                  await ref.read(subscriptionNotifierProvider.notifier).restorePurchases();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('${s.restorePurchases} - Concluído')),
+                    );
+                  }
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text('Erro ao restaurar compras.')),
+                    );
+                  }
+                }
+              },
+              child: Text(
+                s.restorePurchases,
+                style: const TextStyle(color: AppTheme.primaryColor),
+              ),
+            ),
+            const SizedBox(height: 48),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _confirmClearData(
+    BuildContext context,
+    WidgetRef ref,
+    AppStrings s,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(s.clearAllData),
+        content: Text(s.clearAllDataConfirm),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(s.cancel),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.errorColor,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(s.confirm),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await DatabaseHelper.instance.close();
+      // Reinitialize DB (this drops all data by deleting the file, but here
+      // we simply close + reopen which recreates if needed; for true clear
+      // call the db delete method)
+      final db = await DatabaseHelper.instance.database;
+      await db.delete('recipe_ingredients');
+      await db.delete('recipes');
+      await db.delete('ingredients');
+      // Refresh providers
+      ref.invalidate(recipesProvider);
+      ref.invalidate(ingredientsProvider);
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('✅ Todos os dados foram apagados.'),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
+      }
+    }
+  }
+}
+
+class _SectionHeader extends StatelessWidget {
+  final String title;
+  final IconData icon;
+
+  const _SectionHeader({required this.title, required this.icon});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Icon(icon, color: AppTheme.primaryColor, size: 18),
+        const SizedBox(width: 8),
+        Text(
+          title,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w700,
+            color: AppTheme.primaryColor,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(width: 12),
+        const Expanded(child: Divider()),
+      ],
+    );
+  }
+}
+
+class _ThemeSelector extends StatelessWidget {
+  final ThemeMode currentMode;
+  final AppStrings s;
+  final void Function(ThemeMode) onSelect;
+
+  const _ThemeSelector({
+    required this.currentMode,
+    required this.s,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg =
+        isDark ? AppTheme.surfaceVariantDark : AppTheme.surfaceVariantLight;
+
+    return Container(
+      padding: const EdgeInsets.all(6),
+      decoration: BoxDecoration(
+        color: cardBg,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        children: [
+          _ThemeOption(
+            icon: Icons.dark_mode_rounded,
+            label: s.darkTheme,
+            mode: ThemeMode.dark,
+            currentMode: currentMode,
+            onSelect: onSelect,
+          ),
+          _ThemeOption(
+            icon: Icons.light_mode_rounded,
+            label: s.lightTheme,
+            mode: ThemeMode.light,
+            currentMode: currentMode,
+            onSelect: onSelect,
+          ),
+          _ThemeOption(
+            icon: Icons.phone_android_rounded,
+            label: s.systemTheme,
+            mode: ThemeMode.system,
+            currentMode: currentMode,
+            onSelect: onSelect,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _ThemeOption extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final ThemeMode mode;
+  final ThemeMode currentMode;
+  final void Function(ThemeMode) onSelect;
+
+  const _ThemeOption({
+    required this.icon,
+    required this.label,
+    required this.mode,
+    required this.currentMode,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = currentMode == mode;
+    return Expanded(
+      child: GestureDetector(
+        onTap: () => onSelect(mode),
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            color: isSelected ? AppTheme.primaryColor : Colors.transparent,
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icon,
+                size: 22,
+                color: isSelected ? Colors.black : const Color(0xFF9E9E9E),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight:
+                      isSelected ? FontWeight.w700 : FontWeight.w400,
+                  color:
+                      isSelected ? Colors.black : const Color(0xFF9E9E9E),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _LanguageSelector extends StatelessWidget {
+  final Locale currentLocale;
+  final AppStrings s;
+  final void Function(Locale) onSelect;
+
+  const _LanguageSelector({
+    required this.currentLocale,
+    required this.s,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final cardBg =
+        isDark ? AppTheme.surfaceVariantDark : AppTheme.surfaceVariantLight;
+
+    return Column(
+      children: [
+        _LanguageTile(
+          emoji: '🇧🇷',
+          label: s.portuguese,
+          locale: const Locale('pt', 'BR'),
+          currentLocale: currentLocale,
+          onSelect: onSelect,
+          cardBg: cardBg,
+        ),
+        const SizedBox(height: 8),
+        _LanguageTile(
+          emoji: '🇺🇸',
+          label: s.english,
+          locale: const Locale('en', 'US'),
+          currentLocale: currentLocale,
+          onSelect: onSelect,
+          cardBg: cardBg,
+        ),
+      ],
+    );
+  }
+}
+
+class _LanguageTile extends StatelessWidget {
+  final String emoji;
+  final String label;
+  final Locale locale;
+  final Locale currentLocale;
+  final void Function(Locale) onSelect;
+  final Color cardBg;
+
+  const _LanguageTile({
+    required this.emoji,
+    required this.label,
+    required this.locale,
+    required this.currentLocale,
+    required this.onSelect,
+    required this.cardBg,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final isSelected = currentLocale.languageCode == locale.languageCode;
+    return GestureDetector(
+      onTap: () => onSelect(locale),
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? AppTheme.primaryColor.withAlpha(25)
+              : cardBg,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color: isSelected
+                ? AppTheme.primaryColor
+                : Colors.transparent,
+            width: 1.5,
+          ),
+        ),
+        child: Row(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 24)),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Text(
+                label,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight:
+                      isSelected ? FontWeight.w700 : FontWeight.w400,
+                  color: isSelected
+                      ? AppTheme.primaryColor
+                      : null,
+                ),
+              ),
+            ),
+            if (isSelected)
+              const Icon(Icons.check_circle_rounded,
+                  color: AppTheme.primaryColor, size: 20),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final Color iconColor;
+  final String title;
+  final String? subtitle;
+  final Widget? trailing;
+  final VoidCallback? onTap;
+  final Color cardBg;
+  final Color? titleColor;
+
+  const _SettingsTile({
+    required this.icon,
+    required this.iconColor,
+    required this.title,
+    this.subtitle,
+    this.trailing,
+    this.onTap,
+    required this.cardBg,
+    this.titleColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: cardBg,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(14),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: iconColor.withAlpha(25),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, color: iconColor, size: 20),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: titleColor,
+                      ),
+                    ),
+                    if (subtitle != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle!,
+                        style: const TextStyle(
+                            fontSize: 12, color: Color(0xFF9E9E9E)),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (trailing != null) trailing!,
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
