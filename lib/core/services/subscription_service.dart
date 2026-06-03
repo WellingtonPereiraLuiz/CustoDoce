@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 
@@ -16,9 +15,9 @@ class SubscriptionService {
     await Purchases.setLogLevel(LogLevel.debug);
 
     PurchasesConfiguration? configuration;
-    if (Platform.isAndroid) {
+    if (defaultTargetPlatform == TargetPlatform.android) {
       configuration = PurchasesConfiguration(publicGoogleApiKey);
-    } else if (Platform.isIOS || Platform.isMacOS) {
+    } else if (defaultTargetPlatform == TargetPlatform.iOS || defaultTargetPlatform == TargetPlatform.macOS) {
       configuration = PurchasesConfiguration(publicAppleApiKey);
     }
 
@@ -38,7 +37,11 @@ class SubscriptionService {
   }
 
   Future<bool> checkProStatus() async {
-    if (kIsWeb) return false;
+    if (kIsWeb) {
+      // TODO: Integrate Stripe Webhooks for web subscriptions later.
+      // Temporarily allowing pro access on web to bypass native paywalls.
+      return true;
+    }
     try {
       final customerInfo = await Purchases.getCustomerInfo();
       final entitlement = customerInfo.entitlements.all[entitlementId];

@@ -9,6 +9,7 @@ class RecipeEntity {
   final double suggestedSellPrice;
   final DateTime createdAt;
   final List<RecipeIngredientEntity> ingredients;
+  final String? userId;
 
   const RecipeEntity({
     required this.id,
@@ -19,6 +20,7 @@ class RecipeEntity {
     required this.suggestedSellPrice,
     required this.createdAt,
     required this.ingredients,
+    this.userId,
   });
 
   RecipeEntity copyWith({
@@ -30,6 +32,7 @@ class RecipeEntity {
     double? suggestedSellPrice,
     DateTime? createdAt,
     List<RecipeIngredientEntity>? ingredients,
+    String? userId,
   }) {
     return RecipeEntity(
       id: id ?? this.id,
@@ -42,6 +45,7 @@ class RecipeEntity {
       suggestedSellPrice: suggestedSellPrice ?? this.suggestedSellPrice,
       createdAt: createdAt ?? this.createdAt,
       ingredients: ingredients ?? this.ingredients,
+      userId: userId ?? this.userId,
     );
   }
 

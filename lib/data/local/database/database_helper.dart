@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:sqflite_common_ffi_web/sqflite_ffi_web.dart';
 import 'package:path/path.dart';
 
 class DatabaseHelper {
@@ -13,12 +15,21 @@ class DatabaseHelper {
   }
 
   Future<Database> _initDatabase() async {
-    final dbPath = await getDatabasesPath();
-    final path = join(dbPath, 'custo_doce.db');
+    if (kIsWeb) {
+      databaseFactory = databaseFactoryFfiWeb;
+    }
+    String path;
+    if (kIsWeb) {
+      path = 'custo_doce.db';
+    } else {
+      final dbPath = await getDatabasesPath();
+      path = join(dbPath, 'custo_doce.db');
+    }
     return await openDatabase(
       path,
-      version: 1,
+      version: 2,
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade,
       onConfigure: (db) async {
         await db.execute('PRAGMA foreign_keys = ON');
       },
@@ -33,7 +44,8 @@ class DatabaseHelper {
         unit_of_measure TEXT NOT NULL,
         package_size REAL NOT NULL,
         cost_per_package REAL NOT NULL,
-        calculated_unit_cost REAL NOT NULL
+        calculated_unit_cost REAL NOT NULL,
+        user_id TEXT
       )
     ''');
 
@@ -45,7 +57,8 @@ class DatabaseHelper {
         additional_operational_cost REAL NOT NULL DEFAULT 0.0,
         total_cost REAL NOT NULL DEFAULT 0.0,
         suggested_sell_price REAL NOT NULL DEFAULT 0.0,
-        created_at INTEGER NOT NULL
+        created_at INTEGER NOT NULL,
+        user_id TEXT
       )
     ''');
 
@@ -60,6 +73,13 @@ class DatabaseHelper {
         FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE
       )
     ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('ALTER TABLE ingredients ADD COLUMN user_id TEXT');
+      await db.execute('ALTER TABLE recipes ADD COLUMN user_id TEXT');
+    }
   }
 
   Future<void> close() async {

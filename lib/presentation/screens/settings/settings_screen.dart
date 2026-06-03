@@ -8,6 +8,7 @@ import 'package:custo_doce/data/local/database/database_helper.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
+import 'package:custo_doce/core/providers/auth_provider.dart' as custo_doce_auth;
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -57,7 +58,7 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 24),
 
             // ── Account ─────────────────────────────────────────────
-            _SectionHeader(title: 'Conta', icon: Icons.person_outline_rounded),
+            const _SectionHeader(title: 'Conta', icon: Icons.person_outline_rounded),
             const SizedBox(height: 12),
             if (!isProUser)
               _SettingsTile(
@@ -99,6 +100,7 @@ class SettingsScreen extends ConsumerWidget {
                   }
                 },
                 cardBg: cardBg,
+                titleColor: Theme.of(context).colorScheme.onSurface,
               ),
             const SizedBox(height: 24),
 
@@ -106,23 +108,14 @@ class SettingsScreen extends ConsumerWidget {
             _SectionHeader(title: s.about, icon: Icons.info_outline_rounded),
             const SizedBox(height: 12),
             _SettingsTile(
-              icon: Icons.cake_rounded,
+              icon: Icons.info_outline_rounded,
               iconColor: AppTheme.primaryColor,
-              title: s.aboutApp,
-              subtitle: s.aboutDescription,
-              trailing: null,
-              onTap: null,
+              title: 'Sobre o CustoDoce',
+              subtitle: 'Versão, como usar e informações',
+              trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.primaryColor),
+              onTap: () => _showAboutDialog(context, s),
               cardBg: cardBg,
-            ),
-            const SizedBox(height: 8),
-            _SettingsTile(
-              icon: Icons.tag_rounded,
-              iconColor: const Color(0xFF9E9E9E),
-              title: s.version,
-              subtitle: '1.0.0 (build 1)',
-              trailing: null,
-              onTap: null,
-              cardBg: cardBg,
+              titleColor: Theme.of(context).colorScheme.onSurface,
             ),
             const SizedBox(height: 24),
 
@@ -134,39 +127,72 @@ class SettingsScreen extends ConsumerWidget {
               icon: Icons.delete_forever_rounded,
               iconColor: AppTheme.errorColor,
               title: s.clearAllData,
-              subtitle: s.clearAllDataConfirm,
-              trailing: const Icon(Icons.chevron_right_rounded,
-                  color: AppTheme.errorColor),
+              subtitle: 'Apagar todas as receitas e ingredientes',
+              trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.errorColor),
               onTap: () => _confirmClearData(context, ref, s),
               cardBg: cardBg,
               titleColor: AppTheme.errorColor,
             ),
             const SizedBox(height: 24),
-            TextButton(
-              onPressed: () async {
-                try {
-                  await ref.read(subscriptionNotifierProvider.notifier).restorePurchases();
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('${s.restorePurchases} - Concluído')),
-                    );
-                  }
-                } catch (e) {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Erro ao restaurar compras.')),
-                    );
-                  }
+            _SettingsTile(
+              icon: Icons.logout_rounded,
+              iconColor: AppTheme.errorColor,
+              title: 'Sair da Conta',
+              subtitle: 'Desconectar do aplicativo',
+              trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.errorColor),
+              onTap: () async {
+                final auth = ref.read(custo_doce_auth.authServiceProvider);
+                await auth.signOut();
+                if (context.mounted) {
+                  context.go('/landing');
                 }
               },
-              child: Text(
-                s.restorePurchases,
-                style: const TextStyle(color: AppTheme.primaryColor),
-              ),
+              cardBg: cardBg,
+              titleColor: AppTheme.errorColor,
             ),
             const SizedBox(height: 48),
           ],
         ),
+      ),
+    );
+  }
+
+  void _showAboutDialog(BuildContext context, AppStrings s) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            Image.asset('assets/images/CustoDoce.png', height: 40, errorBuilder: (_,__,___) => const Icon(Icons.cake)),
+            const SizedBox(width: 12),
+            const Text('CustoDoce'),
+          ],
+        ),
+        content: const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Versão 1.0.0 (build 1)', style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 16),
+              Text('O CustoDoce é a ferramenta definitiva para empreendedores da confeitaria.'),
+              SizedBox(height: 16),
+              Text('Como usar:', style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 8),
+              Text('1. Cadastre seus ingredientes na aba "Estoque" (ou tela de ingredientes), colocando o custo da embalagem fechada.'),
+              SizedBox(height: 8),
+              Text('2. Na tela de "Nova Receita", você seleciona o quanto de cada ingrediente usou. O app calcula a fração do custo perfeitamente!'),
+              SizedBox(height: 8),
+              Text('3. Use as barras de Custo Invisível e Margem de Lucro para descobrir por quanto vender seu doce.'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Fechar'),
+          ),
+        ],
       ),
     );
   }
@@ -229,16 +255,19 @@ class _SectionHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final textColor = isDark ? AppTheme.primaryColor : Theme.of(context).colorScheme.onSurface;
+
     return Row(
       children: [
-        Icon(icon, color: AppTheme.primaryColor, size: 18),
+        Icon(icon, color: isDark ? AppTheme.primaryColor : Theme.of(context).colorScheme.onSurface, size: 18),
         const SizedBox(width: 8),
         Text(
           title,
-          style: const TextStyle(
+          style: TextStyle(
             fontSize: 13,
-            fontWeight: FontWeight.w700,
-            color: AppTheme.primaryColor,
+            fontWeight: FontWeight.w800,
+            color: textColor,
             letterSpacing: 0.8,
           ),
         ),
@@ -520,8 +549,8 @@ class _SettingsTile extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle!,
-                        style: const TextStyle(
-                            fontSize: 12, color: Color(0xFF9E9E9E)),
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7)),
                       ),
                     ],
                   ],

@@ -7,6 +7,7 @@ class IngredientEntity {
   final double packageSize;
   final double costPerPackage;
   final double calculatedUnitCost;
+  final String? userId;
 
   const IngredientEntity({
     required this.id,
@@ -15,6 +16,7 @@ class IngredientEntity {
     required this.packageSize,
     required this.costPerPackage,
     required this.calculatedUnitCost,
+    this.userId,
   });
 
   IngredientEntity copyWith({
@@ -24,6 +26,7 @@ class IngredientEntity {
     double? packageSize,
     double? costPerPackage,
     double? calculatedUnitCost,
+    String? userId,
   }) {
     return IngredientEntity(
       id: id ?? this.id,
@@ -32,6 +35,7 @@ class IngredientEntity {
       packageSize: packageSize ?? this.packageSize,
       costPerPackage: costPerPackage ?? this.costPerPackage,
       calculatedUnitCost: calculatedUnitCost ?? this.calculatedUnitCost,
+      userId: userId ?? this.userId,
     );
   }
 

@@ -8,6 +8,7 @@ class IngredientModel {
   final double packageSize;
   final double costPerPackage;
   final double calculatedUnitCost;
+  final String? userId;
 
   const IngredientModel({
     required this.id,
@@ -16,6 +17,7 @@ class IngredientModel {
     required this.packageSize,
     required this.costPerPackage,
     required this.calculatedUnitCost,
+    this.userId,
   });
 
   factory IngredientModel.fromMap(Map<String, dynamic> map) {
@@ -26,6 +28,7 @@ class IngredientModel {
       packageSize: (map['package_size'] as num).toDouble(),
       costPerPackage: (map['cost_per_package'] as num).toDouble(),
       calculatedUnitCost: (map['calculated_unit_cost'] as num).toDouble(),
+      userId: map['user_id'] as String?,
     );
   }
 
@@ -37,6 +40,7 @@ class IngredientModel {
       packageSize: entity.packageSize,
       costPerPackage: entity.costPerPackage,
       calculatedUnitCost: entity.calculatedUnitCost,
+      userId: entity.userId,
     );
   }
 
@@ -48,6 +52,7 @@ class IngredientModel {
       'package_size': packageSize,
       'cost_per_package': costPerPackage,
       'calculated_unit_cost': calculatedUnitCost,
+      'user_id': userId,
     };
   }
 
@@ -59,6 +64,7 @@ class IngredientModel {
       packageSize: packageSize,
       costPerPackage: costPerPackage,
       calculatedUnitCost: calculatedUnitCost,
+      userId: userId,
     );
   }
 }

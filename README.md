@@ -1,60 +1,56 @@
-# 🍰 CustoDoce
+# CustoDoce 🍰
 
-![CustoDoce Logo](assets/images/logo.png)
+**CustoDoce** é o aplicativo definitivo para confeiteiros e empreendedores gastronômicos precificarem suas receitas de forma rápida, inteligente e profissional.
 
-CustoDoce é a calculadora definitiva de custos de receitas e precificação de produtos para confeiteiros, padeiros e empreendedores da culinária. Desenvolvido para transformar o processo exaustivo de calcular custos e lucros em uma experiência ágil, automatizada e visualmente incrível.
+Não perca mais tempo calculando grama por grama no papel. O CustoDoce faz tudo por você: desde o controle do seu estoque de ingredientes até a definição da sua margem de lucro perfeita.
 
----
+## 🚀 Funcionalidades
 
-## 🎯 Inspiração e Motivos
+- **Autenticação Real:** Login nativo com E-mail/Senha e Google Sign-In (Firebase Auth).
+- **Gestão de Ingredientes:** Cadastre os ingredientes com base no valor da embalagem fechada. O aplicativo calcula automaticamente a fração exata usada em cada receita.
+- **Calculadora Automática de Custos:** Construa receitas arrastando ingredientes. Descubra o custo exato de produção.
+- **Precificação e Margem de Lucro:** Defina sua taxa de desperdício (custo invisível) e sua margem de lucro desejada. O aplicativo te diz exatamente por quanto vender.
+- **Temas Dinâmicos:** Um belíssimo **Modo Escuro** premium (Chocolate/Espresso) e um **Modo Claro** refinado.
+- **Banco de Dados Local:** Alta velocidade com armazenamento offline usando SQLite (Persistência garantida na base de dados).
 
-A precificação correta é um dos maiores desafios na gastronomia. Muitos empreendedores perdem dinheiro por não calcularem custos ocultos (como gás, energia elétrica e embalagens) ou por terem dificuldade em ratear ingredientes de pacotes grandes para gramas/mililitros utilizados na receita.
+## 🛠️ Tecnologias Utilizadas
 
-**O CustoDoce nasceu para resolver esse problema:**
-- **Automatizando:** Você cadastra um pacote de farinha de 1kg por R$ 5,00, e ao usar 250g, o app já calcula o custo exato.
-- **Maximizando Lucros:** Sugere preços de venda baseados em margens de lucro reais e custos operacionais adicionais.
-- **Offline First:** Cozinhas e estoques muitas vezes não têm bom sinal de internet. O aplicativo funciona primariamente offline com banco de dados local.
+- **[Flutter](https://flutter.dev/):** Framework para desenvolvimento Multiplataforma.
+- **[Riverpod](https://riverpod.dev/):** Gerenciamento de estado reativo e robusto.
+- **[Firebase Authentication](https://firebase.google.com/docs/auth):** Backend de Autenticação para Google Sign-In e Contas de E-mail.
+- **[Sqflite](https://pub.dev/packages/sqflite):** Banco de dados SQLite para cache de receitas e ingredientes.
+- **[GoRouter](https://pub.dev/packages/go_router):** Navegação fluida e declarativa por rotas.
 
-## 🚀 Detalhes e Funcionalidades
+## 📦 Como Rodar o Projeto
 
-- **Gerenciamento de Ingredientes:** Cadastre insumos, tamanhos de pacote, preço pago e deixe o cálculo do custo unitário por nossa conta.
-- **Construtor de Receitas:** Adicione ingredientes à receita dinamicamente e veja o custo subindo em tempo real.
-- **Precificação Inteligente:** Adicione margem de lucro (%) e custos operacionais. Obtenha instantaneamente o custo total e o preço sugerido de venda.
-- **Modo Escuro / Claro:** Um design premium que se adapta ao seu sistema, com microinterações focadas em conversão e conforto visual.
-- **Modelo Freemium (Pro):** Usuários gratuitos podem cadastrar até 3 receitas. Usuários que assinarem o "CustoDoce Pro" possuem receitas ilimitadas.
+### Pré-requisitos
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) (versão >= 3.3.0)
+- Um projeto configurado no [Firebase Console](https://console.firebase.google.com/)
 
-## 🏗 Estrutura e Fluxo de Criação (Arquitetura)
+### Passos para instalação
 
-O aplicativo foi construído em **Flutter** usando **Clean Architecture** e **Riverpod** para o gerenciamento de estado:
+1. Clone este repositório:
+   ```bash
+   git clone https://github.com/SEU_USUARIO/custo_doce.git
+   ```
 
-```text
-lib/
-├── core/            # Constantes, Temas (Dark/Light), Tratamento de Erros, Serviços (RevenueCat), Router.
-├── data/            # Banco de Dados local (SQLite) e implementações de Data Sources/Models.
-├── domain/          # Entidades limpas e Interfaces de Repositório (Regras de negócio isoladas).
-└── presentation/    # Telas, Widgets visuais e Providers (Riverpod) para injetar os casos de uso na UI.
-```
+2. Entre no diretório do projeto:
+   ```bash
+   cd custo_doce
+   ```
 
-O fluxo de criação garantiu que toda a camada de banco de dados (`sqflite` com `PRAGMA foreign_keys = ON`) estivesse pronta antes de qualquer tela ser construída. A comunicação com RevenueCat (`purchases_ui_flutter`) foi isolada na camada de serviço para não acoplar a UI.
+3. Instale as dependências:
+   ```bash
+   flutter pub get
+   ```
 
-## 📦 Downloads (APK e iOS)
+4. *Opcional: Configure suas chaves do Firebase* 
+   Se quiser compilar as versões finais de Android/iOS, certifique-se de baixar os arquivos `google-services.json` e `GoogleService-Info.plist` no Firebase Console ou rode o `flutterfire configure`.
 
-### Android (APK)
-O APK final de produção (Release) para Android é gerado diretamente na pasta de builds do projeto. Após rodar a build, você pode encontrá-lo neste caminho no seu computador:
-👉 `build/app/outputs/flutter-apk/app-release.apk`
+5. Inicie a aplicação (exemplo na web):
+   ```bash
+   flutter run -d chrome
+   ```
 
-### iOS (IPA)
-*Nota:* Aplicativos iOS não utilizam APK, mas sim arquivos IPA. Para construir o aplicativo para iOS, é necessário abrir o projeto no Xcode utilizando um computador macOS (`flutter build ipa`).
-
----
-
-## 🛠 Tecnologias Utilizadas
-
-- **Flutter & Dart:** Base de desenvolvimento multiplataforma.
-- **Riverpod:** Gerenciamento de estado reativo e injeção de dependência.
-- **GoRouter:** Navegação baseada em URLs, pronta para web e deep links.
-- **Sqflite:** Banco de dados relacional (SQL) embarcado e rápido.
-- **RevenueCat:** Gestão de infraestrutura de pagamentos in-app e assinaturas nativas.
-
----
-Feito com dedicação para empoderar negócios locais. 👩‍🍳👨‍🍳
+## 🧑‍🍳 Ficha Técnica
+Criado com foco em resolver a principal dor dos confeiteiros: entender onde o dinheiro está indo e garantir que cada doce vendido gere lucro de verdade.

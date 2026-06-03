@@ -10,6 +10,7 @@ class RecipeModel {
   final double suggestedSellPrice;
   final int createdAtMs;
   final List<RecipeIngredientEntity> ingredients;
+  final String? userId;
 
   const RecipeModel({
     required this.id,
@@ -20,6 +21,7 @@ class RecipeModel {
     required this.suggestedSellPrice,
     required this.createdAtMs,
     required this.ingredients,
+    this.userId,
   });
 
   factory RecipeModel.fromMap(
@@ -36,6 +38,7 @@ class RecipeModel {
       totalCost: (map['total_cost'] as num).toDouble(),
       suggestedSellPrice: (map['suggested_sell_price'] as num).toDouble(),
       createdAtMs: map['created_at'] as int,
+      userId: map['user_id'] as String?,
       ingredients: ingredients,
     );
   }
@@ -49,6 +52,7 @@ class RecipeModel {
       totalCost: entity.totalCost,
       suggestedSellPrice: entity.suggestedSellPrice,
       createdAtMs: entity.createdAt.millisecondsSinceEpoch,
+      userId: entity.userId,
       ingredients: entity.ingredients,
     );
   }
@@ -62,6 +66,7 @@ class RecipeModel {
       'total_cost': totalCost,
       'suggested_sell_price': suggestedSellPrice,
       'created_at': createdAtMs,
+      'user_id': userId,
     };
   }
 
@@ -74,6 +79,7 @@ class RecipeModel {
       totalCost: totalCost,
       suggestedSellPrice: suggestedSellPrice,
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdAtMs),
+      userId: userId,
       ingredients: ingredients,
     );
   }

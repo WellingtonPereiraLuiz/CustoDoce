@@ -7,9 +7,17 @@ import 'package:custo_doce/core/router/app_router.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/data/local/database/database_helper.dart';
 import 'package:custo_doce/core/services/subscription_service.dart';
+import 'package:custo_doce/core/utils/seeder.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:custo_doce/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   // Lock orientation to portrait
   await SystemChrome.setPreferredOrientations([
@@ -32,6 +40,9 @@ Future<void> main() async {
 
   // Initialize RevenueCat (placeholder - replace with real API key)
   await _initializeRevenueCat();
+
+  // Seed database with fake data
+  await seedDatabase();
 
   runApp(
     const ProviderScope(

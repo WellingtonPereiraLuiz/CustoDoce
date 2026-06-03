@@ -147,7 +147,7 @@ class _IngredientCard extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.12),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: const Icon(Icons.kitchen_rounded,
@@ -407,10 +407,10 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withOpacity(0.08),
+                color: AppTheme.primaryColor.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: AppTheme.primaryColor.withOpacity(0.2)),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [

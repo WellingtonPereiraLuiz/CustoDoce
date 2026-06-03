@@ -3,24 +3,24 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Shared brand colors
-  static const Color primaryColor = Color(0xFFE8A020);
-  static const Color primaryDark = Color(0xFFC47C0A);
+  static const Color primaryColor = Color(0xFFC5A059); // Premium Soft Gold (Professional)
+  static const Color primaryDark = Color(0xFF9E8046);
   static const Color errorColor = Color(0xFFCF6679);
   static const Color successColor = Color(0xFF4CAF82);
 
-  // Dark theme colors
-  static const Color backgroundDark = Color(0xFF121212);
-  static const Color surfaceDark = Color(0xFF1E1E1E);
-  static const Color surfaceVariantDark = Color(0xFF2A2A2A);
-  static const Color onSurfaceDark = Color(0xFFE8E0D5);
-  static const Color cardGradientStart = Color(0xFF2A2218);
-  static const Color cardGradientEnd = Color(0xFF1E1E1E);
+  // Dark theme colors (Lighter, warmer dark mode - Chocolate/Espresso vibe)
+  static const Color backgroundDark = Color(0xFF1E1A18);
+  static const Color surfaceDark = Color(0xFF282320);
+  static const Color surfaceVariantDark = Color(0xFF352E2B);
+  static const Color onSurfaceDark = Color(0xFFF2EAE1);
+  static const Color cardGradientStart = Color(0xFF352E2B);
+  static const Color cardGradientEnd = Color(0xFF282320);
 
-  // Light theme colors
-  static const Color backgroundLight = Color(0xFFF7F3EE);
-  static const Color surfaceLight = Color(0xFFFFFFFF);
-  static const Color surfaceVariantLight = Color(0xFFF0EBE3);
-  static const Color onSurfaceLight = Color(0xFF1A1512);
+  // Light theme colors (Better contrast)
+  static const Color backgroundLight = Color(0xFFEBE5DB); // Darker beige background
+  static const Color surfaceLight = Color(0xFFFFFFFF); // Pure white cards
+  static const Color surfaceVariantLight = Color(0xFFF5F0E6);
+  static const Color onSurfaceLight = Color(0xFF2C2420); // Darker brown/black for text
 
   static ThemeData get darkTheme {
     final base = ThemeData.dark(useMaterial3: true);
@@ -34,13 +34,13 @@ class AppTheme {
         onSecondary: Colors.black,
         onSurface: onSurfaceDark,
       ),
-      scaffoldBackgroundColor: backgroundDark,
+      scaffoldBackgroundColor: Colors.black,
       textTheme: GoogleFonts.outfitTextTheme(base.textTheme).apply(
         bodyColor: onSurfaceDark,
         displayColor: onSurfaceDark,
       ),
       appBarTheme: AppBarTheme(
-        backgroundColor: backgroundDark,
+        backgroundColor: Colors.black,
         foregroundColor: onSurfaceDark,
         elevation: 0,
         centerTitle: false,
@@ -127,10 +127,12 @@ class AppTheme {
         ),
       ),
       cardTheme: CardThemeData(
-        color: surfaceVariantLight,
-        elevation: 0,
+        color: surfaceLight,
+        elevation: 2,
+        shadowColor: Colors.black.withValues(alpha: 0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
+          side: const BorderSide(color: Color(0xFFE2DCD3), width: 1),
         ),
       ),
       floatingActionButtonTheme: const FloatingActionButtonThemeData(
@@ -149,8 +151,8 @@ class AppTheme {
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: primaryColor, width: 2),
         ),
-        labelStyle: TextStyle(color: onSurfaceLight.withAlpha(150)),
-        hintStyle: TextStyle(color: onSurfaceLight.withAlpha(100)),
+        labelStyle: TextStyle(color: onSurfaceLight.withValues(alpha: 0.6)),
+        hintStyle: TextStyle(color: onSurfaceLight.withValues(alpha: 0.4)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
