@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
+import 'package:custo_doce/core/enums/recipe_category.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
 import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
 import 'package:custo_doce/presentation/providers/recipe_builder_provider.dart';
@@ -22,6 +24,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameCtrl = TextEditingController();
   final _qtyCtrl = TextEditingController();
+  final _yieldCtrl = TextEditingController(text: '1');
   final _fixedCostCtrl = TextEditingController(text: '0');
   
   IngredientEntity? _selectedIngredient;
@@ -46,6 +49,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
     if (recipe != null) {
       ref.read(recipeBuilderProvider.notifier).loadRecipeForEdit(recipe);
       _nameCtrl.text = recipe.name;
+      _yieldCtrl.text = recipe.yieldQuantity.toString();
       _fixedCostCtrl.text = recipe.additionalOperationalCost.toString();
     }
   }
@@ -54,6 +58,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
   void dispose() {
     _nameCtrl.dispose();
     _qtyCtrl.dispose();
+    _yieldCtrl.dispose();
     _fixedCostCtrl.dispose();
     super.dispose();
   }
@@ -107,6 +112,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
     if (success) {
       ref.read(recipeBuilderProvider.notifier).reset();
       context.pop();
+    } else {
+      context.push('/paywall');
     }
   }
 
@@ -145,6 +152,34 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   onChanged: notifier.setName,
                   validator: (v) => (v == null || v.trim().isEmpty) ? 'Informe o nome' : null,
                 ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      flex: 2,
+                      child: DropdownButtonFormField<RecipeCategory>(
+                        value: state.category,
+                        decoration: const InputDecoration(labelText: 'Categoria'),
+                        items: RecipeCategory.values.map((c) => DropdownMenuItem(value: c, child: Text(c.label))).toList(),
+                        onChanged: (v) {
+                          if (v != null) notifier.setCategory(v);
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      flex: 1,
+                      child: TextFormField(
+                        controller: _yieldCtrl,
+                        decoration: const InputDecoration(labelText: 'Rendimento'),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        onChanged: (v) => notifier.setYieldQuantity(int.tryParse(v) ?? 1),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
                 const SizedBox(height: 24),
 
                 // Ingredients
@@ -155,9 +190,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                     Expanded(
                       flex: 3,
                       child: DropdownButtonFormField<IngredientEntity>(
-                        initialValue: _selectedIngredient,
+                        value: _selectedIngredient,
                         decoration: const InputDecoration(labelText: 'Selecionar'),
-                        dropdownColor: AppTheme.surfaceVariantDark,
                         isExpanded: true,
                         items: ingredients.map((i) => DropdownMenuItem(value: i, child: Text(i.name, overflow: TextOverflow.ellipsis))).toList(),
                         onChanged: (v) => setState(() => _selectedIngredient = v),
@@ -182,15 +216,27 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                ...state.ingredients.map((ri) => ListTile(
-                      contentPadding: EdgeInsets.zero,
-                      title: Text('${ri.ingredientName} (${ri.quantityUsed} ${ri.ingredientUnit})'),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
+                ...state.ingredients.map((ri) => Slidable(
+                      key: ValueKey(ri.ingredientId),
+                      endActionPane: ActionPane(
+                        motion: const DrawerMotion(),
                         children: [
-                          Text(_currencyFormat.format(ri.calculatedIngredientCost), style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
-                          IconButton(icon: const Icon(Icons.close, color: AppTheme.errorColor), onPressed: () => notifier.removeIngredient(ri.ingredientId)),
+                          SlidableAction(
+                            onPressed: (_) => notifier.removeIngredient(ri.ingredientId),
+                            backgroundColor: AppTheme.errorColor,
+                            foregroundColor: Colors.white,
+                            icon: Icons.delete_outline,
+                            label: 'Apagar',
+                          ),
                         ],
+                      ),
+                      child: ListTile(
+                        contentPadding: EdgeInsets.zero,
+                        title: Text('${ri.ingredientName} (${ri.quantityUsed} ${ri.ingredientUnit})'),
+                        trailing: Text(
+                          _currencyFormat.format(ri.calculatedIngredientCost), 
+                          style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)
+                        ),
                       ),
                     )),
                 const SizedBox(height: 24),

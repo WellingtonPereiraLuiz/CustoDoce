@@ -11,7 +11,7 @@ class AppSettings {
   final Locale locale;
 
   const AppSettings({
-    this.themeMode = ThemeMode.dark,
+    this.themeMode = ThemeMode.light,
     this.locale = const Locale('pt', 'BR'),
   });
 
@@ -29,7 +29,7 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
   @override
   Future<AppSettings> build() async {
     _prefs = await SharedPreferences.getInstance();
-    final themeIndex = _prefs.getInt(_kThemeModeKey) ?? 0; // 0=dark, 1=light, 2=system
+    final themeIndex = _prefs.getInt(_kThemeModeKey) ?? 1; // 0=dark, 1=light, 2=system
     final localeStr = _prefs.getString(_kLocaleKey) ?? 'pt_BR';
     return AppSettings(
       themeMode: _themeModeFromIndex(themeIndex),

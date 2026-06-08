@@ -1,7 +1,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
@@ -21,29 +21,29 @@ class DefaultFirebaseOptions {
   }
 
   static FirebaseOptions get web => FirebaseOptions(
-    apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
-    appId: dotenv.env['FIREBASE_APP_ID_WEB'] ?? '',
-    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
-    projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
-    authDomain: dotenv.env['FIREBASE_AUTH_DOMAIN'] ?? '',
-    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? '',
-    measurementId: dotenv.env['FIREBASE_MEASUREMENT_ID'],
+    apiKey: const String.fromEnvironment('FIREBASE_API_KEY', defaultValue: ''),
+    appId: const String.fromEnvironment('FIREBASE_APP_ID_WEB', defaultValue: ''),
+    messagingSenderId: const String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID', defaultValue: ''),
+    projectId: const String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: ''),
+    authDomain: const String.fromEnvironment('FIREBASE_AUTH_DOMAIN', defaultValue: ''),
+    storageBucket: const String.fromEnvironment('FIREBASE_STORAGE_BUCKET', defaultValue: ''),
+    measurementId: const String.fromEnvironment('FIREBASE_MEASUREMENT_ID'),
   );
 
   static FirebaseOptions get android => FirebaseOptions(
-    apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
-    appId: dotenv.env['FIREBASE_APP_ID_ANDROID'] ?? '',
-    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
-    projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
-    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? '',
+    apiKey: const String.fromEnvironment('FIREBASE_API_KEY', defaultValue: ''),
+    appId: const String.fromEnvironment('FIREBASE_APP_ID_ANDROID', defaultValue: ''),
+    messagingSenderId: const String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID', defaultValue: ''),
+    projectId: const String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: ''),
+    storageBucket: const String.fromEnvironment('FIREBASE_STORAGE_BUCKET', defaultValue: ''),
   );
 
   static FirebaseOptions get ios => FirebaseOptions(
-    apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
-    appId: dotenv.env['FIREBASE_APP_ID_IOS'] ?? '',
-    messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
-    projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
-    storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? '',
+    apiKey: const String.fromEnvironment('FIREBASE_API_KEY', defaultValue: ''),
+    appId: const String.fromEnvironment('FIREBASE_APP_ID_IOS', defaultValue: ''),
+    messagingSenderId: const String.fromEnvironment('FIREBASE_MESSAGING_SENDER_ID', defaultValue: ''),
+    projectId: const String.fromEnvironment('FIREBASE_PROJECT_ID', defaultValue: ''),
+    storageBucket: const String.fromEnvironment('FIREBASE_STORAGE_BUCKET', defaultValue: ''),
     iosBundleId: 'com.custodoce.app',
   );
 }

@@ -3,8 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
   // Shared brand colors
-  static const Color primaryColor = Color(0xFFC5A059); // Premium Soft Gold (Professional)
-  static const Color primaryDark = Color(0xFF9E8046);
+  static const Color primaryColor = Color(0xFF4E342E);
+  static const Color primaryDark = Color(0xFF361F1A);
   static const Color errorColor = Color(0xFFCF6679);
   static const Color successColor = Color(0xFF4CAF82);
 
@@ -17,8 +17,8 @@ class AppTheme {
   static const Color cardGradientEnd = Color(0xFF282320);
 
   // Light theme colors (Better contrast)
-  static const Color backgroundLight = Color(0xFFEBE5DB); // Darker beige background
-  static const Color surfaceLight = Color(0xFFFFFFFF); // Pure white cards
+  static const Color backgroundLight = Color(0xFFFFF8F6);
+  static const Color surfaceLight = Color(0xFFFFFFFF);
   static const Color surfaceVariantLight = Color(0xFFF5F0E6);
   static const Color onSurfaceLight = Color(0xFF2C2420); // Darker brown/black for text
 
@@ -35,20 +35,24 @@ class AppTheme {
         onSurface: onSurfaceDark,
       ),
       scaffoldBackgroundColor: Colors.black,
-      textTheme: GoogleFonts.outfitTextTheme(base.textTheme).apply(
-        bodyColor: onSurfaceDark,
-        displayColor: onSurfaceDark,
+      textTheme: TextTheme(
+        headlineLarge: GoogleFonts.sourceSerif4(fontWeight: FontWeight.w600, color: onSurfaceDark),
+        headlineMedium: GoogleFonts.sourceSerif4(fontWeight: FontWeight.w600, color: onSurfaceDark),
+        titleLarge: GoogleFonts.sourceSerif4(color: onSurfaceDark),
+        bodyLarge: GoogleFonts.workSans(color: onSurfaceDark),
+        bodyMedium: GoogleFonts.workSans(color: onSurfaceDark),
+        labelLarge: GoogleFonts.workSans(fontWeight: FontWeight.w500, color: onSurfaceDark),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.black,
         foregroundColor: onSurfaceDark,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.outfit(
-          fontSize: 22,
-          fontWeight: FontWeight.w700,
-          color: onSurfaceDark,
-        ),
+          titleTextStyle: GoogleFonts.sourceSerif4(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: onSurfaceDark,
+          ),
       ),
       cardTheme: CardThemeData(
         color: surfaceVariantDark,
@@ -84,7 +88,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.outfit(
+          textStyle: GoogleFonts.workSans(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -111,16 +115,20 @@ class AppTheme {
         onSurface: onSurfaceLight,
       ),
       scaffoldBackgroundColor: backgroundLight,
-      textTheme: GoogleFonts.outfitTextTheme(base.textTheme).apply(
-        bodyColor: onSurfaceLight,
-        displayColor: onSurfaceLight,
+      textTheme: TextTheme(
+        headlineLarge: GoogleFonts.sourceSerif4(fontWeight: FontWeight.w600, color: onSurfaceLight),
+        headlineMedium: GoogleFonts.sourceSerif4(fontWeight: FontWeight.w600, color: onSurfaceLight),
+        titleLarge: GoogleFonts.sourceSerif4(color: onSurfaceLight),
+        bodyLarge: GoogleFonts.workSans(color: onSurfaceLight),
+        bodyMedium: GoogleFonts.workSans(color: onSurfaceLight),
+        labelLarge: GoogleFonts.workSans(fontWeight: FontWeight.w500, color: onSurfaceLight),
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: backgroundLight,
         foregroundColor: onSurfaceLight,
         elevation: 0,
         centerTitle: false,
-        titleTextStyle: GoogleFonts.outfit(
+        titleTextStyle: GoogleFonts.sourceSerif4(
           fontSize: 22,
           fontWeight: FontWeight.w700,
           color: onSurfaceLight,
@@ -162,7 +170,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
-          textStyle: GoogleFonts.outfit(
+          textStyle: GoogleFonts.workSans(
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),

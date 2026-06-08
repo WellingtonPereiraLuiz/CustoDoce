@@ -11,7 +11,7 @@ enum UnitOfMeasure {
   static UnitOfMeasure fromString(String value) {
     return UnitOfMeasure.values.firstWhere(
       (e) => e.label == value,
-      orElse: () => throw ArgumentError('Invalid unit: $value'),
+      orElse: () => UnitOfMeasure.unidade,
     );
   }
 }

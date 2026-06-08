@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:custo_doce/core/constants/app_constants.dart';
 import 'package:custo_doce/presentation/screens/home/home_screen.dart';
+import 'package:custo_doce/presentation/screens/recipe/recipe_detail_screen.dart';
 import 'package:custo_doce/presentation/screens/ingredient_manager/ingredient_manager_screen.dart';
 import 'package:custo_doce/presentation/screens/recipe_builder/recipe_builder_screen.dart';
 import 'package:custo_doce/presentation/screens/paywall/paywall_screen.dart';
@@ -37,6 +38,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) {
           final recipeId = state.pathParameters['id']!;
           return RecipeBuilderScreen(editRecipeId: recipeId);
+        },
+      ),
+      GoRoute(
+        path: '/recipe/:id',
+        name: 'recipe-detail',
+        builder: (context, state) {
+          final recipeId = state.pathParameters['id']!;
+          return RecipeDetailScreen(recipeId: recipeId);
         },
       ),
       GoRoute(

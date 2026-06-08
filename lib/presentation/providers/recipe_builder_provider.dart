@@ -2,12 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:custo_doce/core/utils/uuid_generator.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
 import 'package:custo_doce/domain/entities/recipe_entity.dart';
+import 'package:custo_doce/core/enums/recipe_category.dart';
 import 'package:custo_doce/domain/entities/recipe_ingredient_entity.dart';
 
 class RecipeBuilderState {
   final String? editingRecipeId;
   final String name;
   final List<RecipeIngredientEntity> ingredients;
+  final int yieldQuantity;
+  final RecipeCategory category;
   
   // Costs
   final double fixedOperationalCost;
@@ -30,6 +33,8 @@ class RecipeBuilderState {
     this.editingRecipeId,
     this.name = '',
     this.ingredients = const [],
+    this.yieldQuantity = 1,
+    this.category = RecipeCategory.outro,
     this.fixedOperationalCost = 0.0,
     this.invisibleCostPercentage = 20.0,
     this.useInvisibleCost = true,
@@ -73,6 +78,8 @@ class RecipeBuilderState {
     String? editingRecipeId,
     String? name,
     List<RecipeIngredientEntity>? ingredients,
+    int? yieldQuantity,
+    RecipeCategory? category,
     double? fixedOperationalCost,
     double? invisibleCostPercentage,
     bool? useInvisibleCost,
@@ -88,6 +95,8 @@ class RecipeBuilderState {
       editingRecipeId: editingRecipeId ?? this.editingRecipeId,
       name: name ?? this.name,
       ingredients: ingredients ?? this.ingredients,
+      yieldQuantity: yieldQuantity ?? this.yieldQuantity,
+      category: category ?? this.category,
       fixedOperationalCost: fixedOperationalCost ?? this.fixedOperationalCost,
       invisibleCostPercentage: invisibleCostPercentage ?? this.invisibleCostPercentage,
       useInvisibleCost: useInvisibleCost ?? this.useInvisibleCost,
@@ -107,6 +116,8 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
   RecipeBuilderState build() => const RecipeBuilderState();
 
   void setName(String name) => state = state.copyWith(name: name);
+  void setYieldQuantity(int yieldQuantity) => state = state.copyWith(yieldQuantity: yieldQuantity);
+  void setCategory(RecipeCategory category) => state = state.copyWith(category: category);
   void setFixedCost(double cost) => state = state.copyWith(fixedOperationalCost: cost);
   void setInvisibleCostPercentage(double pct) => state = state.copyWith(invisibleCostPercentage: pct);
   void toggleInvisibleCost(bool val) => state = state.copyWith(useInvisibleCost: val);
@@ -147,12 +158,15 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
     state = RecipeBuilderState(
       editingRecipeId: recipe.id,
       name: recipe.name,
-      profitMarginPercentage: recipe.profitMarginPercentage,
+      yieldQuantity: recipe.yieldQuantity,
+      category: recipe.category,
       fixedOperationalCost: recipe.additionalOperationalCost,
       ingredients: recipe.ingredients,
-      useInvisibleCost: false, // Legacy recipes don't have toggles saved
-      useMarkup: false,
-      useInvestment: false,
+      useInvisibleCost: recipe.additionalOperationalCost > 0,
+      useMarkup: recipe.profitMarginPercentage >= 100.0,
+      markupMultiplier: recipe.profitMarginPercentage >= 100.0 ? (recipe.profitMarginPercentage / 100.0) + 1.0 : 3.0,
+      profitMarginPercentage: recipe.profitMarginPercentage < 100.0 ? recipe.profitMarginPercentage : 50.0,
+      useInvestment: false, // Cannot be derived, defaults to false
     );
   }
 
@@ -163,6 +177,8 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
     return RecipeEntity(
       id: id,
       name: state.name,
+      yieldQuantity: state.yieldQuantity,
+      category: state.category,
       profitMarginPercentage: state.effectiveMargin,
       additionalOperationalCost: state.fixedOperationalCost + state.invisibleCost,
       totalCost: state.totalCost,

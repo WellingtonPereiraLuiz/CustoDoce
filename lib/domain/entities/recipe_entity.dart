@@ -1,3 +1,4 @@
+import 'package:custo_doce/core/enums/recipe_category.dart';
 import 'recipe_ingredient_entity.dart';
 
 class RecipeEntity {
@@ -10,6 +11,8 @@ class RecipeEntity {
   final DateTime createdAt;
   final List<RecipeIngredientEntity> ingredients;
   final String? userId;
+  final int yieldQuantity;
+  final RecipeCategory category;
 
   const RecipeEntity({
     required this.id,
@@ -21,6 +24,8 @@ class RecipeEntity {
     required this.createdAt,
     required this.ingredients,
     this.userId,
+    this.yieldQuantity = 1,
+    this.category = RecipeCategory.outro,
   });
 
   RecipeEntity copyWith({
@@ -33,6 +38,8 @@ class RecipeEntity {
     DateTime? createdAt,
     List<RecipeIngredientEntity>? ingredients,
     String? userId,
+    int? yieldQuantity,
+    RecipeCategory? category,
   }) {
     return RecipeEntity(
       id: id ?? this.id,
@@ -46,6 +53,8 @@ class RecipeEntity {
       createdAt: createdAt ?? this.createdAt,
       ingredients: ingredients ?? this.ingredients,
       userId: userId ?? this.userId,
+      yieldQuantity: yieldQuantity ?? this.yieldQuantity,
+      category: category ?? this.category,
     );
   }
 

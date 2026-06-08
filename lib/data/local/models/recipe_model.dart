@@ -1,3 +1,4 @@
+import 'package:custo_doce/core/enums/recipe_category.dart';
 import 'package:custo_doce/domain/entities/recipe_entity.dart';
 import 'package:custo_doce/domain/entities/recipe_ingredient_entity.dart';
 
@@ -11,6 +12,8 @@ class RecipeModel {
   final int createdAtMs;
   final List<RecipeIngredientEntity> ingredients;
   final String? userId;
+  final int yieldQuantity;
+  final RecipeCategory category;
 
   const RecipeModel({
     required this.id,
@@ -22,6 +25,8 @@ class RecipeModel {
     required this.createdAtMs,
     required this.ingredients,
     this.userId,
+    this.yieldQuantity = 1,
+    this.category = RecipeCategory.outro,
   });
 
   factory RecipeModel.fromMap(
@@ -39,6 +44,8 @@ class RecipeModel {
       suggestedSellPrice: (map['suggested_sell_price'] as num).toDouble(),
       createdAtMs: map['created_at'] as int,
       userId: map['user_id'] as String?,
+      yieldQuantity: map['yield_quantity'] as int? ?? 1,
+      category: RecipeCategory.fromString(map['category'] as String? ?? 'outro'),
       ingredients: ingredients,
     );
   }
@@ -53,6 +60,8 @@ class RecipeModel {
       suggestedSellPrice: entity.suggestedSellPrice,
       createdAtMs: entity.createdAt.millisecondsSinceEpoch,
       userId: entity.userId,
+      yieldQuantity: entity.yieldQuantity,
+      category: entity.category,
       ingredients: entity.ingredients,
     );
   }
@@ -67,6 +76,8 @@ class RecipeModel {
       'suggested_sell_price': suggestedSellPrice,
       'created_at': createdAtMs,
       'user_id': userId,
+      'yield_quantity': yieldQuantity,
+      'category': category.name,
     };
   }
 
@@ -80,6 +91,8 @@ class RecipeModel {
       suggestedSellPrice: suggestedSellPrice,
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdAtMs),
       userId: userId,
+      yieldQuantity: yieldQuantity,
+      category: category,
       ingredients: ingredients,
     );
   }

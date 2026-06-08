@@ -10,6 +10,7 @@ import 'package:intl/intl.dart';
 
 import 'package:custo_doce/core/providers/auth_provider.dart';
 import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
+import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -85,7 +86,7 @@ class HomeScreen extends ConsumerWidget {
                 _buildPaywallBanner(context),
               ],
               const SizedBox(height: 24),
-              _buildQuickActions(context),
+              _buildQuickActions(context, isPro, recipesAsync.valueOrNull?.length ?? 0),
               const SizedBox(height: 32),
               Text(
                 'Receitas Recentes',
@@ -94,7 +95,10 @@ class HomeScreen extends ConsumerWidget {
                     ),
               ),
               const SizedBox(height: 16),
-              _buildRecentRecipes(context, ref, recipesAsync, currencyFormat),
+              _RecentRecipesSection(
+                recipesAsync: recipesAsync,
+                currencyFormat: currencyFormat,
+              ),
             ],
           ),
         ),
@@ -117,7 +121,7 @@ class HomeScreen extends ConsumerWidget {
               'Olá, Chef! 👨‍🍳',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: AppTheme.onSurfaceDark,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
             ),
             const SizedBox(height: 4),
@@ -134,12 +138,12 @@ class HomeScreen extends ConsumerWidget {
           decoration: BoxDecoration(
             color: isPro
                 ? const Color(0xFFFFD700).withValues(alpha: 0.15)
-                : AppTheme.surfaceVariantDark,
+                : Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isPro
                   ? const Color(0xFFFFD700).withValues(alpha: 0.3)
-                  : AppTheme.surfaceVariantDark,
+                  : Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
           ),
           child: Row(
@@ -147,7 +151,7 @@ class HomeScreen extends ConsumerWidget {
               Icon(
                 isPro ? Icons.star_rounded : Icons.star_outline_rounded,
                 size: 16,
-                color: isPro ? const Color(0xFFFFD700) : Colors.grey[400],
+                color: isPro ? const Color(0xFFFFD700) : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 4),
               Text(
@@ -155,7 +159,7 @@ class HomeScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: isPro ? const Color(0xFFFFD700) : Colors.grey[400],
+                  color: isPro ? const Color(0xFFFFD700) : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -182,9 +186,10 @@ class HomeScreen extends ConsumerWidget {
             width: 140,
             child: _DashboardCard(
               title: 'Receitas',
-              value: recipesAsync.isLoading ? '...' : recipeCount.toString(),
+              value: recipeCount.toString(),
               icon: Icons.cake_rounded,
               iconColor: AppTheme.primaryColor,
+              isLoading: recipesAsync.isLoading,
             ),
           ),
           const SizedBox(width: 12),
@@ -192,9 +197,10 @@ class HomeScreen extends ConsumerWidget {
             width: 140,
             child: _DashboardCard(
               title: 'Ingredientes',
-              value: ingredientsAsync.isLoading ? '...' : ingredientCount.toString(),
+              value: ingredientCount.toString(),
               icon: Icons.kitchen_rounded,
               iconColor: Colors.orangeAccent,
+              isLoading: ingredientsAsync.isLoading,
             ),
           ),
           const SizedBox(width: 12),
@@ -202,9 +208,10 @@ class HomeScreen extends ConsumerWidget {
             width: 160,
             child: _DashboardCard(
               title: 'Custo Médio',
-              value: recipesAsync.isLoading ? '...' : currencyFormat.format(avgCost),
+              value: currencyFormat.format(avgCost),
               icon: Icons.trending_down_rounded,
               iconColor: AppTheme.successColor,
+              isLoading: recipesAsync.isLoading,
             ),
           ),
         ],
@@ -218,8 +225,8 @@ class HomeScreen extends ConsumerWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF2A2218), Color(0xFF1E1E1E)],
+          gradient: LinearGradient(
+            colors: [Theme.of(context).colorScheme.primaryContainer, Theme.of(context).colorScheme.surfaceContainerHighest],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -277,13 +284,19 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context) {
+  Widget _buildQuickActions(BuildContext context, bool isPro, int recipeCount) {
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
-            onPressed: () => context.push('/recipe-builder'),
+            onPressed: () {
+              if (!isPro && recipeCount >= 3) {
+                context.push('/paywall');
+              } else {
+                context.push('/recipe-builder');
+              }
+            },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 18),
               backgroundColor: AppTheme.primaryColor,
@@ -311,8 +324,8 @@ class HomeScreen extends ConsumerWidget {
             label: const Text('Gerenciar Ingredientes'),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
-              foregroundColor: AppTheme.onSurfaceDark,
-              side: BorderSide(color: AppTheme.onSurfaceDark.withValues(alpha: 0.2)),
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+              side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
             ),
           ),
@@ -320,10 +333,24 @@ class HomeScreen extends ConsumerWidget {
       ],
     );
   }
+}
 
-  Widget _buildRecentRecipes(
-      BuildContext context, WidgetRef ref, AsyncValue<List<RecipeEntity>> recipesAsync, NumberFormat currencyFormat) {
-    return recipesAsync.when(
+class _RecentRecipesSection extends StatefulWidget {
+  final AsyncValue<List<RecipeEntity>> recipesAsync;
+  final NumberFormat currencyFormat;
+
+  const _RecentRecipesSection({required this.recipesAsync, required this.currencyFormat});
+
+  @override
+  State<_RecentRecipesSection> createState() => _RecentRecipesSectionState();
+}
+
+class _RecentRecipesSectionState extends State<_RecentRecipesSection> {
+  String _searchQuery = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.recipesAsync.when(
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(
         child: Text('Erro ao carregar receitas: $e',
@@ -334,19 +361,43 @@ class HomeScreen extends ConsumerWidget {
           return const _EmptyStateWidget();
         }
 
-        return ListView.separated(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: recipes.length,
-          separatorBuilder: (_, __) => const SizedBox(height: 12),
-          itemBuilder: (context, index) {
-            final recipe = recipes[index];
-            return _RecipeListTile(
-              recipe: recipe,
-              currencyFormat: currencyFormat,
-              onTap: () => context.push('/recipe-builder/${recipe.id}'),
-            );
-          },
+        final filtered = recipes.where(
+          (r) => r.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+        ).toList();
+
+        return Column(
+          children: [
+            TextField(
+              decoration: InputDecoration(
+                prefixIcon: const Icon(Icons.search),
+                hintText: 'Buscar receita...',
+                filled: true,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (v) => setState(() => _searchQuery = v),
+            ),
+            const SizedBox(height: 16),
+            if (filtered.isEmpty)
+              const Center(child: Padding(padding: EdgeInsets.all(16), child: Text('Nenhuma receita encontrada.')))
+            else
+              ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: filtered.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 12),
+                itemBuilder: (context, index) {
+                  final recipe = filtered[index];
+                  return _RecipeListTile(
+                    recipe: recipe,
+                    currencyFormat: widget.currencyFormat,
+                    onTap: () => context.push('/recipe/${recipe.id}'),
+                  );
+                },
+              ),
+          ],
         );
       },
     );
@@ -364,14 +415,17 @@ class _DashboardCard extends StatelessWidget {
     required this.value,
     required this.icon,
     required this.iconColor,
+    this.isLoading = false,
   });
+
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceVariantDark,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: iconColor.withValues(alpha: 0.2)),
       ),
@@ -400,13 +454,27 @@ class _DashboardCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 22,
-              fontWeight: FontWeight.w800,
+          if (isLoading)
+            Shimmer.fromColors(
+              baseColor: Colors.grey.shade300,
+              highlightColor: Colors.grey.shade100,
+              child: Container(
+                height: 24,
+                width: 80,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+            )
+          else
+            Text(
+              value,
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w800,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -422,10 +490,10 @@ class _EmptyStateWidget extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceVariantDark.withValues(alpha: 0.5),
+        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppTheme.surfaceVariantDark,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
         ),
       ),
       child: Column(
@@ -433,7 +501,7 @@ class _EmptyStateWidget extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppTheme.surfaceVariantDark,
+              color: Theme.of(context).colorScheme.surfaceContainerHighest,
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -485,7 +553,7 @@ class _RecipeListTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: AppTheme.surfaceVariantDark,
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Row(
@@ -493,7 +561,7 @@ class _RecipeListTile extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.backgroundDark,
+                color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(

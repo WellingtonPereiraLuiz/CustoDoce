@@ -1,13 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    // Web Client ID from Firebase (required for Android Google Login to return an ID Token)
-    serverClientId: dotenv.env['GOOGLE_SIGN_IN_WEB_CLIENT_ID'],
+    clientId: kIsWeb ? const String.fromEnvironment('GOOGLE_SIGN_IN_WEB_CLIENT_ID') : null,
+    serverClientId: kIsWeb ? null : const String.fromEnvironment('GOOGLE_SIGN_IN_WEB_CLIENT_ID'),
   );
 
   User? get currentUser => _auth.currentUser;

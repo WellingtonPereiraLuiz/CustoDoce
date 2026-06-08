@@ -107,7 +107,6 @@ class IngredientManagerScreen extends ConsumerWidget {
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: AppTheme.surfaceDark,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
@@ -134,7 +133,7 @@ class _IngredientCard extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Material(
-        color: AppTheme.surfaceVariantDark,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
           onTap: onEdit,
@@ -339,10 +338,9 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
             const SizedBox(height: 14),
             // Unit of measure dropdown
             DropdownButtonFormField<UnitOfMeasure>(
-              initialValue: _selectedUnit,
+              value: _selectedUnit,
               decoration:
                   const InputDecoration(labelText: 'Unidade de Medida'),
-              dropdownColor: AppTheme.surfaceVariantDark,
               items: UnitOfMeasure.values
                   .map((u) => DropdownMenuItem(
                         value: u,

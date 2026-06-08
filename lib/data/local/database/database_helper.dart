@@ -27,7 +27,7 @@ class DatabaseHelper {
     }
     return await openDatabase(
       path,
-      version: 2,
+      version: 3,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
       onConfigure: (db) async {
@@ -58,7 +58,9 @@ class DatabaseHelper {
         total_cost REAL NOT NULL DEFAULT 0.0,
         suggested_sell_price REAL NOT NULL DEFAULT 0.0,
         created_at INTEGER NOT NULL,
-        user_id TEXT
+        user_id TEXT,
+        yield_quantity INTEGER NOT NULL DEFAULT 1,
+        category TEXT NOT NULL DEFAULT 'outro'
       )
     ''');
 
@@ -79,6 +81,10 @@ class DatabaseHelper {
     if (oldVersion < 2) {
       await db.execute('ALTER TABLE ingredients ADD COLUMN user_id TEXT');
       await db.execute('ALTER TABLE recipes ADD COLUMN user_id TEXT');
+    }
+    if (oldVersion < 3) {
+      await db.execute('ALTER TABLE recipes ADD COLUMN yield_quantity INTEGER NOT NULL DEFAULT 1');
+      await db.execute("ALTER TABLE recipes ADD COLUMN category TEXT NOT NULL DEFAULT 'outro'");
     }
   }
 

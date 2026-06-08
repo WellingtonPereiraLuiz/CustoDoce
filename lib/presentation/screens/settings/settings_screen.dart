@@ -144,7 +144,7 @@ class SettingsScreen extends ConsumerWidget {
                 final auth = ref.read(custo_doce_auth.authServiceProvider);
                 await auth.signOut();
                 if (context.mounted) {
-                  context.go('/landing');
+                  context.go('/login');
                 }
               },
               cardBg: cardBg,
