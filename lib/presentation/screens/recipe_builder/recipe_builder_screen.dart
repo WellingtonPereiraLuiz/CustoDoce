@@ -69,12 +69,12 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-        title: Text(title, style: const TextStyle(color: AppTheme.primaryColor)),
+        title: Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
         content: Text(explanation, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Entendi', style: TextStyle(color: AppTheme.primaryColor)),
+            child: Text('Entendi', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
           )
         ],
       )
@@ -386,7 +386,7 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Icon(icon, color: AppTheme.primaryColor, size: 20),
         const SizedBox(width: 8),
-        Text(title, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AppTheme.primaryColor)),
+        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
         if (onInfoTap != null) ...[
           const SizedBox(width: 4),
           InkWell(
