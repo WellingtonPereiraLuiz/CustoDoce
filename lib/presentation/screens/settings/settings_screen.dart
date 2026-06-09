@@ -291,14 +291,10 @@ class _ThemeSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg =
-        isDark ? AppTheme.surfaceVariantDark : AppTheme.surfaceVariantLight;
-
     return Container(
       padding: const EdgeInsets.all(6),
       decoration: BoxDecoration(
-        color: cardBg,
+        color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(14),
       ),
       child: Row(
@@ -398,10 +394,6 @@ class _LanguageSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg =
-        isDark ? AppTheme.surfaceVariantDark : AppTheme.surfaceVariantLight;
-
     return Column(
       children: [
         _LanguageTile(
@@ -410,7 +402,7 @@ class _LanguageSelector extends StatelessWidget {
           locale: const Locale('pt', 'BR'),
           currentLocale: currentLocale,
           onSelect: onSelect,
-          cardBg: cardBg,
+          cardBg: Theme.of(context).colorScheme.surfaceContainerHighest,
         ),
         const SizedBox(height: 8),
         _LanguageTile(
@@ -419,7 +411,7 @@ class _LanguageSelector extends StatelessWidget {
           locale: const Locale('en', 'US'),
           currentLocale: currentLocale,
           onSelect: onSelect,
-          cardBg: cardBg,
+          cardBg: Theme.of(context).colorScheme.surfaceContainerHighest,
         ),
       ],
     );
