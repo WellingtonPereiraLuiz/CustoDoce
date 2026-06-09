@@ -89,5 +89,26 @@ Não perca mais tempo calculando grama por grama no papel. O CustoDoce faz tudo 
 ### Download direto
 > Link do APK de demonstração: *(adicionar link após gerar e hospedar o APK)*
 
+## 🏗️ Estrutura e Atualizações Recentes
+
+Durante a última maratona de desenvolvimento, implementamos melhorias significativas na estrutura, segurança e estabilidade do projeto:
+
+### 1. Migração de Variáveis de Ambiente (Segurança)
+- **Problema:** A dependência `flutter_dotenv` estava causando inconsistências e conflitos (root clash) na leitura de chaves de API (Firebase) durante a geração da build de Release para o Android.
+- **Solução:** Removemos totalmente o uso do pacote `dotenv` nos arquivos críticos (`firebase_options.dart` e `app_constants.dart`). Toda a injeção de dependências agora é feita no momento de compilação de forma segura nativa usando `--dart-define-from-file=.env.dart_define` com a função `String.fromEnvironment()`.
+
+### 2. Design System Consistente (Artisanal Ledger)
+- **Implementação:** Padronizamos a UI removendo todas as cores estáticas (ex: `Colors.orangeAccent`, `Colors.blue`) diretamente inseridas nas telas.
+- **Estrutura:** O design agora é centralizado no `AppTheme` (arquivo `lib/core/theme/app_theme.dart`). As telas de `home_screen.dart`, `recipe_builder_screen.dart` e `ingredient_manager_screen.dart` consomem ativamente os *tokens* de tema (`Theme.of(context).colorScheme`).
+- **Correção de Bugs:** Ajustamos a árvore de Widgets corrigindo problemas de parênteses soltos e chamadas irregulares de `const` (que não aceitam `Theme.of(context)` dinâmico) evitando assim *crashes* na tela preta.
+
+### 3. Estabilidade do Gradle e Build Android
+- **Problema:** A compilação do Android no ambiente Windows sofria paradas e *crashes* por estouro do limite de memória da máquina host (JVM Daemon desaparecia subitamente tentando alocar 12GB).
+- **Solução:** Editamos o arquivo `android/gradle.properties` reduzindo drasticamente os limites do `org.gradle.jvmargs` de `-Xmx8G` para um valor seguro de `-Xmx2048M -XX:MaxMetaspaceSize=512m`. O compilador agora funciona perfeitamente bem, gerando o arquivo APK de produção limpo.
+
+### 4. Proteção de Usuários Free
+- **Funcionalidade:** Reforçamos o bloqueio na `recipe_builder_screen.dart` utilizando o `isProUserProvider`. Agora, o aplicativo automaticamente checa e proíbe a criação da 4ª receita para usuários gratuitos sem assinatura.
+
+
 ## 🧑‍🍳 Ficha Técnica
 Criado com foco em resolver a principal dor dos confeiteiros: entender onde o dinheiro está indo e garantir que cada doce vendido gere lucro de verdade.
