@@ -58,6 +58,10 @@ class AppTheme {
       onSurfaceVariant: onSurfaceVariant,
       outline: outline,
       outlineVariant: outlineVariant,
+      tertiary: const Color(0xFF4A7B6F),
+      onTertiary: const Color(0xFFFFFFFF),
+      tertiaryContainer: const Color(0xFF132924),
+      onTertiaryContainer: const Color(0xFF7A918A),
     );
 
     return _buildTheme(colorScheme);
@@ -77,8 +81,12 @@ class AppTheme {
       onSurface: Color(0xFFFFF8F6),
       surfaceContainerHighest: Color(0xFF33302F), 
       onSurfaceVariant: Color(0xFFE9E1DF),
-      outline: Color(0xFF827471),
-      outlineVariant: Color(0xFF504442),
+      outline: const Color(0xFF827471),
+      outlineVariant: const Color(0xFF504442),
+      tertiary: const Color(0xFFB3CCC4),
+      onTertiary: const Color(0xFF091F1B),
+      tertiaryContainer: const Color(0xFF354B45),
+      onTertiaryContainer: const Color(0xFFCFE8E0),
     );
     return _buildTheme(colorScheme);
   }

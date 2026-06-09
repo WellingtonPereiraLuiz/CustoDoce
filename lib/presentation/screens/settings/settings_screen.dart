@@ -73,10 +73,10 @@ class SettingsScreen extends ConsumerWidget {
                     color: AppTheme.primaryColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Text(
+                  child: Text(
                     'PRO',
                     style: TextStyle(
-                        color: Colors.black,
+                        color: Theme.of(context).colorScheme.onPrimary,
                         fontSize: 11,
                         fontWeight: FontWeight.w800),
                   ),
@@ -364,7 +364,7 @@ class _ThemeOption extends StatelessWidget {
               Icon(
                 icon,
                 size: 22,
-                color: isSelected ? Colors.black : const Color(0xFF9E9E9E),
+                color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: 4),
               Text(
@@ -374,7 +374,7 @@ class _ThemeOption extends StatelessWidget {
                   fontWeight:
                       isSelected ? FontWeight.w700 : FontWeight.w400,
                   color:
-                      isSelected ? Colors.black : const Color(0xFF9E9E9E),
+                      isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],

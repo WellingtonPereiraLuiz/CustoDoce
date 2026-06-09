@@ -8,7 +8,6 @@ import 'package:custo_doce/domain/entities/recipe_entity.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
 import 'package:intl/intl.dart';
 
-import 'package:custo_doce/core/providers/auth_provider.dart';
 import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
 import 'package:shimmer/shimmer.dart';
 
