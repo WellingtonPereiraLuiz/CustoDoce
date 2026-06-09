@@ -52,5 +52,42 @@ Não perca mais tempo calculando grama por grama no papel. O CustoDoce faz tudo 
    flutter run -d chrome
    ```
 
+## 📦 Gerar APK (Release)
+
+### Pré-requisitos
+- Flutter SDK instalado e configurado
+- Variáveis de ambiente do Firebase configuradas
+
+### Build local
+
+1. Crie o arquivo `.env.dart_define` na raiz do projeto com as chaves Firebase:
+   ```
+   FIREBASE_API_KEY=sua_chave
+   FIREBASE_APP_ID=seu_app_id
+   FIREBASE_MESSAGING_SENDER_ID=seu_sender_id
+   FIREBASE_PROJECT_ID=seu_project_id
+   FIREBASE_AUTH_DOMAIN=seu_auth_domain
+   FIREBASE_STORAGE_BUCKET=seu_storage_bucket
+   ```
+
+2. Execute o build:
+   ```bash
+   flutter build apk --release --dart-define-from-file=.env.dart_define
+   ```
+
+3. O APK gerado estará em:
+   ```
+   build/app/outputs/flutter-apk/app-release.apk
+   ```
+
+4. Para instalar no dispositivo via USB:
+   ```bash
+   flutter install
+   ```
+   Ou copie o APK manualmente para o dispositivo e instale habilitando "Fontes desconhecidas".
+
+### Download direto
+> Link do APK de demonstração: *(adicionar link após gerar e hospedar o APK)*
+
 ## 🧑‍🍳 Ficha Técnica
 Criado com foco em resolver a principal dor dos confeiteiros: entender onde o dinheiro está indo e garantir que cada doce vendido gere lucro de verdade.

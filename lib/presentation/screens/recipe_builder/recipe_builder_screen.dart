@@ -11,6 +11,7 @@ import 'package:custo_doce/presentation/providers/recipe_builder_provider.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:intl/intl.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:custo_doce/core/providers/subscription_provider.dart';
 
 class RecipeBuilderScreen extends ConsumerStatefulWidget {
   final String? editRecipeId;
@@ -67,9 +68,9 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: AppTheme.surfaceVariantDark,
+        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
         title: Text(title, style: const TextStyle(color: AppTheme.primaryColor)),
-        content: Text(explanation, style: const TextStyle(color: Colors.white, height: 1.5)),
+        content: Text(explanation, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -119,6 +120,34 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // BUG-05 FIX: bloquear acesso direto quando usuário free atingiu limite
+    final isEditing = widget.editRecipeId != null;
+    if (!isEditing) {
+      final isPro = ref.watch(isProUserProvider);
+      final recipes = ref.watch(recipesProvider).valueOrNull ?? [];
+      const freeLimit = 3;
+
+      if (!isPro && recipes.length >= freeLimit) {
+        // Redirecionar para home com snackbar de upgrade
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            context.go('/');
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Limite de $freeLimit receitas atingido. Faça upgrade para Pro.',
+                  style: TextStyle(color: Theme.of(context).colorScheme.onError),
+                ),
+                backgroundColor: Theme.of(context).colorScheme.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        });
+        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      }
+    }
+
     final state = ref.watch(recipeBuilderProvider);
     final notifier = ref.read(recipeBuilderProvider.notifier);
     final ingredientsAsync = ref.watch(ingredientsProvider);
@@ -223,8 +252,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                         children: [
                           SlidableAction(
                             onPressed: (_) => notifier.removeIngredient(ri.ingredientId),
-                            backgroundColor: AppTheme.errorColor,
-                            foregroundColor: Colors.white,
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                            foregroundColor: Theme.of(context).colorScheme.onError,
                             icon: Icons.delete_outline,
                             label: 'Apagar',
                           ),
@@ -363,9 +392,9 @@ class _SectionHeader extends StatelessWidget {
           InkWell(
             onTap: onInfoTap,
             borderRadius: BorderRadius.circular(12),
-            child: const Padding(
-              padding: EdgeInsets.all(4.0),
-              child: Icon(Icons.help_outline_rounded, size: 18, color: Colors.grey),
+            child: Padding(
+              padding: const EdgeInsets.all(4.0),
+              child: Icon(Icons.help_outline_rounded, size: 18, color: Theme.of(context).colorScheme.outline),
             ),
           ),
         ],
@@ -389,7 +418,7 @@ class _PricingDashboard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: AppTheme.surfaceVariantDark,
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.3)),
       ),
@@ -405,52 +434,52 @@ class _PricingDashboard extends StatelessWidget {
                 centerSpaceRadius: 40,
                 sections: [
                   PieChartSectionData(
-                    color: Colors.blueGrey,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
                     value: state.totalIngredientsCost + state.fixedOperationalCost,
                     title: 'Bruto',
                     radius: 50,
-                    titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                    titleStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                   ),
                   if (state.invisibleCost > 0)
                     PieChartSectionData(
-                      color: Colors.orange,
+                      color: Theme.of(context).colorScheme.primary,
                       value: state.invisibleCost,
                       title: 'Invisível',
                       radius: 50,
-                      titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                      titleStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                     ),
                   PieChartSectionData(
                     color: AppTheme.successColor,
                     value: state.netProfit,
                     title: 'Lucro',
                     radius: 60,
-                    titleStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.white),
+                    titleStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                   ),
                   if (state.investmentValue > 0)
                     PieChartSectionData(
-                      color: Colors.purpleAccent,
+                      color: Theme.of(context).colorScheme.secondary,
                       value: state.investmentValue,
                       title: 'Invest.',
                       radius: 50,
-                      titleStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Colors.white),
+                      titleStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
                     ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 24),
-          _StatRow('Custo Bruto (Ingredientes + Fixo)', state.totalIngredientsCost + state.fixedOperationalCost, currencyFormat, color: Colors.blueGrey),
-          _StatRow('Custo Invisível (${state.invisibleCostPercentage.toStringAsFixed(0)}%)', state.invisibleCost, currencyFormat, color: Colors.orange),
+          _StatRow('Custo Bruto (Ingredientes + Fixo)', state.totalIngredientsCost + state.fixedOperationalCost, currencyFormat, color: Theme.of(context).colorScheme.onSurfaceVariant),
+          _StatRow('Custo Invisível (${state.invisibleCostPercentage.toStringAsFixed(0)}%)', state.invisibleCost, currencyFormat, color: Theme.of(context).colorScheme.primary),
           const Divider(height: 24),
           _StatRow('Custo Total', state.totalCost, currencyFormat, isBold: true),
           const SizedBox(height: 12),
-          _StatRow('Fundo de Investimento', state.investmentValue, currencyFormat, color: Colors.purpleAccent),
+          _StatRow('Fundo de Investimento', state.investmentValue, currencyFormat, color: Theme.of(context).colorScheme.secondary),
           _StatRow('Lucro Líquido', state.netProfit, currencyFormat, color: AppTheme.successColor, isBold: true),
           const Divider(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Preço Sugerido de Venda', style: TextStyle(fontSize: 16, color: Colors.grey)),
+              Text('Preço Sugerido de Venda', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.outline)),
               Text(
                 currencyFormat.format(state.finalPrice),
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
@@ -485,10 +514,10 @@ class _StatRow extends StatelessWidget {
                 Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
                 const SizedBox(width: 8),
               ],
-              Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: isBold ? Colors.white : Colors.grey[300])),
+              Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: isBold ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.outline)),
             ],
           ),
-          Text(format.format(value), style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color ?? Colors.white)),
+          Text(format.format(value), style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color ?? Theme.of(context).colorScheme.onSurface)),
         ],
       ),
     );

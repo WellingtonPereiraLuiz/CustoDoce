@@ -49,18 +49,31 @@ Calculado com CustoDoce 🍫
                 onPressed: () => context.push('/recipe-builder/${recipe.id}'),
               ),
               IconButton(
-                icon: const Icon(Icons.delete_outline, color: AppTheme.errorColor),
+                icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (ctx) => AlertDialog(
+                      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+                      titleTextStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                      contentTextStyle: TextStyle(
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        fontSize: 16,
+                      ),
                       title: const Text('Excluir Receita?'),
                       content: const Text('Essa ação não pode ser desfeita.'),
                       actions: [
-                        TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+                        TextButton(
+                          onPressed: () => Navigator.pop(ctx, false),
+                          child: Text('Cancelar', style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                        ),
                         TextButton(
                           onPressed: () => Navigator.pop(ctx, true),
-                          child: const Text('Excluir', style: TextStyle(color: AppTheme.errorColor)),
+                          child: Text('Excluir', style: TextStyle(color: Theme.of(context).colorScheme.error)),
                         ),
                       ],
                     ),

@@ -199,7 +199,7 @@ class HomeScreen extends ConsumerWidget {
               title: 'Ingredientes',
               value: ingredientCount.toString(),
               icon: Icons.kitchen_rounded,
-              iconColor: Colors.orangeAccent,
+              iconColor: AppTheme.secondaryColor,
               isLoading: ingredientsAsync.isLoading,
             ),
           ),
@@ -300,7 +300,7 @@ class HomeScreen extends ConsumerWidget {
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 18),
               backgroundColor: AppTheme.primaryColor,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onPrimary,
               elevation: 8,
               shadowColor: AppTheme.primaryColor.withValues(alpha: 0.5),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
@@ -456,13 +456,13 @@ class _DashboardCard extends StatelessWidget {
           const SizedBox(height: 16),
           if (isLoading)
             Shimmer.fromColors(
-              baseColor: Colors.grey.shade300,
-              highlightColor: Colors.grey.shade100,
+              baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
+              highlightColor: Theme.of(context).colorScheme.surfaceContainerHigh,
               child: Container(
                 height: 24,
                 width: 80,
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(4),
                 ),
               ),

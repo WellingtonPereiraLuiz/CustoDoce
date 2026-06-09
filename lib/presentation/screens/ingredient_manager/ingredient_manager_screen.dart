@@ -34,14 +34,14 @@ class IngredientManagerScreen extends ConsumerWidget {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.inventory_2_outlined,
-                      size: 64, color: Color(0xFF616161)),
+                  Icon(Icons.inventory_2_outlined,
+                      size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
                   const SizedBox(height: 16),
                   Text('Nenhum ingrediente cadastrado',
                       style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: 8),
-                  const Text('Toque em + para adicionar',
-                      style: TextStyle(color: Color(0xFF9E9E9E))),
+                  Text('Toque em + para adicionar',
+                      style: TextStyle(color: Theme.of(context).colorScheme.outline)),
                 ],
               ),
             );
@@ -70,8 +70,8 @@ class IngredientManagerScreen extends ConsumerWidget {
                         ),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: AppTheme.errorColor,
-                            foregroundColor: Colors.white,
+                            backgroundColor: Theme.of(context).colorScheme.error,
+                            foregroundColor: Theme.of(context).colorScheme.onError,
                           ),
                           onPressed: () => Navigator.pop(ctx, true),
                           child: const Text('Excluir'),
@@ -165,8 +165,8 @@ class _IngredientCard extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         '${ingredient.packageSize} ${ingredient.unitOfMeasure.label} • ${currencyFormat.format(ingredient.costPerPackage)}',
-                        style: const TextStyle(
-                            fontSize: 12, color: Color(0xFF9E9E9E)),
+                        style: TextStyle(
+                            fontSize: 12, color: Theme.of(context).colorScheme.outline),
                       ),
                     ],
                   ),
@@ -184,8 +184,8 @@ class _IngredientCard extends StatelessWidget {
                     ),
                     Text(
                       'por ${ingredient.unitOfMeasure.label}',
-                      style: const TextStyle(
-                          fontSize: 11, color: Color(0xFF757575)),
+                      style: TextStyle(
+                          fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -199,11 +199,11 @@ class _IngredientCard extends StatelessWidget {
                   itemBuilder: (_) => [
                     const PopupMenuItem(
                         value: 'edit', child: Text('Editar')),
-                    const PopupMenuItem(
+                    PopupMenuItem(
                         value: 'delete',
                         child: Text('Excluir',
                             style:
-                                TextStyle(color: AppTheme.errorColor))),
+                                TextStyle(color: Theme.of(context).colorScheme.error))),
                   ],
                 ),
               ],
@@ -311,7 +311,7 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF424242),
+                  color: Theme.of(context).colorScheme.onSurface,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -418,9 +418,9 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      const Text('Custo por unidade calculado',
+                      Text('Custo por unidade calculado',
                           style: TextStyle(
-                              fontSize: 11, color: Color(0xFF9E9E9E))),
+                              fontSize: 11, color: Theme.of(context).colorScheme.outline)),
                       Text(
                         currencyFormat.format(_calculatedUnitCost),
                         style: const TextStyle(
@@ -441,11 +441,11 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _save,
                 child: _isLoading
-                    ? const SizedBox(
+                    ? SizedBox(
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.black),
+                            strokeWidth: 2, color: Theme.of(context).colorScheme.onPrimary),
                       )
                     : Text(widget.existing == null
                         ? 'Salvar Ingrediente'
