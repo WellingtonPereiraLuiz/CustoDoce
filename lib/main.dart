@@ -9,19 +9,11 @@ import 'package:custo_doce/data/local/database/database_helper.dart';
 import 'package:custo_doce/core/services/subscription_service.dart';
 import 'package:custo_doce/core/utils/seeder.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 import 'package:custo_doce/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Load environment variables
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (_) {
-    // Ignora falha em release mode onde o arquivo .env não é enviado nos assets
-  }
 
   // Initialize Firebase
   await Firebase.initializeApp(
