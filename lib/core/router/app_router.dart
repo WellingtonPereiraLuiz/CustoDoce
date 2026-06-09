@@ -89,7 +89,7 @@ final routerProvider = Provider<GoRouter>((ref) {
       body: Center(
         child: Text(
           'Página não encontrada: ${state.error}',
-          style: const TextStyle(color: Colors.white),
+          style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
         ),
       ),
     ),

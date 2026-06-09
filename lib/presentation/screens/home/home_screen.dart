@@ -56,7 +56,7 @@ class HomeScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    Colors.white.withValues(alpha: 0.03),
+                    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
                     Colors.transparent,
                   ],
                 ),

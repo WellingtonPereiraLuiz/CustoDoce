@@ -215,7 +215,7 @@ class SettingsScreen extends ConsumerWidget {
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.errorColor,
-              foregroundColor: Colors.white,
+              foregroundColor: Theme.of(context).colorScheme.onError,
             ),
             onPressed: () => Navigator.pop(ctx, true),
             child: Text(s.confirm),
