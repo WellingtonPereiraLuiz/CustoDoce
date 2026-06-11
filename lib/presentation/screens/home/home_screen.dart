@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
+import 'package:custo_doce/core/utils/plan_gate.dart';
 import 'package:custo_doce/domain/entities/recipe_entity.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
 import 'package:intl/intl.dart';
@@ -85,8 +86,38 @@ class HomeScreen extends ConsumerWidget {
                 _buildPaywallBanner(context),
               ],
               const SizedBox(height: 24),
-              _buildQuickActions(context, isPro, recipesAsync.valueOrNull?.length ?? 0),
-              const SizedBox(height: 32),
+              _buildQuickActions(context, ref, isPro, recipesAsync.valueOrNull?.length ?? 0),
+              const SizedBox(height: 16),
+              // Counter chip — só mostra se o plano tem limite
+              Builder(builder: (context) {
+                final plan = ref.read(currentPlanProvider);
+                final recipeCount = recipesAsync.valueOrNull?.length ?? 0;
+                if (plan.isUnlimitedRecipes) return const SizedBox.shrink();
+                final isAtLimit = recipeCount >= plan.recipeLimit;
+                return Align(
+                  alignment: Alignment.centerLeft,
+                  child: Chip(
+                    label: Text(
+                      '$recipeCount / ${plan.recipeLimit} receitas',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: isAtLimit ? AppTheme.errorColor : null,
+                      ),
+                    ),
+                    backgroundColor: isAtLimit
+                        ? AppTheme.errorColor.withAlpha(20)
+                        : Theme.of(context).colorScheme.surfaceContainerHighest,
+                    side: BorderSide(
+                      color: isAtLimit
+                          ? AppTheme.errorColor.withAlpha(60)
+                          : Colors.transparent,
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 4),
+                  ),
+                );
+              }),
+              const SizedBox(height: 16),
               Text(
                 'Receitas Recentes',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -108,6 +139,7 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
+
 
   Widget _buildHeader(BuildContext context, bool isPro) {
     return Row(
@@ -283,18 +315,23 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context, bool isPro, int recipeCount) {
+  Widget _buildQuickActions(BuildContext context, WidgetRef ref, bool isPro, int recipeCount) {
     return Column(
       children: [
         SizedBox(
           width: double.infinity,
           child: ElevatedButton(
             onPressed: () {
-              if (!isPro && recipeCount >= 3) {
-                context.push('/paywall');
-              } else {
-                context.push('/recipe-builder');
-              }
+              final plan = ref.read(currentPlanProvider);
+              final recipes = ref.read(recipesProvider).value ?? [];
+              final canCreate = PlanGate.checkLimit(
+                context: context,
+                currentCount: recipes.length,
+                limit: plan.recipeLimit,
+                featureName: 'receitas',
+                planName: plan.name,
+              );
+              if (canCreate) context.push('/recipe-builder');
             },
             style: ElevatedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 18),

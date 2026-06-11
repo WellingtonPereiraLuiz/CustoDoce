@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:custo_doce/core/enums/unit_of_measure.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/core/utils/uuid_generator.dart';
+import 'package:custo_doce/core/utils/plan_gate.dart';
+import 'package:custo_doce/core/providers/subscription_provider.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
 import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
 import 'package:intl/intl.dart';
@@ -50,7 +52,42 @@ class IngredientManagerScreen extends ConsumerWidget {
             alignment: Alignment.topCenter,
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 800),
-              child: ListView.builder(
+              child: Column(
+                children: [
+                  // Counter chip
+                  Builder(builder: (context) {
+                    final plan = ref.read(currentPlanProvider);
+                    final count = ingredients.length;
+                    if (plan.isUnlimitedIngredients) return const SizedBox.shrink();
+                    final isAtLimit = count >= plan.ingredientLimit;
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Chip(
+                          label: Text(
+                            '$count / ${plan.ingredientLimit} ingredientes',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: isAtLimit ? AppTheme.errorColor : null,
+                            ),
+                          ),
+                          backgroundColor: isAtLimit
+                              ? AppTheme.errorColor.withAlpha(20)
+                              : Theme.of(context).colorScheme.surfaceContainerHighest,
+                          side: BorderSide(
+                            color: isAtLimit
+                                ? AppTheme.errorColor.withAlpha(60)
+                                : Colors.transparent,
+                          ),
+                          padding: const EdgeInsets.symmetric(horizontal: 4),
+                        ),
+                      ),
+                    );
+                  }),
+                  Expanded(
+                    child: ListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
             itemCount: ingredients.length,
             itemBuilder: (context, index) {
@@ -92,13 +129,27 @@ class IngredientManagerScreen extends ConsumerWidget {
               );
             },
           ),
+                  ),
+                ],
+              ),
             ),
           );
         },
       ),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_ingredient',
-        onPressed: () => _showIngredientForm(context, ref, null),
+        onPressed: () {
+          final plan = ref.read(currentPlanProvider);
+          final ingredients = ref.read(ingredientsProvider).value ?? [];
+          final canAdd = PlanGate.checkLimit(
+            context: context,
+            currentCount: ingredients.length,
+            limit: plan.ingredientLimit,
+            featureName: 'ingredientes',
+            planName: plan.name,
+          );
+          if (canAdd) _showIngredientForm(context, ref, null);
+        },
         icon: const Icon(Icons.add_rounded),
         label: const Text('Novo Ingrediente'),
       ),
