@@ -11,6 +11,7 @@ import 'package:custo_doce/presentation/screens/settings/settings_screen.dart';
 import 'package:custo_doce/presentation/screens/auth/login_screen.dart';
 import 'package:custo_doce/presentation/screens/main/main_scaffold.dart';
 import 'package:custo_doce/presentation/screens/splash/splash_screen.dart';
+import 'package:custo_doce/presentation/screens/equipment/equipment_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -79,6 +80,11 @@ final routerProvider = Provider<GoRouter>((ref) {
                 path: AppConstants.settingsRoute,
                 name: 'settings',
                 builder: (context, state) => const SettingsScreen(),
+              ),
+              GoRoute(
+                path: AppConstants.equipmentRoute,
+                name: 'equipment',
+                builder: (context, state) => const EquipmentScreen(),
               ),
             ],
           ),

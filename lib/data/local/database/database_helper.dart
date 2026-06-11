@@ -27,7 +27,7 @@ class DatabaseHelper {
     }
     return await openDatabase(
       path,
-      version: 3,
+      version: 4,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
       onConfigure: (db) async {
@@ -75,6 +75,16 @@ class DatabaseHelper {
         FOREIGN KEY (ingredient_id) REFERENCES ingredients(id) ON DELETE CASCADE
       )
     ''');
+
+    await db.execute('''
+      CREATE TABLE equipment (
+        id TEXT PRIMARY KEY NOT NULL,
+        name TEXT NOT NULL,
+        power_watts REAL NOT NULL,
+        kwh_cost REAL NOT NULL,
+        user_id TEXT
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -85,6 +95,17 @@ class DatabaseHelper {
     if (oldVersion < 3) {
       await db.execute('ALTER TABLE recipes ADD COLUMN yield_quantity INTEGER NOT NULL DEFAULT 1');
       await db.execute("ALTER TABLE recipes ADD COLUMN category TEXT NOT NULL DEFAULT 'outro'");
+    }
+    if (oldVersion < 4) {
+      await db.execute('''
+        CREATE TABLE IF NOT EXISTS equipment (
+          id TEXT PRIMARY KEY NOT NULL,
+          name TEXT NOT NULL,
+          power_watts REAL NOT NULL,
+          kwh_cost REAL NOT NULL,
+          user_id TEXT
+        )
+      ''');
     }
   }
 

@@ -366,6 +366,77 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
         ),
+        const SizedBox(height: 12),
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: () {
+              final plan = ref.read(currentPlanProvider);
+              if (PlanGate.checkFeature(
+                context: context,
+                hasAccess: plan.equipmentLimit != 0,
+                featureName: 'Equipamentos',
+                requiredPlan: 'Light',
+              )) context.push('/equipment');
+            },
+            icon: const Icon(Icons.bolt_outlined),
+            label: const Text('Equipamentos'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              foregroundColor: Theme.of(context).colorScheme.onSurface,
+              side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            ),
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  final plan = ref.read(currentPlanProvider);
+                  if (PlanGate.checkFeature(
+                    context: context,
+                    hasAccess: plan.hasReports,
+                    featureName: 'Relatórios',
+                    requiredPlan: 'Pro',
+                  )) context.push('/dashboard');
+                },
+                icon: const Icon(Icons.bar_chart_rounded),
+                label: const Text('Relatórios'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  final plan = ref.read(currentPlanProvider);
+                  if (PlanGate.checkFeature(
+                    context: context,
+                    hasAccess: plan.hasDigitalMenu,
+                    featureName: 'Cardápio Digital',
+                    requiredPlan: 'Premium',
+                  )) context.push('/menu');
+                },
+                icon: const Icon(Icons.restaurant_menu_rounded),
+                label: const Text('Cardápio'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  foregroundColor: Theme.of(context).colorScheme.onSurface,
+                  side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                ),
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }

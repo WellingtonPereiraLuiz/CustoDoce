@@ -116,6 +116,25 @@ class SettingsScreen extends ConsumerWidget {
                 titleColor: Theme.of(context).colorScheme.onSurface,
               ),
             const SizedBox(height: 12),
+            _SettingsTile(
+              icon: Icons.bolt_outlined,
+              iconColor: accent,
+              title: 'Equipamentos',
+              subtitle: 'Gerenciar consumo de energia',
+              trailing: currentPlan.equipmentLimit != 0
+                  ? Icon(Icons.chevron_right_rounded, color: accent)
+                  : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
+              onTap: () {
+                if (PlanGate.checkFeature(
+                  context: context,
+                  hasAccess: currentPlan.equipmentLimit != 0,
+                  featureName: 'Equipamentos',
+                  requiredPlan: 'Light',
+                )) context.push('/equipment');
+              },
+              cardBg: cardBg,
+            ),
+            const SizedBox(height: 8),
             // ── Features Pro/Premium (protegidas por gates) ─────────
             _SettingsTile(
               icon: Icons.bar_chart_rounded,
@@ -126,12 +145,12 @@ class SettingsScreen extends ConsumerWidget {
                   ? Icon(Icons.chevron_right_rounded, color: accent)
                   : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
               onTap: () {
-                PlanGate.checkFeature(
+                if (PlanGate.checkFeature(
                   context: context,
                   hasAccess: currentPlan.hasReports,
                   featureName: 'Relatórios e gráficos',
                   requiredPlan: 'Pro',
-                );
+                )) context.push('/dashboard');
               },
               cardBg: cardBg,
             ),
@@ -145,12 +164,12 @@ class SettingsScreen extends ConsumerWidget {
                   ? Icon(Icons.chevron_right_rounded, color: accent)
                   : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
               onTap: () {
-                PlanGate.checkFeature(
+                if (PlanGate.checkFeature(
                   context: context,
                   hasAccess: currentPlan.hasDigitalMenu,
                   featureName: 'Cardápio digital',
                   requiredPlan: 'Premium',
-                );
+                )) context.push('/menu');
               },
               cardBg: cardBg,
             ),

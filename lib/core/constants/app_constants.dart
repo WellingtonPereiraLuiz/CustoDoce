@@ -13,4 +13,7 @@ class AppConstants {
   static const String recipeEditRoute = '/recipe-builder/:id';
   static const String paywallRoute = '/paywall';
   static const String settingsRoute = '/settings';
+  static const String equipmentRoute = '/equipment';
+  static const String dashboardRoute = '/dashboard';
+  static const String menuRoute = '/menu';
 }
