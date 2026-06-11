@@ -31,6 +31,9 @@ class AppTheme {
 
   static const Color successColor = Color(0xFF4CAF82);
 
+  /// Cor de acento usada em dark mode onde primaryColor seria invisível
+  static const Color accentWarm = Color(0xFFE5BEB6);
+
   // Fallbacks for direct access where theme is not easily accessible
   static const Color surfaceLight = surface;
   static const Color surfaceDark = Color(0xFF1E1B1A);

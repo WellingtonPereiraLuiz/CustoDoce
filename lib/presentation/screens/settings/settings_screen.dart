@@ -70,13 +70,17 @@ class SettingsScreen extends ConsumerWidget {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor,
+                    color: Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.accentWarm
+                        : AppTheme.primaryColor,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
                     'PRO',
                     style: TextStyle(
-                        color: Theme.of(context).colorScheme.onPrimary,
+                        color: Theme.of(context).brightness == Brightness.dark
+                            ? AppTheme.primaryColor
+                            : Theme.of(context).colorScheme.onPrimary,
                         fontSize: 11,
                         fontWeight: FontWeight.w800),
                   ),
@@ -256,11 +260,11 @@ class _SectionHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor = isDark ? AppTheme.primaryColor : Theme.of(context).colorScheme.onSurface;
+    final textColor = isDark ? AppTheme.accentWarm : Theme.of(context).colorScheme.onSurface;
 
     return Row(
       children: [
-        Icon(icon, color: isDark ? AppTheme.primaryColor : Theme.of(context).colorScheme.onSurface, size: 18),
+        Icon(icon, color: isDark ? AppTheme.accentWarm : Theme.of(context).colorScheme.onSurface, size: 18),
         const SizedBox(width: 8),
         Text(
           title,
@@ -351,7 +355,11 @@ class _ThemeOption extends StatelessWidget {
           duration: const Duration(milliseconds: 200),
           padding: const EdgeInsets.symmetric(vertical: 12),
           decoration: BoxDecoration(
-            color: isSelected ? AppTheme.primaryColor : Colors.transparent,
+            color: isSelected
+                ? (Theme.of(context).brightness == Brightness.dark
+                    ? AppTheme.accentWarm
+                    : AppTheme.primaryColor)
+                : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -360,7 +368,11 @@ class _ThemeOption extends StatelessWidget {
               Icon(
                 icon,
                 size: 22,
-                color: isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? (Theme.of(context).brightness == Brightness.dark
+                        ? AppTheme.primaryColor
+                        : Theme.of(context).colorScheme.onPrimary)
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(height: 4),
               Text(
@@ -369,8 +381,11 @@ class _ThemeOption extends StatelessWidget {
                   fontSize: 12,
                   fontWeight:
                       isSelected ? FontWeight.w700 : FontWeight.w400,
-                  color:
-                      isSelected ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: isSelected
+                      ? (Theme.of(context).brightness == Brightness.dark
+                          ? AppTheme.primaryColor
+                          : Theme.of(context).colorScheme.onPrimary)
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -438,20 +453,19 @@ class _LanguageTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isSelected = currentLocale.languageCode == locale.languageCode;
+    final accent = Theme.of(context).brightness == Brightness.dark
+        ? AppTheme.accentWarm
+        : AppTheme.primaryColor;
     return GestureDetector(
       onTap: () => onSelect(locale),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppTheme.primaryColor.withAlpha(25)
-              : cardBg,
+          color: isSelected ? accent.withAlpha(25) : cardBg,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected
-                ? AppTheme.primaryColor
-                : Colors.transparent,
+            color: isSelected ? accent : Colors.transparent,
             width: 1.5,
           ),
         ),
@@ -466,15 +480,13 @@ class _LanguageTile extends StatelessWidget {
                   fontSize: 15,
                   fontWeight:
                       isSelected ? FontWeight.w700 : FontWeight.w400,
-                  color: isSelected
-                      ? AppTheme.primaryColor
-                      : null,
+                  color: isSelected ? accent : null,
                 ),
               ),
             ),
             if (isSelected)
-              const Icon(Icons.check_circle_rounded,
-                  color: AppTheme.primaryColor, size: 20),
+              Icon(Icons.check_circle_rounded,
+                  color: accent, size: 20),
           ],
         ),
       ),

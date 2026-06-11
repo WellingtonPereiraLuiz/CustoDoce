@@ -13,7 +13,25 @@ class PaywallScreen extends ConsumerWidget {
     if (kIsWeb) {
       return Scaffold(
         appBar: AppBar(title: const Text('CustoDoce Pro')),
-        body: Center(
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: Theme.of(context).brightness == Brightness.dark
+                  ? [
+                      const Color(0xFF1E1B1A),
+                      const Color(0xFF2C1A16),
+                      const Color(0xFF1E1B1A),
+                    ]
+                  : [
+                      const Color(0xFFFFF8F6),
+                      const Color(0xFFF5E6E0),
+                      const Color(0xFFFFF8F6),
+                    ],
+            ),
+          ),
+          child: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 600),
             child: Padding(

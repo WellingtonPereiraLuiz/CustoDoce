@@ -38,7 +38,7 @@ class HomeScreen extends ConsumerWidget {
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppTheme.primaryColor.withValues(alpha: 0.05),
+                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
                     Colors.transparent,
                   ],
                 ),
@@ -67,7 +67,7 @@ class HomeScreen extends ConsumerWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 800),
               child: RefreshIndicator(
-        color: AppTheme.primaryColor,
+        color: Theme.of(context).colorScheme.primary,
         onRefresh: () async {
           ref.read(recipesProvider.notifier).refresh();
         },
@@ -187,7 +187,7 @@ class HomeScreen extends ConsumerWidget {
               title: 'Receitas',
               value: recipeCount.toString(),
               icon: Icons.cake_rounded,
-              iconColor: AppTheme.primaryColor,
+              iconColor: Theme.of(context).colorScheme.primary,
               isLoading: recipesAsync.isLoading,
             ),
           ),
