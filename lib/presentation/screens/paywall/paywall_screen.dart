@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
+import 'package:custo_doce/core/models/subscription_plan.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 
 class PaywallScreen extends ConsumerWidget {
@@ -135,7 +136,7 @@ class _WebProScreen extends ConsumerWidget {
                     // Benefícios
                     _BenefitItem(icon: Icons.all_inclusive_rounded, accent: accent, text: 'Receitas ilimitadas'),
                     _BenefitItem(icon: Icons.bar_chart_rounded, accent: accent, text: 'Relatórios de custos avançados'),
-                    _BenefitItem(icon: Icons.inventory_2_rounded, accent: accent, text: 'Ingredientes ilimitados no estoque'),
+                    _BenefitItem(icon: Icons.inventory_2_rounded, accent: accent, text: 'Ingredientes ilimitados'),
                     _BenefitItem(icon: Icons.sync_rounded, accent: accent, text: 'Sincronização em nuvem'),
                     _BenefitItem(icon: Icons.support_agent_rounded, accent: accent, text: 'Suporte prioritário'),
                     const SizedBox(height: 32),
@@ -192,7 +193,7 @@ class _WebProScreen extends ConsumerWidget {
                             : () {
                                 ref
                                     .read(subscriptionNotifierProvider.notifier)
-                                    .setProStatus(true);
+                                    .setPlan(SubscriptionPlan.pro);
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('🎉 Bem-vindo ao CustoDoce Pro!'),
@@ -214,7 +215,7 @@ class _WebProScreen extends ConsumerWidget {
                         onPressed: () {
                           ref
                               .read(subscriptionNotifierProvider.notifier)
-                              .setProStatus(false);
+                              .setPlan(SubscriptionPlan.free);
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(content: Text('Plano revertido para Free.')),
                           );
