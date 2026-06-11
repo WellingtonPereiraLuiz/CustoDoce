@@ -132,7 +132,7 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: colorScheme.surfaceContainerHighest.withOpacity(0.5),
+        fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: BorderSide.none,
@@ -142,7 +142,7 @@ class AppTheme {
           borderSide: BorderSide(color: colorScheme.primaryContainer, width: 2),
         ),
         labelStyle: TextStyle(color: colorScheme.onSurfaceVariant),
-        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withOpacity(0.6)),
+        hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6)),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
