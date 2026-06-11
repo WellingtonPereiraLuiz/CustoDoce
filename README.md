@@ -7,7 +7,7 @@
 ## Equipe
 
 - **Nome da equipe:** CustoDoce
-- **Integrantes:** Wellington Pereira Luiz, Higor Rodrigues Lauer, João Vitor Gomes Zeri e Erick Saymon
+- **Integrantes:** Wellington Pereira Luiz, Higor Rodrigues Lauer, João Vitor Gomes Zeri e Erick Saymon Contadini Markoviscz
 - **Curso/Turma:** Tecnologia em Análise e Desenvolvimento de Sistemas (ADS) / IFRO Campus Ariquemes
 - **Categoria:** Desafio Livre de Impacto Regional
 
