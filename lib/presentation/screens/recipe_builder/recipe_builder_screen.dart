@@ -166,7 +166,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: Center(
+      body: Align(
+        alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
           child: Form(

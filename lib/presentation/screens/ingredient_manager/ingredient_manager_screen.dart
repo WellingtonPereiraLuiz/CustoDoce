@@ -46,7 +46,11 @@ class IngredientManagerScreen extends ConsumerWidget {
               ),
             );
           }
-          return ListView.builder(
+          return Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: ListView.builder(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
             itemCount: ingredients.length,
             itemBuilder: (context, index) {
@@ -87,6 +91,8 @@ class IngredientManagerScreen extends ConsumerWidget {
                 },
               );
             },
+          ),
+            ),
           );
         },
       ),

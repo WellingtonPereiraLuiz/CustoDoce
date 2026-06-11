@@ -86,8 +86,12 @@ Calculado com CustoDoce 🍫
               ),
             ],
           ),
-          body: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
+          body: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -137,6 +141,8 @@ Calculado com CustoDoce 🍫
                   ),
                 )),
               ],
+            ),
+              ),
             ),
           ),
         );
