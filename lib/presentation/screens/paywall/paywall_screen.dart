@@ -14,20 +14,18 @@ class PaywallScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     if (kIsWeb) {
-      final isAlreadyPro = ref.watch(isProUserProvider);
-      return _WebProScreen(isAlreadyPro: isAlreadyPro);
+      return const _WebPlanSelector();
     }
     return Scaffold(
       body: SafeArea(
         child: PaywallView(
           onPurchaseCompleted: (customerInfo, storeTransaction) {
-            // Update provider state
             ref.read(subscriptionNotifierProvider.notifier).checkStatus();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Bem-vindo ao CustoDoce Pro! 🚀')),
               );
-              context.pop(); // Go back
+              context.pop();
             }
           },
           onRestoreCompleted: (customerInfo) {
@@ -50,15 +48,41 @@ class PaywallScreen extends ConsumerWidget {
   }
 }
 
-class _WebProScreen extends ConsumerWidget {
-  final bool isAlreadyPro;
-  const _WebProScreen({required this.isAlreadyPro});
+class _WebPlanSelector extends ConsumerWidget {
+  const _WebPlanSelector();
+
+  List<({String label, bool ok})> _featureRows(PlanLimits p) => [
+        (
+          label: p.isUnlimitedRecipes
+              ? 'Receitas ilimitadas'
+              : '${p.recipeLimit} receitas',
+          ok: true
+        ),
+        (
+          label: p.isUnlimitedIngredients
+              ? 'Ingredientes ilimitados'
+              : '${p.ingredientLimit} ingredientes',
+          ok: true
+        ),
+        (
+          label: p.equipmentLimit == 0
+              ? 'Equipamentos'
+              : (p.equipmentLimit == -1
+                  ? 'Equipamentos ilimitados'
+                  : '${p.equipmentLimit} equipamentos'),
+          ok: p.equipmentLimit != 0
+        ),
+        (label: 'Relatórios e gráficos', ok: p.hasReports),
+        (label: 'Cardápio digital', ok: p.hasDigitalMenu),
+        (label: 'Backup em nuvem', ok: p.hasCloudBackup),
+      ];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = isDark ? AppTheme.accentWarm : AppTheme.primaryColor;
     final onAccent = isDark ? AppTheme.primaryColor : Colors.white;
+    final currentPlan = ref.watch(subscriptionNotifierProvider);
 
     return Scaffold(
       body: Container(
@@ -85,11 +109,12 @@ class _WebProScreen extends ConsumerWidget {
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 480),
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    // Botão voltar
+                    // Header
                     Align(
                       alignment: Alignment.centerLeft,
                       child: IconButton(
@@ -97,195 +122,210 @@ class _WebProScreen extends ConsumerWidget {
                         onPressed: () => context.pop(),
                       ),
                     ),
-                    const SizedBox(height: 16),
-
-                    // Ícone
-                    Container(
-                      width: 72,
-                      height: 72,
-                      decoration: BoxDecoration(
-                        color: accent.withAlpha(25),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: accent.withAlpha(60), width: 2),
-                      ),
-                      child: Icon(Icons.workspace_premium_rounded, color: accent, size: 36),
-                    ),
-                    const SizedBox(height: 20),
-
-                    // Título
+                    const SizedBox(height: 8),
+                    Icon(Icons.workspace_premium_rounded,
+                        color: accent, size: 40),
+                    const SizedBox(height: 12),
                     Text(
-                      'CustoDoce Pro',
+                      'Escolha seu plano',
                       style: GoogleFonts.sourceSerif4(
-                        fontSize: 32,
+                        fontSize: 28,
                         fontWeight: FontWeight.w700,
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 4),
                     Text(
-                      'Desbloqueie o poder total da sua confeitaria',
+                      'Modo demonstração — pagamentos reais no app mobile.',
                       style: TextStyle(
-                        fontSize: 15,
-                        color: Theme.of(context).colorScheme.onSurface.withAlpha(160),
+                        fontSize: 12,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withAlpha(100),
                       ),
                       textAlign: TextAlign.center,
-                    ),
-                    const SizedBox(height: 32),
-
-                    // Benefícios
-                    _BenefitItem(icon: Icons.all_inclusive_rounded, accent: accent, text: 'Receitas ilimitadas'),
-                    _BenefitItem(icon: Icons.bar_chart_rounded, accent: accent, text: 'Relatórios de custos avançados'),
-                    _BenefitItem(icon: Icons.inventory_2_rounded, accent: accent, text: 'Ingredientes ilimitados'),
-                    _BenefitItem(icon: Icons.sync_rounded, accent: accent, text: 'Sincronização em nuvem'),
-                    _BenefitItem(icon: Icons.support_agent_rounded, accent: accent, text: 'Suporte prioritário'),
-                    const SizedBox(height: 32),
-
-                    // Card de preço
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: accent.withAlpha(isDark ? 20 : 15),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: accent.withAlpha(80), width: 1.5),
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'R\$ 9,90',
-                            style: GoogleFonts.sourceSerif4(
-                              fontSize: 40,
-                              fontWeight: FontWeight.w700,
-                              color: accent,
-                            ),
-                          ),
-                          Text(
-                            'por mês • cancele quando quiser',
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Theme.of(context).colorScheme.onSurface.withAlpha(140),
-                            ),
-                          ),
-                        ],
-                      ),
                     ),
                     const SizedBox(height: 24),
 
-                    // Botão principal
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: accent,
-                          foregroundColor: onAccent,
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14),
+                    // Plan cards
+                    ...PlanLimits.all.map((plan) {
+                      final isSelected = currentPlan == plan.plan;
+                      final rows = _featureRows(plan);
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: isSelected
+                                ? accent.withAlpha(isDark ? 20 : 12)
+                                : Theme.of(context)
+                                    .colorScheme
+                                    .surfaceContainerHighest
+                                    .withAlpha(isDark ? 200 : 180),
+                            borderRadius: BorderRadius.circular(16),
+                            border: Border.all(
+                              color: isSelected
+                                  ? accent
+                                  : Theme.of(context)
+                                      .colorScheme
+                                      .outlineVariant,
+                              width: isSelected ? 2 : 1,
+                            ),
                           ),
-                          textStyle: GoogleFonts.workSans(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        onPressed: isAlreadyPro
-                            ? null
-                            : () {
-                                ref
-                                    .read(subscriptionNotifierProvider.notifier)
-                                    .setPlan(SubscriptionPlan.pro);
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('🎉 Bem-vindo ao CustoDoce Pro!'),
-                                    backgroundColor: AppTheme.successColor,
-                                  ),
-                                );
-                                context.pop();
-                              },
-                        child: Text(
-                          isAlreadyPro ? 'Você já é Pro!' : 'Ativar Pro (Demo Web)',
-                        ),
-                      ),
-                    ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(20),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Name + price + badge
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            plan.name,
+                                            style: GoogleFonts.sourceSerif4(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w700,
+                                              color: isSelected
+                                                  ? accent
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface,
+                                            ),
+                                          ),
+                                          Text(
+                                            plan.priceLabel,
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withAlpha(160),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    if (isSelected)
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 10, vertical: 4),
+                                        decoration: BoxDecoration(
+                                          color: accent,
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                        ),
+                                        child: Text(
+                                          'ATUAL',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w800,
+                                            color: onAccent,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
 
-                    // Se já for pro, botão de reverter (para testes)
-                    if (isAlreadyPro) ...[
-                      const SizedBox(height: 12),
-                      TextButton(
-                        onPressed: () {
-                          ref
-                              .read(subscriptionNotifierProvider.notifier)
-                              .setPlan(SubscriptionPlan.free);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Plano revertido para Free.')),
-                          );
-                          context.pop();
-                        },
-                        child: Text(
-                          'Reverter para Free (teste)',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.onSurface.withAlpha(120),
-                            fontSize: 13,
+                                // Feature rows
+                                ...rows.map((row) => Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 6),
+                                      child: Row(
+                                        children: [
+                                          Icon(
+                                            row.ok
+                                                ? Icons.check_rounded
+                                                : Icons.close_rounded,
+                                            size: 16,
+                                            color: row.ok
+                                                ? accent
+                                                : Theme.of(context)
+                                                    .colorScheme
+                                                    .onSurface
+                                                    .withAlpha(60),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Text(
+                                            row.label,
+                                            style: TextStyle(
+                                              fontSize: 13,
+                                              color: row.ok
+                                                  ? Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface
+                                                  : Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurface
+                                                      .withAlpha(80),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    )),
+                                const SizedBox(height: 16),
+
+                                // Select button
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: isSelected
+                                      ? OutlinedButton(
+                                          onPressed: null,
+                                          style: OutlinedButton.styleFrom(
+                                            side:
+                                                BorderSide(color: accent),
+                                            foregroundColor: accent,
+                                          ),
+                                          child: const Text('Plano atual'),
+                                        )
+                                      : ElevatedButton(
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: accent,
+                                            foregroundColor: onAccent,
+                                            textStyle: GoogleFonts.workSans(
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                          ),
+                                          onPressed: () {
+                                            ref
+                                                .read(
+                                                    subscriptionNotifierProvider
+                                                        .notifier)
+                                                .setPlan(plan.plan);
+                                            ScaffoldMessenger.of(context)
+                                                .showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                    '✅ Plano ${plan.name} ativado!'),
+                                                backgroundColor:
+                                                    AppTheme.successColor,
+                                              ),
+                                            );
+                                            context.pop();
+                                          },
+                                          child: Text('Selecionar ${plan.name}'),
+                                        ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
-
-                    const SizedBox(height: 16),
-                    Text(
-                      'Modo demonstração — pagamentos reais disponíveis no app mobile.',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: Theme.of(context).colorScheme.onSurface.withAlpha(80),
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
+                      );
+                    }),
                   ],
                 ),
               ),
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _BenefitItem extends StatelessWidget {
-  final IconData icon;
-  final Color accent;
-  final String text;
-
-  const _BenefitItem({required this.icon, required this.accent, required this.text});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
-      child: Row(
-        children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: accent.withAlpha(20),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Icon(icon, color: accent, size: 18),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Text(
-              text,
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-          ),
-          Icon(Icons.check_rounded, color: accent, size: 18),
-        ],
       ),
     );
   }
