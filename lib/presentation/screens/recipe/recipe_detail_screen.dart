@@ -41,7 +41,7 @@ Preço sugerido (${recipe.profitMarginPercentage.toStringAsFixed(0)}% margem): R
 
 Calculado com CustoDoce 🍫
                   ''';
-                  Share.share(text);
+                  SharePlus.instance.share(ShareParams(text: text));
                 },
               ),
               IconButton(
