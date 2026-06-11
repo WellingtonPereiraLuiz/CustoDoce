@@ -131,13 +131,45 @@ Calculado com CustoDoce 🍫
                   style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 16),
-                ...recipe.ingredients.map((i) => ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(i.ingredientName),
-                  subtitle: Text('${i.quantityUsed} ${i.ingredientUnit}'),
-                  trailing: Text(
-                    currencyFormat.format(i.calculatedIngredientCost),
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                ...recipe.ingredients.map((i) => Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Theme.of(context).colorScheme.outlineVariant,
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            i.ingredientName,
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                          ),
+                          Text(
+                            '${i.quantityUsed} ${i.ingredientUnit}',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Text(
+                        currencyFormat.format(i.calculatedIngredientCost),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: AppTheme.successColor,
+                        ),
+                      ),
+                    ],
                   ),
                 )),
               ],
