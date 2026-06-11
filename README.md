@@ -1,114 +1,169 @@
-# CustoDoce 🍰
+# CustoDoce 🍫
 
-**CustoDoce** é o aplicativo definitivo para confeiteiros e empreendedores gastronômicos precificarem suas receitas de forma rápida, inteligente e profissional.
+> Calculadora de custos e precificação para confeiteiros e padeiros.
 
-Não perca mais tempo calculando grama por grama no papel. O CustoDoce faz tudo por você: desde o controle do seu estoque de ingredientes até a definição da sua margem de lucro perfeita.
+Desenvolvido por Wellington Pereira Luiz — Hackathon IFRO 2025.
 
-## 🚀 Funcionalidades
+---
 
-- **Autenticação Real:** Login nativo com E-mail/Senha e Google Sign-In (Firebase Auth).
-- **Gestão de Ingredientes:** Cadastre os ingredientes com base no valor da embalagem fechada. O aplicativo calcula automaticamente a fração exata usada em cada receita.
-- **Calculadora Automática de Custos:** Construa receitas arrastando ingredientes. Descubra o custo exato de produção.
-- **Precificação e Margem de Lucro:** Defina sua taxa de desperdício (custo invisível) e sua margem de lucro desejada. O aplicativo te diz exatamente por quanto vender.
-- **Temas Dinâmicos:** Um belíssimo **Modo Escuro** premium (Chocolate/Espresso) e um **Modo Claro** refinado.
-- **Banco de Dados Local:** Alta velocidade com armazenamento offline usando SQLite (Persistência garantida na base de dados).
+## Sobre o Projeto
 
-## 🛠️ Tecnologias Utilizadas
+O **CustoDoce** resolve a principal dor de quem trabalha com confeitaria artesanal: saber exatamente quanto custa cada receita e por quanto vender para ter lucro de verdade.
 
-- **[Flutter](https://flutter.dev/):** Framework para desenvolvimento Multiplataforma.
-- **[Riverpod](https://riverpod.dev/):** Gerenciamento de estado reativo e robusto.
-- **[Firebase Authentication](https://firebase.google.com/docs/auth):** Backend de Autenticação para Google Sign-In e Contas de E-mail.
-- **[Sqflite](https://pub.dev/packages/sqflite):** Banco de dados SQLite para cache de receitas e ingredientes.
-- **[GoRouter](https://pub.dev/packages/go_router):** Navegação fluida e declarativa por rotas.
+Com ele, o confeiteiro cadastra seus ingredientes com base no valor da embalagem comprada, monta suas receitas informando as quantidades utilizadas, e o app calcula automaticamente o custo total, o custo por porção e o preço de venda com a margem de lucro desejada.
 
-## 📦 Como Rodar o Projeto
+---
+
+## Funcionalidades
+
+- **Gestão de Ingredientes** — cadastro com preço por embalagem; o app calcula o custo por grama/ml/unidade automaticamente
+- **Calculadora de Receitas** — monte receitas selecionando ingredientes e quantidades; custo calculado em tempo real
+- **Precificação Inteligente** — defina sua margem de lucro e taxa de desperdício; o app sugere o preço de venda ideal
+- **Tela de Detalhes** — visualize custo por porção, preço sugerido e lista completa de ingredientes com custos individuais
+- **Compartilhar Receita** — envie o resumo financeiro da receita via qualquer app (WhatsApp, e-mail etc.)
+- **Login com Google** — autenticação via Firebase Auth (Google Sign-In)
+- **Tema Claro e Escuro** — Modo Claro refinado e Modo Escuro premium (paleta Chocolate/Espresso)
+- **Banco de Dados Local** — armazenamento offline com SQLite; funciona sem internet
+- **Proteção Free/Pro** — usuários gratuitos podem cadastrar até 3 receitas
+
+---
+
+## Telas
+
+| Tela | Descrição |
+|------|-----------|
+| Splash | Inicialização e verificação de autenticação |
+| Login | Acesso com e-mail/senha ou Google |
+| Home | Lista de receitas com custo e preço sugerido |
+| Gerenciar Ingredientes | CRUD completo de ingredientes |
+| Construtor de Receitas | Montagem de receita com ingredientes e quantidades |
+| Detalhes da Receita | Custos detalhados + lista de ingredientes |
+| Configurações | Tema, idioma e dados da conta |
+| Paywall | Apresentação do plano Pro |
+
+---
+
+## Estrutura do Projeto
+
+```
+lib/
+├── core/
+│   ├── constants/       # Constantes globais (rotas, limites, chaves)
+│   ├── enums/           # Enums de categoria de receita e unidades de medida
+│   ├── error/           # Classes de falha (Failures)
+│   ├── l10n/            # Strings localizadas (pt-BR / en-US)
+│   ├── providers/       # Providers globais (auth, settings, subscription)
+│   ├── router/          # Configuração de rotas com GoRouter
+│   ├── services/        # AuthService, SubscriptionService (RevenueCat)
+│   ├── theme/           # Design System — AppTheme (fonte da verdade)
+│   └── utils/           # Utilitários (seeder, uuid)
+├── data/
+│   ├── local/
+│   │   ├── database/    # DatabaseHelper (SQLite via sqflite)
+│   │   ├── datasources/ # Datasources locais de ingredientes e receitas
+│   │   └── models/      # Models de ingrediente, receita e recipe_ingredient
+│   └── repositories/    # Implementações dos repositórios
+├── domain/
+│   ├── entities/        # Entidades puras (Ingredient, Recipe, RecipeIngredient)
+│   └── repositories/    # Interfaces dos repositórios
+├── presentation/
+│   ├── providers/       # Providers de UI (recipe, ingredient, recipe_builder)
+│   └── screens/         # Telas do app (auth, home, recipe, settings etc.)
+├── firebase_options.dart
+└── main.dart
+```
+
+---
+
+## Como Rodar
 
 ### Pré-requisitos
-- [Flutter SDK](https://docs.flutter.dev/get-started/install) (versão >= 3.3.0)
-- Um projeto configurado no [Firebase Console](https://console.firebase.google.com/)
 
-### Passos para instalação
+- [Flutter SDK](https://docs.flutter.dev/get-started/install) >= 3.3.0
+- Arquivo `.env` na raiz do projeto com as chaves do Firebase (não versionado — solicitar ao time)
 
-1. Clone este repositório:
-   ```bash
-   git clone https://github.com/SEU_USUARIO/custo_doce.git
-   ```
+### Rodar na Web
 
-2. Entre no diretório do projeto:
-   ```bash
-   cd custo_doce
-   ```
+```bash
+flutter pub get
+flutter run -d chrome --dart-define-from-file=.env
+```
 
-3. Instale as dependências:
-   ```bash
-   flutter pub get
-   ```
+Acessem em `http://localhost:PORT` (porta exibida no terminal).
 
-4. *Opcional: Configure suas chaves do Firebase* 
-   Se quiser compilar as versões finais de Android/iOS, certifique-se de baixar os arquivos `google-services.json` e `GoogleService-Info.plist` no Firebase Console ou rode o `flutterfire configure`.
+### Rodar no Emulador Android
 
-5. Inicie a aplicação (exemplo na web):
-   ```bash
-   flutter run -d chrome
-   ```
+```bash
+flutter pub get
+flutter run -d emulator-5554 --dart-define-from-file=.env
+```
 
-## 📦 Gerar APK (Release)
+> Substitua `emulator-5554` pelo ID do seu emulador (`flutter devices` para listar).
 
-### Pré-requisitos
-- Flutter SDK instalado e configurado
-- Variáveis de ambiente do Firebase configuradas
+### Rodar no Dispositivo Físico (Android)
 
-### Build local
+1. Ative o **Modo Desenvolvedor** e **Depuração USB** no celular
+2. Conecte via USB
+3. Execute:
+```bash
+flutter run --dart-define-from-file=.env
+```
 
-1. Crie o arquivo `.env.dart_define` na raiz do projeto com as chaves Firebase:
-   ```
-   FIREBASE_API_KEY=sua_chave
-   FIREBASE_APP_ID=seu_app_id
-   FIREBASE_MESSAGING_SENDER_ID=seu_sender_id
-   FIREBASE_PROJECT_ID=seu_project_id
-   FIREBASE_AUTH_DOMAIN=seu_auth_domain
-   FIREBASE_STORAGE_BUCKET=seu_storage_bucket
-   ```
+---
 
-2. Execute o build:
-   ```bash
-   flutter build apk --release --dart-define-from-file=.env.dart_define
-   ```
+## Gerar APK (Release)
 
-3. O APK gerado estará em:
-   ```
-   build/app/outputs/flutter-apk/app-release.apk
-   ```
+```bash
+flutter build apk --release --dart-define-from-file=.env
+```
 
-4. Para instalar no dispositivo via USB:
-   ```bash
-   flutter install
-   ```
-   Ou copie o APK manualmente para o dispositivo e instale habilitando "Fontes desconhecidas".
+O APK gerado estará em:
+```
+build/app/outputs/flutter-apk/app-release.apk
+```
 
-### Download direto
-> Link do APK de demonstração: *(adicionar link após gerar e hospedar o APK)*
+Para instalar diretamente no dispositivo conectado via USB:
+```bash
+flutter install
+```
 
-## 🏗️ Estrutura e Atualizações Recentes
+> O arquivo `.env` deve conter as variáveis do Firebase. Veja `.env.example` para o formato esperado.
 
-Durante a última maratona de desenvolvimento, implementamos melhorias significativas na estrutura, segurança e estabilidade do projeto:
+---
 
-### 1. Migração de Variáveis de Ambiente (Segurança)
-- **Problema:** A dependência `flutter_dotenv` estava causando inconsistências e conflitos (root clash) na leitura de chaves de API (Firebase) durante a geração da build de Release para o Android.
-- **Solução:** Removemos totalmente o uso do pacote `dotenv` nos arquivos críticos (`firebase_options.dart` e `app_constants.dart`). Toda a injeção de dependências agora é feita no momento de compilação de forma segura nativa usando `--dart-define-from-file=.env.dart_define` com a função `String.fromEnvironment()`.
+## Variáveis de Ambiente
 
-### 2. Design System Consistente (Artisanal Ledger)
-- **Implementação:** Padronizamos a UI removendo todas as cores estáticas (ex: `Colors.orangeAccent`, `Colors.blue`) diretamente inseridas nas telas.
-- **Estrutura:** O design agora é centralizado no `AppTheme` (arquivo `lib/core/theme/app_theme.dart`). As telas de `home_screen.dart`, `recipe_builder_screen.dart` e `ingredient_manager_screen.dart` consomem ativamente os *tokens* de tema (`Theme.of(context).colorScheme`).
-- **Correção de Bugs:** Ajustamos a árvore de Widgets corrigindo problemas de parênteses soltos e chamadas irregulares de `const` (que não aceitam `Theme.of(context)` dinâmico) evitando assim *crashes* na tela preta.
+O projeto usa `--dart-define-from-file=.env` para injetar as chaves em tempo de compilação. Crie um arquivo `.env` na raiz com base no exemplo abaixo:
 
-### 3. Estabilidade do Gradle e Build Android
-- **Problema:** A compilação do Android no ambiente Windows sofria paradas e *crashes* por estouro do limite de memória da máquina host (JVM Daemon desaparecia subitamente tentando alocar 12GB).
-- **Solução:** Editamos o arquivo `android/gradle.properties` reduzindo drasticamente os limites do `org.gradle.jvmargs` de `-Xmx8G` para um valor seguro de `-Xmx2048M -XX:MaxMetaspaceSize=512m`. O compilador agora funciona perfeitamente bem, gerando o arquivo APK de produção limpo.
+```
+FIREBASE_API_KEY=sua_chave_aqui
+FIREBASE_APP_ID_ANDROID=seu_app_id_android
+FIREBASE_APP_ID_WEB=seu_app_id_web
+FIREBASE_MESSAGING_SENDER_ID=seu_sender_id
+FIREBASE_PROJECT_ID=seu_project_id
+FIREBASE_AUTH_DOMAIN=seu_project.firebaseapp.com
+FIREBASE_STORAGE_BUCKET=seu_project.firebasestorage.app
+FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
+```
 
-### 4. Proteção de Usuários Free
-- **Funcionalidade:** Reforçamos o bloqueio na `recipe_builder_screen.dart` utilizando o `isProUserProvider`. Agora, o aplicativo automaticamente checa e proíbe a criação da 4ª receita para usuários gratuitos sem assinatura.
+> **Nunca versione o `.env` real.** Ele está no `.gitignore`.
 
+---
 
-## 🧑‍🍳 Ficha Técnica
-Criado com foco em resolver a principal dor dos confeiteiros: entender onde o dinheiro está indo e garantir que cada doce vendido gere lucro de verdade.
+## Stack
+
+| Tecnologia | Uso |
+|-----------|-----|
+| Flutter | Framework multiplataforma |
+| Riverpod | Gerenciamento de estado |
+| GoRouter | Navegação declarativa |
+| SQLite (sqflite) | Banco de dados local offline |
+| Firebase Auth | Autenticação (e-mail + Google) |
+| RevenueCat | Monetização e controle de assinatura |
+| share_plus | Compartilhamento de receitas |
+
+---
+
+## Time
+
+Desenvolvido como projeto para o Hackathon IFRO 2025.
