@@ -3,8 +3,8 @@ import 'package:custo_doce/data/local/datasources/local_equipment_datasource.dar
 import 'package:custo_doce/data/repositories/equipment_repository_impl.dart';
 import 'package:custo_doce/domain/entities/equipment_entity.dart';
 import 'package:custo_doce/domain/repositories/equipment_repository.dart';
-import 'package:custo_doce/presentation/providers/auth_provider.dart';
-import 'package:custo_doce/presentation/providers/subscription_provider.dart';
+import 'package:custo_doce/core/providers/auth_provider.dart';
+import 'package:custo_doce/core/providers/subscription_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:uuid/uuid.dart';
 
@@ -31,7 +31,7 @@ class EquipmentNotifier extends AsyncNotifier<List<EquipmentEntity>> {
         return false;
       }
 
-      final authUser = ref.read(authProvider);
+      final authUser = ref.read(currentUserProvider);
       final newEquipment = equipment.copyWith(
         id: equipment.id.isEmpty ? const Uuid().v4() : equipment.id,
         userId: authUser?.uid,
