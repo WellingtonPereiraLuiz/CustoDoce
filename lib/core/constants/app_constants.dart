@@ -5,8 +5,6 @@ class AppConstants {
   static const int freeRecipeLimit = 3;
   static const String revenueCatApiKey = String.fromEnvironment('REVENUECAT_API_KEY');
   static const String revenueCatProEntitlement = 'pro';
-  static const String supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-  static const String supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
   // GoRouter paths
   static const String homeRoute = '/';

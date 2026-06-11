@@ -28,8 +28,7 @@ dependencies:
   # Monetization
   purchases_flutter: ^10.2.0
 
-  # Backend / Cloud (future)
-  supabase_flutter: ^2.5.7
+  # Backend / Cloud (future - não utilizado ainda)
 
   # UI Utilities
   intl: ^0.20.0
