@@ -250,7 +250,7 @@ class SettingsScreen extends ConsumerWidget {
               SizedBox(height: 16),
               Text('Como usar:', style: TextStyle(fontWeight: FontWeight.bold)),
               SizedBox(height: 8),
-              Text('1. Cadastre seus ingredientes na aba "Estoque" (ou tela de ingredientes), colocando o custo da embalagem fechada.'),
+              Text('1. Cadastre seus ingredientes na aba "Ingredientes", colocando o custo da embalagem fechada.'),
               SizedBox(height: 8),
               Text('2. Na tela de "Nova Receita", você seleciona o quanto de cada ingrediente usou. O app calcula a fração do custo perfeitamente!'),
               SizedBox(height: 8),

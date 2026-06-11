@@ -2,7 +2,7 @@
 
 class AppConstants {
   static const String appName = 'CustoDoce';
-  static const int freeRecipeLimit = 3;
+  // Limites de plano agora em: lib/core/models/subscription_plan.dart (PlanLimits)
   static const String revenueCatApiKey = String.fromEnvironment('REVENUECAT_API_KEY');
   static const String revenueCatProEntitlement = 'pro';
 
