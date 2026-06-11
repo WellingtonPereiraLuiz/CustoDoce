@@ -6,6 +6,8 @@ import 'package:custo_doce/core/providers/settings_provider.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/data/local/database/database_helper.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
+import 'package:custo_doce/core/models/subscription_plan.dart';
+import 'package:custo_doce/core/utils/plan_gate.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
 import 'package:custo_doce/core/providers/auth_provider.dart' as custo_doce_auth;
@@ -16,10 +18,13 @@ class SettingsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final settingsAsync = ref.watch(settingsProvider);
-    final isProUser = ref.watch(isProUserProvider);
+    final currentPlan = ref.watch(currentPlanProvider);
+    final isFree = currentPlan.plan == SubscriptionPlan.free;
     final s = AppStrings(Localizations.localeOf(context));
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final cardBg = isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight;
+    final accent = isDark ? AppTheme.accentWarm : AppTheme.primaryColor;
+    final onAccent = isDark ? AppTheme.primaryColor : Theme.of(context).colorScheme.onPrimary;
 
     return Scaffold(
       appBar: AppBar(
@@ -60,27 +65,23 @@ class SettingsScreen extends ConsumerWidget {
             // ── Account ─────────────────────────────────────────────
             const _SectionHeader(title: 'Conta', icon: Icons.person_outline_rounded),
             const SizedBox(height: 12),
-            if (!isProUser)
+            if (isFree)
               _SettingsTile(
                 icon: Icons.workspace_premium_rounded,
-                iconColor: AppTheme.primaryColor,
+                iconColor: accent,
                 title: s.upgradeToPro,
                 subtitle: s.upgradeDescription,
                 trailing: Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).brightness == Brightness.dark
-                        ? AppTheme.accentWarm
-                        : AppTheme.primaryColor,
+                    color: accent,
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
-                    'PRO',
+                    'LIGHT',
                     style: TextStyle(
-                        color: Theme.of(context).brightness == Brightness.dark
-                            ? AppTheme.primaryColor
-                            : Theme.of(context).colorScheme.onPrimary,
+                        color: onAccent,
                         fontSize: 11,
                         fontWeight: FontWeight.w800),
                   ),
@@ -92,20 +93,86 @@ class SettingsScreen extends ConsumerWidget {
               _SettingsTile(
                 icon: Icons.verified_rounded,
                 iconColor: AppTheme.successColor,
-                title: 'CustoDoce Pro',
-                subtitle: 'Gerenciar Assinatura',
-                trailing: const Icon(Icons.open_in_new_rounded,
-                    color: AppTheme.successColor, size: 18),
-                onTap: () {
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Gerencie sua assinatura na loja de aplicativos do seu dispositivo.')),
-                    );
-                  }
-                },
+                title: 'Plano ${currentPlan.name}',
+                subtitle: 'Toque para gerenciar ou trocar de plano',
+                trailing: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppTheme.successColor.withAlpha(20),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: AppTheme.successColor.withAlpha(80)),
+                  ),
+                  child: Text(
+                    currentPlan.name.toUpperCase(),
+                    style: const TextStyle(
+                        color: AppTheme.successColor,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800),
+                  ),
+                ),
+                onTap: () => context.push('/paywall'),
                 cardBg: cardBg,
                 titleColor: Theme.of(context).colorScheme.onSurface,
               ),
+            const SizedBox(height: 12),
+            // ── Features Pro/Premium (protegidas por gates) ─────────
+            _SettingsTile(
+              icon: Icons.bar_chart_rounded,
+              iconColor: accent,
+              title: 'Relatórios e Gráficos',
+              subtitle: 'Análise de custos e margens',
+              trailing: currentPlan.hasReports
+                  ? Icon(Icons.chevron_right_rounded, color: accent)
+                  : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
+              onTap: () {
+                PlanGate.checkFeature(
+                  context: context,
+                  hasAccess: currentPlan.hasReports,
+                  featureName: 'Relatórios e gráficos',
+                  requiredPlan: 'Pro',
+                );
+              },
+              cardBg: cardBg,
+            ),
+            const SizedBox(height: 8),
+            _SettingsTile(
+              icon: Icons.restaurant_menu_rounded,
+              iconColor: accent,
+              title: 'Cardápio Digital',
+              subtitle: 'Link compartilhável com seus produtos',
+              trailing: currentPlan.hasDigitalMenu
+                  ? Icon(Icons.chevron_right_rounded, color: accent)
+                  : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
+              onTap: () {
+                PlanGate.checkFeature(
+                  context: context,
+                  hasAccess: currentPlan.hasDigitalMenu,
+                  featureName: 'Cardápio digital',
+                  requiredPlan: 'Premium',
+                );
+              },
+              cardBg: cardBg,
+            ),
+            const SizedBox(height: 8),
+            _SettingsTile(
+              icon: Icons.cloud_sync_rounded,
+              iconColor: accent,
+              title: 'Backup em Nuvem',
+              subtitle: 'Sincronize seus dados com segurança',
+              trailing: currentPlan.hasCloudBackup
+                  ? Icon(Icons.chevron_right_rounded, color: accent)
+                  : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
+              onTap: () {
+                PlanGate.checkFeature(
+                  context: context,
+                  hasAccess: currentPlan.hasCloudBackup,
+                  featureName: 'Backup em nuvem',
+                  requiredPlan: 'Pro',
+                );
+              },
+              cardBg: cardBg,
+            ),
             const SizedBox(height: 24),
 
             // ── About ───────────────────────────────────────────────
