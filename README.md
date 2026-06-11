@@ -6,6 +6,17 @@ Desenvolvido por Wellington Pereira Luiz — Hackathon IFRO 2025.
 
 ---
 
+## 📥 Download
+
+A versão mais recente do APK está disponível na página de
+[**Releases**](https://github.com/WellingtonPereiraLuiz/CustoDoce/releases).
+
+Versão atual: **1.1.0**
+
+> O app também está disponível na versão **Web** (responsiva para desktop e mobile).
+
+---
+
 ## Sobre o Projeto
 
 O **CustoDoce** resolve a principal dor de quem trabalha com confeitaria artesanal: saber exatamente quanto custa cada receita e por quanto vender para ter lucro de verdade.
@@ -167,3 +178,9 @@ FIREBASE_MEASUREMENT_ID=G-XXXXXXXXXX
 ## Time
 
 Desenvolvido como projeto para o Hackathon IFRO 2025.
+
+---
+
+## 📋 Changelog
+
+Veja o histórico completo de mudanças em [CHANGELOG.md](CHANGELOG.md).
