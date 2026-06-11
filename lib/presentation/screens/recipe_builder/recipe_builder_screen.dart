@@ -246,29 +246,44 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   ],
                 ),
                 const SizedBox(height: 12),
-                ...state.ingredients.map((ri) => Slidable(
-                      key: ValueKey(ri.ingredientId),
-                      endActionPane: ActionPane(
-                        motion: const DrawerMotion(),
-                        children: [
-                          SlidableAction(
-                            onPressed: (_) => notifier.removeIngredient(ri.ingredientId),
-                            backgroundColor: Theme.of(context).colorScheme.error,
-                            foregroundColor: Theme.of(context).colorScheme.onError,
-                            icon: Icons.delete_outline,
-                            label: 'Apagar',
-                          ),
-                        ],
-                      ),
-                      child: ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text('${ri.ingredientName} (${ri.quantityUsed} ${ri.ingredientUnit})'),
-                        trailing: Text(
-                          _currencyFormat.format(ri.calculatedIngredientCost), 
-                          style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)
+                ...state.ingredients.map((ri) => Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              ri.ingredientName,
+                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                            ),
+                            Text(
+                              '${ri.quantityUsed} ${ri.ingredientUnit}',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    )),
+                      Text(
+                        _currencyFormat.format(ri.calculatedIngredientCost),
+                        style: const TextStyle(
+                          color: AppTheme.primaryColor, 
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
+                        onPressed: () => notifier.removeIngredient(ri.ingredientId),
+                      ),
+                    ],
+                  ),
+                )),
                 const SizedBox(height: 24),
 
                 // Invisible Costs
