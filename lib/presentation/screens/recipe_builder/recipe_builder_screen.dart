@@ -284,7 +284,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   title: const Text('Aplicar Custo Invisível (%)'),
                   value: state.useInvisibleCost,
                   onChanged: notifier.toggleInvisibleCost,
-                  activeColor: AppTheme.primaryColor,
+                  activeTrackColor: AppTheme.primaryColor,
                   contentPadding: EdgeInsets.zero,
                 ),
                 if (state.useInvisibleCost)
@@ -316,7 +316,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   subtitle: const Text('Recomendado para confeitaria'),
                   value: state.useMarkup,
                   onChanged: notifier.toggleMarkup,
-                  activeColor: AppTheme.primaryColor,
+                  activeTrackColor: AppTheme.primaryColor,
                   contentPadding: EdgeInsets.zero,
                 ),
                 if (state.useMarkup) ...[
@@ -351,7 +351,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   title: const Text('Separar para Investimento'),
                   value: state.useInvestment,
                   onChanged: notifier.toggleInvestment,
-                  activeColor: AppTheme.primaryColor,
+                  activeTrackColor: AppTheme.primaryColor,
                   contentPadding: EdgeInsets.zero,
                 ),
                 if (state.useInvestment)
