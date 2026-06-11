@@ -14,16 +14,43 @@ class PaywallScreen extends ConsumerWidget {
       return Scaffold(
         appBar: AppBar(title: const Text('CustoDoce Pro')),
         body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Text('Assinaturas não são suportadas na Web.'),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: () => context.pop(),
-                child: const Text('Voltar'),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 600),
+            child: Padding(
+              padding: const EdgeInsets.all(32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.workspace_premium_rounded, size: 64, 
+                       color: Theme.of(context).colorScheme.primary),
+                  const SizedBox(height: 24),
+                  Text(
+                    'CustoDoce Pro',
+                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Para assinar, use o aplicativo mobile.',
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 40),
+                  // Benefícios Pro
+                  _buildBenefit(context, Icons.all_inclusive_rounded, 'Receitas ilimitadas'),
+                  _buildBenefit(context, Icons.cloud_sync_rounded, 'Sincronização na nuvem'),
+                  _buildBenefit(context, Icons.bar_chart_rounded, 'Relatórios avançados'),
+                  const SizedBox(height: 40),
+                  OutlinedButton(
+                    onPressed: () => context.pop(),
+                    child: const Text('Voltar'),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       );
@@ -56,6 +83,19 @@ class PaywallScreen extends ConsumerWidget {
             }
           },
         ),
+      ),
+    );
+  }
+
+  Widget _buildBenefit(BuildContext context, IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Row(
+        children: [
+          Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
+          const SizedBox(width: 12),
+          Text(text, style: Theme.of(context).textTheme.bodyLarge),
+        ],
       ),
     );
   }
