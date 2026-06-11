@@ -44,6 +44,13 @@ class SubscriptionNotifier extends StateNotifier<bool> {
       state = isPro;
     }
   }
+
+  /// Somente para uso em web/demo — troca o estado manualmente
+  void setProStatus(bool value) {
+    if (kIsWeb) {
+      state = value;
+    }
+  }
 }
 
 final subscriptionNotifierProvider =
