@@ -79,7 +79,7 @@ class HomeScreen extends ConsumerWidget {
             children: [
               _buildHeader(context, isPro),
               const SizedBox(height: 24),
-              _buildKpiRow(recipesAsync, ingredientsAsync),
+              _buildKpiRow(context, recipesAsync, ingredientsAsync),
               if (!isPro) ...[
                 const SizedBox(height: 16),
                 _buildPaywallBanner(context),
@@ -168,7 +168,7 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildKpiRow(AsyncValue<List<RecipeEntity>> recipesAsync, AsyncValue<List<IngredientEntity>> ingredientsAsync) {
+  Widget _buildKpiRow(BuildContext context, AsyncValue<List<RecipeEntity>> recipesAsync, AsyncValue<List<IngredientEntity>> ingredientsAsync) {
     final recipes = recipesAsync.valueOrNull ?? [];
     final ingredients = ingredientsAsync.valueOrNull ?? [];
     
