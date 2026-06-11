@@ -25,16 +25,16 @@ class MainScaffold extends StatelessWidget {
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: _goBranch,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        indicatorColor: AppTheme.primaryColor.withValues(alpha: 0.2),
-        destinations: const [
+        indicatorColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+        destinations: [
           NavigationDestination(
-            icon: Icon(Icons.dashboard_outlined),
-            selectedIcon: Icon(Icons.dashboard_rounded, color: AppTheme.primaryColor),
+            icon: const Icon(Icons.dashboard_outlined),
+            selectedIcon: Icon(Icons.dashboard_rounded, color: Theme.of(context).colorScheme.primary),
             label: 'Início',
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings_rounded, color: AppTheme.primaryColor),
+            icon: const Icon(Icons.settings_outlined),
+            selectedIcon: Icon(Icons.settings_rounded, color: Theme.of(context).colorScheme.primary),
             label: 'Ajustes',
           ),
         ],
