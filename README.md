@@ -1,6 +1,6 @@
 # CustoDoce 🍰
 
-App multiplataforma (Android, iOS, Web) para ajudar doceiras e confeiteiras a calcularem o custo de suas receitas, organizarem o estoque de ingredientes e descobrirem o preço ideal de venda de seus produtos.
+App multiplataforma (Android e Web) para ajudar doceiras e confeiteiras a calcularem o custo de suas receitas, organizarem o estoque de ingredientes e descobrirem o preço ideal de venda de seus produtos.
 
 ## 🚀 Funcionalidades
 
