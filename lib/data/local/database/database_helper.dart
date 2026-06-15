@@ -63,7 +63,7 @@ class DatabaseHelper {
         category TEXT NOT NULL DEFAULT 'outro',
         selling_price REAL,
         image_path TEXT,
-        show_in_menu INTEGER DEFAULT 0
+        show_in_menu INTEGER NOT NULL DEFAULT 0
       )
     ''');
 
@@ -91,10 +91,13 @@ class DatabaseHelper {
       await db.execute('ALTER TABLE recipes ADD COLUMN yield_quantity INTEGER NOT NULL DEFAULT 1');
       await db.execute("ALTER TABLE recipes ADD COLUMN category TEXT NOT NULL DEFAULT 'outro'");
     }
-    if (oldVersion < 5) {
+    if (oldVersion < 4) {
       await db.execute('ALTER TABLE recipes ADD COLUMN selling_price REAL');
       await db.execute('ALTER TABLE recipes ADD COLUMN image_path TEXT');
-      await db.execute('ALTER TABLE recipes ADD COLUMN show_in_menu INTEGER DEFAULT 0');
+      await db.execute('ALTER TABLE recipes ADD COLUMN show_in_menu INTEGER NOT NULL DEFAULT 0');
+    }
+    if (oldVersion < 5) {
+      // reservado
     }
   }
 

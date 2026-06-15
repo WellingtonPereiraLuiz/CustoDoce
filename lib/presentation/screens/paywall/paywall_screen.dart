@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,7 +43,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             ref.read(subscriptionNotifierProvider.notifier).checkStatus();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Bem-vindo ao CustoDoce Pro! 🚀')),
+                const SnackBar(content: Text('Bem-vindo ao CustoDoce Pro! ðŸš€')),
               );
               context.pop();
             }
@@ -86,8 +86,8 @@ class _WebPlanSelector extends ConsumerWidget {
         ),
 
 
-        (label: 'Cardápio digital', ok: p.hasDigitalMenu),
-        (label: 'Assistente de IA', ok: p.hasAiAssistant),
+        (label: 'CardÃ¡pio digital', ok: p.hasDigitalMenu),
+        (label: 'Assistente de IA', ok: p.hasChatAi),
         (label: 'Backup em nuvem', ok: p.hasCloudBackup),
       ];
 
@@ -151,7 +151,7 @@ class _WebPlanSelector extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Modo demonstração — pagamentos reais no app mobile.',
+                      'Modo demonstraÃ§Ã£o â€” pagamentos reais no app mobile.',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context)
@@ -318,7 +318,7 @@ class _WebPlanSelector extends ConsumerWidget {
                                                 .showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                    '✅ Plano ${plan.name} ativado!'),
+                                                    'âœ… Plano ${plan.name} ativado!'),
                                                 backgroundColor:
                                                     AppTheme.successColor,
                                               ),
@@ -344,3 +344,4 @@ class _WebPlanSelector extends ConsumerWidget {
     );
   }
 }
+

@@ -1,49 +1,28 @@
+﻿import 'dart:convert';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:custo_doce/core/theme/app_theme.dart';
-import 'package:custo_doce/data/remote/gemini_service.dart';
-import 'package:custo_doce/presentation/providers/recipe_providers.dart';
+import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
-class ChatMessage {
+import 'package:custo_doce/core/providers/subscription_provider.dart';
+import 'package:custo_doce/core/models/subscription_plan.dart';
+import 'package:custo_doce/core/services/ai_service.dart';
+
+class _ChatMessage {
   final String text;
   final bool isUser;
-  ChatMessage({required this.text, required this.isUser});
+  final String? imageBase64;
+  final DateTime timestamp;
+
+  _ChatMessage({
+    required this.text,
+    required this.isUser,
+    this.imageBase64,
+    required this.timestamp,
+  });
 }
-
-class AiChatState {
-  final List<ChatMessage> messages;
-  final bool isLoading;
-  AiChatState({this.messages = const [], this.isLoading = false});
-}
-
-class AiChatNotifier extends Notifier<AiChatState> {
-  @override
-  AiChatState build() => AiChatState();
-
-  Future<void> sendMessage(String text, WidgetRef ref) async {
-    if (text.trim().isEmpty) return;
-
-    final userMsg = ChatMessage(text: text, isUser: true);
-    state = AiChatState(messages: [...state.messages, userMsg], isLoading: true);
-
-    final recipes = ref.read(recipesProvider).value ?? [];
-    final contextData = StringBuffer();
-    contextData.writeln('Você é o assistente CustoDoce. Aqui estão as receitas do usuário:');
-    for (final r in recipes) {
-      contextData.writeln('- ${r.name}: Custo R\$${r.totalCost.toStringAsFixed(2)}, Preço Sugerido R\$${r.suggestedSellPrice.toStringAsFixed(2)}');
-    }
-
-    final gemini = ref.read(geminiServiceProvider);
-    final response = await gemini.askGemini(text, contextData.toString());
-
-    final botMsg = ChatMessage(text: response, isUser: false);
-    state = AiChatState(messages: [...state.messages, botMsg], isLoading: false);
-  }
-}
-
-final aiChatProvider = NotifierProvider<AiChatNotifier, AiChatState>(
-  AiChatNotifier.new,
-);
 
 class AiChatScreen extends ConsumerStatefulWidget {
   const AiChatScreen({super.key});
@@ -53,96 +32,168 @@ class AiChatScreen extends ConsumerStatefulWidget {
 }
 
 class _AiChatScreenState extends ConsumerState<AiChatScreen> {
+  final List<_ChatMessage> _messages = [];
   final _controller = TextEditingController();
-  final _scrollController = ScrollController();
+  bool _isLoading = false;
 
-  void _send() {
-    final text = _controller.text;
-    _controller.clear();
-    ref.read(aiChatProvider.notifier).sendMessage(text, ref);
+  Widget _buildUpgradeBanner() => Scaffold(
+        appBar: AppBar(title: const Text('Assistente CustoDoce')),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.auto_awesome_outlined, size: 64, color: Colors.grey),
+                const SizedBox(height: 16),
+                const Text(
+                  'O Assistente IA está disponível nos planos Pro e Premium.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 16),
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => context.go('/paywall'),
+                  child: const Text('Ver planos'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+  Future<void> _sendMessage([String? imageBase64]) async {
+    final text = _controller.text.trim();
+    if (text.isEmpty && imageBase64 == null) return;
     
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
-      }
+    _controller.clear();
+    setState(() {
+      _messages.add(_ChatMessage(
+        text: text.isEmpty ? '[imagem]' : text,
+        isUser: true,
+        imageBase64: imageBase64,
+        timestamp: DateTime.now(),
+      ));
+      _isLoading = true;
     });
+
+    final ai = ref.read(aiServiceProvider);
+    final response = await ai.sendMessage(text, imageBase64: imageBase64);
+
+    if (mounted) {
+      setState(() {
+        _messages.add(_ChatMessage(
+          text: response,
+          isUser: false,
+          timestamp: DateTime.now(),
+        ));
+        _isLoading = false;
+      });
+    }
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    _scrollController.dispose();
-    super.dispose();
+  Future<void> _pickAndSendImage() async {
+    final limits = ref.read(currentPlanProvider);
+
+    if (!limits.hasInvoiceScan) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Análise de nota fiscal é exclusiva do plano Premium.')),
+      );
+      return;
+    }
+
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 800);
+    if (picked == null) return;
+
+    final bytes = await File(picked.path).readAsBytes();
+    final base64Img = base64Encode(bytes);
+    await _sendMessage(base64Img);
   }
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(aiChatProvider);
+    final limits = ref.watch(currentPlanProvider);
+
+    if (!limits.hasChatAi) return _buildUpgradeBanner();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Assistente CustoDoce'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
+        actions: const [
+          Icon(Icons.auto_awesome_rounded),
+          SizedBox(width: 16),
+        ],
       ),
       body: Column(
         children: [
           Expanded(
             child: ListView.builder(
-              controller: _scrollController,
               padding: const EdgeInsets.all(16),
-              itemCount: state.messages.length,
+              itemCount: _messages.length,
               itemBuilder: (context, index) {
-                final msg = state.messages[index];
+                final msg = _messages[index];
                 return Align(
                   alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
-                    margin: const EdgeInsets.only(bottom: 12),
+                    margin: const EdgeInsets.symmetric(vertical: 4),
                     padding: const EdgeInsets.all(12),
+                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
                     decoration: BoxDecoration(
-                      color: msg.isUser ? AppTheme.primaryColor : Theme.of(context).colorScheme.surfaceContainerHighest,
+                      color: msg.isUser
+                          ? Theme.of(context).colorScheme.primary
+                          : Theme.of(context).colorScheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
                     child: Text(
                       msg.text,
-                      style: TextStyle(color: msg.isUser ? Colors.white : Theme.of(context).colorScheme.onSurface),
+                      style: TextStyle(
+                        color: msg.isUser ? Theme.of(context).colorScheme.onPrimary : null,
+                      ),
                     ),
                   ),
                 );
               },
             ),
           ),
-          if (state.isLoading)
+          if (_isLoading)
             const Padding(
               padding: EdgeInsets.all(8.0),
               child: CircularProgressIndicator(),
             ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            color: Theme.of(context).colorScheme.surface,
-            child: SafeArea(
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
                       controller: _controller,
                       decoration: InputDecoration(
-                        hintText: 'Pergunte algo...',
+                        hintText: 'Digite sua mensagem...',
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                       ),
-                      onSubmitted: (_) => _send(),
+                      onSubmitted: (_) => _sendMessage(),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  IconButton.filled(
+                  if (limits.hasInvoiceScan)
+                    IconButton(
+                      icon: const Icon(Icons.camera_alt),
+                      onPressed: _pickAndSendImage,
+                    )
+                  else
+                    IconButton(
+                      icon: const Icon(Icons.camera_alt, color: Colors.grey),
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(content: Text('Análise de nota fiscal é exclusiva do plano Premium.')),
+                        );
+                      },
+                    ),
+                  IconButton(
                     icon: const Icon(Icons.send),
-                    onPressed: _send,
+                    onPressed: _sendMessage,
                   ),
                 ],
               ),

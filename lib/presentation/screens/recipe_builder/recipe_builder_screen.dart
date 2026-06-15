@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -55,7 +55,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
         if (sp != null && sp < state.finalPrice) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Aviso: O preço de venda está abaixo do preço sugerido!'),
+              content: Text('Aviso: O preÃ§o de venda estÃ¡ abaixo do preÃ§o sugerido!'),
               backgroundColor: Colors.orange,
             ),
           );
@@ -151,7 +151,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // BUG-05 FIX: bloquear acesso direto quando usuário free atingiu limite
+    // BUG-05 FIX: bloquear acesso direto quando usuÃ¡rio free atingiu limite
     final isEditing = widget.editRecipeId != null;
     if (!isEditing) {
       final isPro = ref.watch(isProUserProvider);
@@ -166,7 +166,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
-                  'Limite de $freeLimit receitas atingido. Faça upgrade para Pro.',
+                  'Limite de $freeLimit receitas atingido. FaÃ§a upgrade para Pro.',
                   style: TextStyle(color: Theme.of(context).colorScheme.onError),
                 ),
                 backgroundColor: Theme.of(context).colorScheme.error,
@@ -226,7 +226,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 ),
                 const SizedBox(height: 16),
                 SwitchListTile(
-                  title: const Text('Exibir no cardápio digital'),
+                  title: const Text('Exibir no cardÃ¡pio digital'),
                   value: state.showInMenu,
                   onChanged: notifier.setShowInMenu,
                   contentPadding: EdgeInsets.zero,
@@ -345,16 +345,16 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
                 // Invisible Costs
                 _SectionHeader(
-                  title: 'Custos Invisíveis & Fixos', 
+                  title: 'Custos InvisÃ­veis & Fixos', 
                   icon: Icons.visibility_off_rounded,
                   onInfoTap: () => _showInfoPopup(
-                    'Custos Invisíveis', 
-                    'Todo produto tem custos invisíveis de pelo menos 20% (água, luz, gás, detergente, perdas). Isso garante que você não pague para trabalhar!'
+                    'Custos InvisÃ­veis', 
+                    'Todo produto tem custos invisÃ­veis de pelo menos 20% (Ã¡gua, luz, gÃ¡s, detergente, perdas). Isso garante que vocÃª nÃ£o pague para trabalhar!'
                   ),
                 ),
                 const SizedBox(height: 12),
                 SwitchListTile(
-                  title: const Text('Aplicar Custo Invisível (%)'),
+                  title: const Text('Aplicar Custo InvisÃ­vel (%)'),
                   value: state.useInvisibleCost,
                   onChanged: notifier.toggleInvisibleCost,
                   activeTrackColor: AppTheme.primaryColor,
@@ -377,11 +377,11 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
                 // Profit Strategy
                 _SectionHeader(
-                  title: 'Estratégia de Lucro', 
+                  title: 'EstratÃ©gia de Lucro', 
                   icon: Icons.trending_up_rounded,
                   onInfoTap: () => _showInfoPopup(
                     'Lucro vs Markup', 
-                    'Você pode definir seu lucro por % de Margem (ex: ganhar 50% em cima do custo) ou por Fator Multiplicador/Markup (ex: Custo x 3), que é o padrão usado na confeitaria.'
+                    'VocÃª pode definir seu lucro por % de Margem (ex: ganhar 50% em cima do custo) ou por Fator Multiplicador/Markup (ex: Custo x 3), que Ã© o padrÃ£o usado na confeitaria.'
                   ),
                 ),
                 SwitchListTile(
@@ -417,7 +417,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   icon: Icons.savings_rounded,
                   onInfoTap: () => _showInfoPopup(
                     'Fundo de Investimento', 
-                    'Separar uma % do seu Lucro Líquido para reinvestir na empresa (comprar equipamentos, marketing, etc.). Isso constrói o seu capital de giro.'
+                    'Separar uma % do seu Lucro LÃ­quido para reinvestir na empresa (comprar equipamentos, marketing, etc.). Isso constrÃ³i o seu capital de giro.'
                   ),
                 ),
                 SwitchListTile(
@@ -436,14 +436,14 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 const SizedBox(height: 32),
 
                 // Selling Price
-                _SectionHeader(title: 'Preço de Venda', icon: Icons.sell_rounded),
+                _SectionHeader(title: 'PreÃ§o de Venda', icon: Icons.sell_rounded),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _sellingPriceCtrl,
                   focusNode: _sellingPriceFocus,
                   decoration: InputDecoration(
-                    labelText: 'Preço de venda (R\$)',
-                    helperText: 'Preço sugerido: ${_currencyFormat.format(PriceUtils.roundSuggestedPrice(state.finalPrice))}',
+                    labelText: 'PreÃ§o de venda (R\$)',
+                    helperText: 'PreÃ§o sugerido: ${_currencyFormat.format(PriceUtils.roundSuggestedPrice(state.finalPrice))}',
                     helperStyle: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -518,17 +518,17 @@ class _PricingDashboard extends StatelessWidget {
           const SizedBox(height: 24),
           const SizedBox(height: 24),
           _StatRow('Custo Bruto (Ingredientes + Fixo)', state.totalIngredientsCost + state.fixedOperationalCost, currencyFormat, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          _StatRow('Custo Invisível (${state.invisibleCostPercentage.toStringAsFixed(0)}%)', state.invisibleCost, currencyFormat, color: Theme.of(context).colorScheme.primary),
+          _StatRow('Custo InvisÃ­vel (${state.invisibleCostPercentage.toStringAsFixed(0)}%)', state.invisibleCost, currencyFormat, color: Theme.of(context).colorScheme.primary),
           const Divider(height: 24),
           _StatRow('Custo Total', state.totalCost, currencyFormat, isBold: true),
           const SizedBox(height: 12),
           _StatRow('Fundo de Investimento', state.investmentValue, currencyFormat, color: Theme.of(context).colorScheme.secondary),
-          _StatRow('Lucro Líquido', state.netProfit, currencyFormat, color: AppTheme.successColor, isBold: true),
+          _StatRow('Lucro LÃ­quido', state.netProfit, currencyFormat, color: AppTheme.successColor, isBold: true),
           const Divider(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Preço Sugerido de Venda', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.outline)),
+              Text('PreÃ§o Sugerido de Venda', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.outline)),
               Text(
                 currencyFormat.format(state.finalPrice),
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
@@ -642,6 +642,7 @@ class _NumericInputState extends State<_NumericInput> {
     );
   }
 }
+
 
 
 
