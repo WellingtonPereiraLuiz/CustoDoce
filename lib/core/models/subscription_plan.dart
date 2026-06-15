@@ -1,4 +1,4 @@
-﻿enum SubscriptionPlan { free, light, pro, premium }
+enum SubscriptionPlan { free, light, pro, premium }
 
 class PlanLimits {
   final SubscriptionPlan plan;
@@ -57,7 +57,7 @@ class PlanLimits {
   static const light = PlanLimits(
     plan: SubscriptionPlan.light,
     name: 'Light',
-    priceLabel: 'R$ 9,90/mês',
+    priceLabel: 'R\$ 9,90/mês',
     recipeLimit: 30,
     ingredientLimit: 100,
     hasCustomSellingPrice: true,
@@ -74,7 +74,7 @@ class PlanLimits {
   static const pro = PlanLimits(
     plan: SubscriptionPlan.pro,
     name: 'Pro',
-    priceLabel: 'R$ 19,90/mês',
+    priceLabel: 'R\$ 19,90/mês',
     recipeLimit: -1,
     ingredientLimit: -1,
     hasCustomSellingPrice: true,
@@ -91,7 +91,7 @@ class PlanLimits {
   static const premium = PlanLimits(
     plan: SubscriptionPlan.premium,
     name: 'Premium',
-    priceLabel: 'R$ 34,90/mês',
+    priceLabel: 'R\$ 34,90/mês',
     recipeLimit: -1,
     ingredientLimit: -1,
     hasCustomSellingPrice: true,
