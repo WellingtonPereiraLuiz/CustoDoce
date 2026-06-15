@@ -5,6 +5,7 @@ import 'package:custo_doce/core/theme/app_theme.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:custo_doce/core/providers/auth_provider.dart';
+import 'package:custo_doce/core/providers/guest_mode_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({super.key});
@@ -20,7 +21,8 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
     Timer(const Duration(seconds: 2), () {
       if (mounted) {
         final user = ref.read(currentUserProvider);
-        if (user != null) {
+        final isGuest = ref.read(guestModeProvider);
+        if (user != null || isGuest) {
           context.go('/home');
         } else {
           context.go('/login');

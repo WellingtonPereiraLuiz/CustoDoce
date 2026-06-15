@@ -9,6 +9,9 @@ class RecipeModel {
   final double additionalOperationalCost;
   final double totalCost;
   final double suggestedSellPrice;
+  final double? sellingPrice;
+  final String? imagePath;
+  final bool showInMenu;
   final int createdAtMs;
   final List<RecipeIngredientEntity> ingredients;
   final String? userId;
@@ -22,6 +25,9 @@ class RecipeModel {
     required this.additionalOperationalCost,
     required this.totalCost,
     required this.suggestedSellPrice,
+    this.sellingPrice,
+    this.imagePath,
+    this.showInMenu = false,
     required this.createdAtMs,
     required this.ingredients,
     this.userId,
@@ -42,6 +48,9 @@ class RecipeModel {
           (map['additional_operational_cost'] as num).toDouble(),
       totalCost: (map['total_cost'] as num).toDouble(),
       suggestedSellPrice: (map['suggested_sell_price'] as num).toDouble(),
+      sellingPrice: map['selling_price'] != null ? (map['selling_price'] as num).toDouble() : null,
+      imagePath: map['image_path'] as String?,
+      showInMenu: (map['show_in_menu'] as int? ?? 0) == 1,
       createdAtMs: map['created_at'] as int,
       userId: map['user_id'] as String?,
       yieldQuantity: map['yield_quantity'] as int? ?? 1,
@@ -58,6 +67,9 @@ class RecipeModel {
       additionalOperationalCost: entity.additionalOperationalCost,
       totalCost: entity.totalCost,
       suggestedSellPrice: entity.suggestedSellPrice,
+      sellingPrice: entity.sellingPrice,
+      imagePath: entity.imagePath,
+      showInMenu: entity.showInMenu,
       createdAtMs: entity.createdAt.millisecondsSinceEpoch,
       userId: entity.userId,
       yieldQuantity: entity.yieldQuantity,
@@ -74,6 +86,9 @@ class RecipeModel {
       'additional_operational_cost': additionalOperationalCost,
       'total_cost': totalCost,
       'suggested_sell_price': suggestedSellPrice,
+      'selling_price': sellingPrice,
+      'image_path': imagePath,
+      'show_in_menu': showInMenu ? 1 : 0,
       'created_at': createdAtMs,
       'user_id': userId,
       'yield_quantity': yieldQuantity,
@@ -89,6 +104,9 @@ class RecipeModel {
       additionalOperationalCost: additionalOperationalCost,
       totalCost: totalCost,
       suggestedSellPrice: suggestedSellPrice,
+      sellingPrice: sellingPrice,
+      imagePath: imagePath,
+      showInMenu: showInMenu,
       createdAt: DateTime.fromMillisecondsSinceEpoch(createdAtMs),
       userId: userId,
       yieldQuantity: yieldQuantity,

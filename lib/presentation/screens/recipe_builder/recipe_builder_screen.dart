@@ -9,7 +9,11 @@ import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
 import 'package:custo_doce/presentation/providers/recipe_builder_provider.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:intl/intl.dart';
-import 'package:fl_chart/fl_chart.dart';
+
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:custo_doce/core/utils/price_utils.dart';
+import 'package:custo_doce/core/utils/plan_gate.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
 
 class RecipeBuilderScreen extends ConsumerStatefulWidget {
@@ -26,6 +30,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
   final _qtyCtrl = TextEditingController();
   final _yieldCtrl = TextEditingController(text: '1');
   final _fixedCostCtrl = TextEditingController(text: '0');
+  final _sellingPriceCtrl = TextEditingController();
+  final _sellingPriceFocus = FocusNode();
   
   IngredientEntity? _selectedIngredient;
   bool _isSaving = false;
@@ -41,6 +47,21 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
         _loadForEdit();
       }
     });
+
+    _sellingPriceFocus.addListener(() {
+      if (!_sellingPriceFocus.hasFocus) {
+        final state = ref.read(recipeBuilderProvider);
+        final sp = double.tryParse(_sellingPriceCtrl.text);
+        if (sp != null && sp < state.finalPrice) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Aviso: O preço de venda está abaixo do preço sugerido!'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+        }
+      }
+    });
   }
 
   void _loadForEdit() {
@@ -51,6 +72,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
       _nameCtrl.text = recipe.name;
       _yieldCtrl.text = recipe.yieldQuantity.toString();
       _fixedCostCtrl.text = recipe.additionalOperationalCost.toString();
+      _sellingPriceCtrl.text = recipe.sellingPrice?.toString() ?? '';
     }
   }
 
@@ -60,7 +82,17 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
     _qtyCtrl.dispose();
     _yieldCtrl.dispose();
     _fixedCostCtrl.dispose();
+    _sellingPriceCtrl.dispose();
+    _sellingPriceFocus.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      ref.read(recipeBuilderProvider.notifier).setImagePath(pickedFile.path);
+    }
   }
 
   void _showInfoPopup(String title, String explanation) {
@@ -113,7 +145,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
       ref.read(recipeBuilderProvider.notifier).reset();
       context.pop();
     } else {
-      context.push('/paywall');
+      PlanGate.navigateToPaywall(context, ref);
     }
   }
 
@@ -174,6 +206,32 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                Center(
+                  child: GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 120, height: 120,
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                        borderRadius: BorderRadius.circular(16),
+                        image: state.imagePath != null && File(state.imagePath!).existsSync()
+                            ? DecorationImage(image: FileImage(File(state.imagePath!)), fit: BoxFit.cover)
+                            : null,
+                      ),
+                      child: state.imagePath == null || !File(state.imagePath!).existsSync()
+                          ? Icon(Icons.add_a_photo, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant)
+                          : null,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                SwitchListTile(
+                  title: const Text('Exibir no cardápio digital'),
+                  value: state.showInMenu,
+                  onChanged: notifier.setShowInMenu,
+                  contentPadding: EdgeInsets.zero,
+                ),
+                const SizedBox(height: 16),
                 TextFormField(
                   controller: _nameCtrl,
                   decoration: const InputDecoration(labelText: 'Nome da Receita'),
@@ -377,6 +435,23 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   ),
                 const SizedBox(height: 32),
 
+                // Selling Price
+                _SectionHeader(title: 'Preço de Venda', icon: Icons.sell_rounded),
+                const SizedBox(height: 12),
+                TextFormField(
+                  controller: _sellingPriceCtrl,
+                  focusNode: _sellingPriceFocus,
+                  decoration: InputDecoration(
+                    labelText: 'Preço de venda (R\$)',
+                    helperText: 'Preço sugerido: ${_currencyFormat.format(PriceUtils.roundSuggestedPrice(state.finalPrice))}',
+                    helperStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+                  onChanged: (v) => notifier.setSellingPrice(double.tryParse(v)),
+                ),
+                const SizedBox(height: 32),
+
                 // Dashboard Chart
                 _PricingDashboard(state: state, currencyFormat: _currencyFormat),
                 const SizedBox(height: 48),
@@ -441,47 +516,6 @@ class _PricingDashboard extends StatelessWidget {
         children: [
           const Text('Resumo Financeiro da Receita', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
-          SizedBox(
-            height: 200,
-            child: PieChart(
-              PieChartData(
-                sectionsSpace: 2,
-                centerSpaceRadius: 40,
-                sections: [
-                  PieChartSectionData(
-                    color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    value: state.totalIngredientsCost + state.fixedOperationalCost,
-                    title: 'Bruto',
-                    radius: 50,
-                    titleStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-                  ),
-                  if (state.invisibleCost > 0)
-                    PieChartSectionData(
-                      color: Theme.of(context).colorScheme.primary,
-                      value: state.invisibleCost,
-                      title: 'Invisível',
-                      radius: 50,
-                      titleStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                  PieChartSectionData(
-                    color: AppTheme.successColor,
-                    value: state.netProfit,
-                    title: 'Lucro',
-                    radius: 60,
-                    titleStyle: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-                  ),
-                  if (state.investmentValue > 0)
-                    PieChartSectionData(
-                      color: Theme.of(context).colorScheme.secondary,
-                      value: state.investmentValue,
-                      title: 'Invest.',
-                      radius: 50,
-                      titleStyle: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface),
-                    ),
-                ],
-              ),
-            ),
-          ),
           const SizedBox(height: 24),
           _StatRow('Custo Bruto (Ingredientes + Fixo)', state.totalIngredientsCost + state.fixedOperationalCost, currencyFormat, color: Theme.of(context).colorScheme.onSurfaceVariant),
           _StatRow('Custo Invisível (${state.invisibleCostPercentage.toStringAsFixed(0)}%)', state.invisibleCost, currencyFormat, color: Theme.of(context).colorScheme.primary),
@@ -608,4 +642,6 @@ class _NumericInputState extends State<_NumericInput> {
     );
   }
 }
+
+
 

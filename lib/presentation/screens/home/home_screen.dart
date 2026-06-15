@@ -83,7 +83,7 @@ class HomeScreen extends ConsumerWidget {
               _buildKpiRow(context, recipesAsync, ingredientsAsync),
               if (!isPro) ...[
                 const SizedBox(height: 16),
-                _buildPaywallBanner(context),
+                _buildPaywallBanner(context, ref),
               ],
               const SizedBox(height: 24),
               _buildQuickActions(context, ref, isPro, recipesAsync.valueOrNull?.length ?? 0),
@@ -136,6 +136,25 @@ class HomeScreen extends ConsumerWidget {
           ),
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          if (isPro) {
+            context.push('/ai-chat');
+          } else {
+            PlanGate.checkFeature(
+              context: context, 
+              ref: ref, 
+              hasAccess: false, 
+              featureName: 'Assistente de IA', 
+              requiredPlan: 'Pro'
+            );
+          }
+        },
+        icon: const Icon(Icons.auto_awesome),
+        label: const Text('Assistente'),
+        backgroundColor: AppTheme.primaryColor,
+        foregroundColor: Colors.white,
       ),
     );
   }
@@ -250,9 +269,9 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildPaywallBanner(BuildContext context) {
+  Widget _buildPaywallBanner(BuildContext context, WidgetRef ref) {
     return GestureDetector(
-      onTap: () => context.push('/paywall'),
+      onTap: () => PlanGate.navigateToPaywall(context, ref),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -324,8 +343,7 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () {
               final plan = ref.read(currentPlanProvider);
               final recipes = ref.read(recipesProvider).value ?? [];
-              final canCreate = PlanGate.checkLimit(
-                context: context,
+              final canCreate = PlanGate.checkLimit(context: context, ref: ref,
                 currentCount: recipes.length,
                 limit: plan.recipeLimit,
                 featureName: 'receitas',
@@ -366,60 +384,16 @@ class HomeScreen extends ConsumerWidget {
             ),
           ),
         ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () {
-              final plan = ref.read(currentPlanProvider);
-              if (PlanGate.checkFeature(
-                context: context,
-                hasAccess: plan.equipmentLimit != 0,
-                featureName: 'Equipamentos',
-                requiredPlan: 'Light',
-              )) context.push('/equipment');
-            },
-            icon: const Icon(Icons.bolt_outlined),
-            label: const Text('Equipamentos'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
-              side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            ),
-          ),
-        ),
+
         const SizedBox(height: 12),
         Row(
           children: [
+
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () {
                   final plan = ref.read(currentPlanProvider);
-                  if (PlanGate.checkFeature(
-                    context: context,
-                    hasAccess: plan.hasReports,
-                    featureName: 'Relatórios',
-                    requiredPlan: 'Pro',
-                  )) context.push('/dashboard');
-                },
-                icon: const Icon(Icons.bar_chart_rounded),
-                label: const Text('Relatórios'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  foregroundColor: Theme.of(context).colorScheme.onSurface,
-                  side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  final plan = ref.read(currentPlanProvider);
-                  if (PlanGate.checkFeature(
-                    context: context,
+                  if (PlanGate.checkFeature(context: context, ref: ref,
                     hasAccess: plan.hasDigitalMenu,
                     featureName: 'Cardápio Digital',
                     requiredPlan: 'Premium',
@@ -726,5 +700,7 @@ class _RecipeListTile extends StatelessWidget {
     );
   }
 }
+
+
 
 

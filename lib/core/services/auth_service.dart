@@ -14,6 +14,10 @@ class AuthService {
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+  Future<void> updateDisplayName(String nome, String sobrenome) async {
+    await _auth.currentUser?.updateDisplayName('$nome $sobrenome');
+  }
+
   Future<UserCredential> signUp(String email, String password) async {
     return await _auth.createUserWithEmailAndPassword(email: email, password: password);
   }

@@ -27,7 +27,7 @@ class DatabaseHelper {
     }
     return await openDatabase(
       path,
-      version: 4,
+      version: 5,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
       onConfigure: (db) async {
@@ -60,7 +60,10 @@ class DatabaseHelper {
         created_at INTEGER NOT NULL,
         user_id TEXT,
         yield_quantity INTEGER NOT NULL DEFAULT 1,
-        category TEXT NOT NULL DEFAULT 'outro'
+        category TEXT NOT NULL DEFAULT 'outro',
+        selling_price REAL,
+        image_path TEXT,
+        show_in_menu INTEGER DEFAULT 0
       )
     ''');
 
@@ -76,15 +79,7 @@ class DatabaseHelper {
       )
     ''');
 
-    await db.execute('''
-      CREATE TABLE equipment (
-        id TEXT PRIMARY KEY NOT NULL,
-        name TEXT NOT NULL,
-        power_watts REAL NOT NULL,
-        kwh_cost REAL NOT NULL,
-        user_id TEXT
-      )
-    ''');
+
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -96,16 +91,10 @@ class DatabaseHelper {
       await db.execute('ALTER TABLE recipes ADD COLUMN yield_quantity INTEGER NOT NULL DEFAULT 1');
       await db.execute("ALTER TABLE recipes ADD COLUMN category TEXT NOT NULL DEFAULT 'outro'");
     }
-    if (oldVersion < 4) {
-      await db.execute('''
-        CREATE TABLE IF NOT EXISTS equipment (
-          id TEXT PRIMARY KEY NOT NULL,
-          name TEXT NOT NULL,
-          power_watts REAL NOT NULL,
-          kwh_cost REAL NOT NULL,
-          user_id TEXT
-        )
-      ''');
+    if (oldVersion < 5) {
+      await db.execute('ALTER TABLE recipes ADD COLUMN selling_price REAL');
+      await db.execute('ALTER TABLE recipes ADD COLUMN image_path TEXT');
+      await db.execute('ALTER TABLE recipes ADD COLUMN show_in_menu INTEGER DEFAULT 0');
     }
   }
 

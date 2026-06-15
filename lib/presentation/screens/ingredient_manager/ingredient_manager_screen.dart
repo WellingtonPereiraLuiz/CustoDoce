@@ -141,8 +141,7 @@ class IngredientManagerScreen extends ConsumerWidget {
         onPressed: () {
           final plan = ref.read(currentPlanProvider);
           final ingredients = ref.read(ingredientsProvider).value ?? [];
-          final canAdd = PlanGate.checkLimit(
-            context: context,
+          final canAdd = PlanGate.checkLimit(context: context, ref: ref,
             currentCount: ingredients.length,
             limit: plan.ingredientLimit,
             featureName: 'ingredientes',
@@ -515,3 +514,4 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
     );
   }
 }
+

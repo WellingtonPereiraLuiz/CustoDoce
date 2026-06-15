@@ -11,6 +11,8 @@ class RecipeBuilderState {
   final List<RecipeIngredientEntity> ingredients;
   final int yieldQuantity;
   final RecipeCategory category;
+  final String? imagePath;
+  final bool showInMenu;
   
   // Costs
   final double fixedOperationalCost;
@@ -21,6 +23,7 @@ class RecipeBuilderState {
   final bool useMarkup;
   final double markupMultiplier;
   final double profitMarginPercentage;
+  final double? sellingPrice;
 
   // Investment
   final bool useInvestment;
@@ -35,12 +38,15 @@ class RecipeBuilderState {
     this.ingredients = const [],
     this.yieldQuantity = 1,
     this.category = RecipeCategory.outro,
+    this.imagePath,
+    this.showInMenu = false,
     this.fixedOperationalCost = 0.0,
     this.invisibleCostPercentage = 20.0,
     this.useInvisibleCost = true,
     this.useMarkup = false,
     this.markupMultiplier = 3.0,
     this.profitMarginPercentage = 50.0,
+    this.sellingPrice,
     this.useInvestment = false,
     this.investmentPercentage = 10.0,
     this.isSaving = false,
@@ -64,7 +70,7 @@ class RecipeBuilderState {
     }
   }
 
-  double get grossProfit => finalPrice - totalCost;
+  double get grossProfit => (sellingPrice ?? finalPrice) - totalCost;
 
   double get investmentValue =>
       useInvestment ? (grossProfit * (investmentPercentage / 100)) : 0.0;
@@ -80,12 +86,15 @@ class RecipeBuilderState {
     List<RecipeIngredientEntity>? ingredients,
     int? yieldQuantity,
     RecipeCategory? category,
+    String? Function()? imagePath,
+    bool? showInMenu,
     double? fixedOperationalCost,
     double? invisibleCostPercentage,
     bool? useInvisibleCost,
     bool? useMarkup,
     double? markupMultiplier,
     double? profitMarginPercentage,
+    double? Function()? sellingPrice,
     bool? useInvestment,
     double? investmentPercentage,
     bool? isSaving,
@@ -97,12 +106,15 @@ class RecipeBuilderState {
       ingredients: ingredients ?? this.ingredients,
       yieldQuantity: yieldQuantity ?? this.yieldQuantity,
       category: category ?? this.category,
+      imagePath: imagePath != null ? imagePath() : this.imagePath,
+      showInMenu: showInMenu ?? this.showInMenu,
       fixedOperationalCost: fixedOperationalCost ?? this.fixedOperationalCost,
       invisibleCostPercentage: invisibleCostPercentage ?? this.invisibleCostPercentage,
       useInvisibleCost: useInvisibleCost ?? this.useInvisibleCost,
       useMarkup: useMarkup ?? this.useMarkup,
       markupMultiplier: markupMultiplier ?? this.markupMultiplier,
       profitMarginPercentage: profitMarginPercentage ?? this.profitMarginPercentage,
+      sellingPrice: sellingPrice != null ? sellingPrice() : this.sellingPrice,
       useInvestment: useInvestment ?? this.useInvestment,
       investmentPercentage: investmentPercentage ?? this.investmentPercentage,
       isSaving: isSaving ?? this.isSaving,
@@ -125,6 +137,10 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
   void toggleMarkup(bool val) => state = state.copyWith(useMarkup: val);
   void setMarkupMultiplier(double mult) => state = state.copyWith(markupMultiplier: mult);
   void setProfitMargin(double margin) => state = state.copyWith(profitMarginPercentage: margin);
+
+  void setSellingPrice(double? price) => state = state.copyWith(sellingPrice: () => price);
+  void setImagePath(String? path) => state = state.copyWith(imagePath: () => path);
+  void setShowInMenu(bool val) => state = state.copyWith(showInMenu: val);
 
   void toggleInvestment(bool val) => state = state.copyWith(useInvestment: val);
   void setInvestmentPercentage(double pct) => state = state.copyWith(investmentPercentage: pct);
@@ -160,6 +176,9 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
       name: recipe.name,
       yieldQuantity: recipe.yieldQuantity,
       category: recipe.category,
+      imagePath: recipe.imagePath,
+      showInMenu: recipe.showInMenu,
+      sellingPrice: recipe.sellingPrice,
       fixedOperationalCost: recipe.additionalOperationalCost,
       ingredients: recipe.ingredients,
       useInvisibleCost: recipe.additionalOperationalCost > 0,
@@ -183,6 +202,9 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
       additionalOperationalCost: state.fixedOperationalCost + state.invisibleCost,
       totalCost: state.totalCost,
       suggestedSellPrice: state.finalPrice,
+      sellingPrice: state.sellingPrice,
+      imagePath: state.imagePath,
+      showInMenu: state.showInMenu,
       createdAt: DateTime.now(),
       ingredients: state.ingredients.map((i) => i.copyWith(recipeId: id)).toList(),
     );

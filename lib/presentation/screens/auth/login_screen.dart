@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/core/providers/auth_provider.dart';
+import 'package:custo_doce/core/providers/guest_mode_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -15,7 +16,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isSignUp = false;
   bool _isLoading = false;
 
   Future<void> _submit() async {
@@ -24,20 +24,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     setState(() => _isLoading = true);
     try {
       final authService = ref.read(authServiceProvider);
-      
-      if (_isSignUp) {
-        await authService.signUp(_emailController.text.trim(), _passwordController.text);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Conta criada! Faça login agora.')),
-          );
-          setState(() => _isSignUp = false);
-        }
-      } else {
-        await authService.signIn(_emailController.text.trim(), _passwordController.text);
-        if (mounted) {
-          context.go('/home');
-        }
+      await authService.signIn(_emailController.text.trim(), _passwordController.text);
+      if (mounted) {
+        ref.read(guestModeProvider.notifier).state = false;
+        final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+        final redirectTo = extra?['redirect'] as String? ?? '/home';
+        context.go(redirectTo);
       }
     } catch (e) {
       if (mounted) {
@@ -55,9 +47,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        title: Text(_isSignUp ? 'Criar Conta' : 'Entrar'),
-        elevation: 0,
+        leading: BackButton(onPressed: () {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/home');
+          }
+        }),
+        title: const Text('Entrar'),
         backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       body: Center(
         child: ConstrainedBox(
@@ -69,37 +68,47 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const Icon(Icons.lock_rounded, size: 64, color: AppTheme.primaryColor),
-                const SizedBox(height: 32),
-              Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(labelText: 'Email'),
-                      keyboardType: TextInputType.emailAddress,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Informe o email';
-                        if (!value.contains('@') || !value.contains('.')) return 'Email inválido';
-                        return null;
-                      },
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _passwordController,
-                      decoration: const InputDecoration(labelText: 'Senha'),
-                      obscureText: true,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) return 'Informe a senha';
-                        if (value.length < 6) return 'A senha deve ter no mínimo 6 caracteres';
-                        return null;
-                      },
-                    ),
-                  ],
+                const SizedBox(height: 16),
+                Text(
+                  'Precifique com confiança. Lucre com clareza.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[600],
+                  ),
                 ),
-              ),
-              const SizedBox(height: 24),
+                const SizedBox(height: 32),
+                Form(
+                  key: _formKey,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextFormField(
+                        controller: _emailController,
+                        decoration: const InputDecoration(labelText: 'Email'),
+                        keyboardType: TextInputType.emailAddress,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return 'Informe o email';
+                          if (!value.contains('@') || !value.contains('.')) return 'Email inválido';
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _passwordController,
+                        decoration: const InputDecoration(labelText: 'Senha'),
+                        obscureText: true,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) return 'Informe a senha';
+                          if (value.length < 6) return 'A senha deve ter no mínimo 6 caracteres';
+                          return null;
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: _isLoading ? null : _submit,
                   style: ElevatedButton.styleFrom(
@@ -107,14 +116,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                   child: _isLoading
                       ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary))
-                      : Text(_isSignUp ? 'Criar Conta' : 'Entrar'),
+                      : const Text('Entrar'),
                 ),
                 const SizedBox(height: 16),
                 TextButton(
-                  onPressed: () => setState(() => _isSignUp = !_isSignUp),
-                  child: Text(
-                    _isSignUp ? 'Já tem conta? Entrar' : 'Não tem conta? Criar Conta',
-                    style: const TextStyle(color: AppTheme.primaryColor),
+                  onPressed: () => context.push('/register'),
+                  child: const Text(
+                    'Não tem conta? Criar Conta',
+                    style: TextStyle(color: AppTheme.primaryColor),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -132,7 +141,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       setState(() => _isLoading = true);
                       final cred = await ref.read(authServiceProvider).signInWithGoogle();
                       if (cred != null && mounted) {
-                        context.go('/home');
+                        ref.read(guestModeProvider.notifier).state = false;
+                        final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
+                        final redirectTo = extra?['redirect'] as String? ?? '/home';
+                        context.go(redirectTo);
                       }
                     } catch (e) {
                       if (mounted) {
@@ -150,6 +162,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     side: BorderSide(color: Theme.of(context).dividerColor),
                   ),
+                ),
+                const SizedBox(height: 16),
+                OutlinedButton(
+                  onPressed: () {
+                    ref.read(guestModeProvider.notifier).state = true;
+                    context.go('/home');
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    side: BorderSide(color: Theme.of(context).dividerColor),
+                  ),
+                  child: const Text('Continuar sem login'),
                 ),
               ],
             ),

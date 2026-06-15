@@ -6,10 +6,10 @@ class PlanLimits {
   final String priceLabel;
   final int recipeLimit;
   final int ingredientLimit;
-  final int equipmentLimit;
-  final bool hasReports;
+
   final bool hasDigitalMenu;
   final bool hasCloudBackup;
+  final bool hasAiAssistant;
 
   const PlanLimits({
     required this.plan,
@@ -17,10 +17,10 @@ class PlanLimits {
     required this.priceLabel,
     required this.recipeLimit,
     required this.ingredientLimit,
-    required this.equipmentLimit,
-    required this.hasReports,
+
     required this.hasDigitalMenu,
     required this.hasCloudBackup,
+    required this.hasAiAssistant,
   });
 
   bool get isUnlimitedRecipes => recipeLimit == -1;
@@ -32,10 +32,10 @@ class PlanLimits {
     priceLabel: 'Grátis',
     recipeLimit: 3,
     ingredientLimit: 15,
-    equipmentLimit: 0,
-    hasReports: false,
+
     hasDigitalMenu: false,
     hasCloudBackup: false,
+    hasAiAssistant: false,
   );
 
   static const light = PlanLimits(
@@ -44,10 +44,10 @@ class PlanLimits {
     priceLabel: 'R\$ 4,90/mês',
     recipeLimit: 30,
     ingredientLimit: 100,
-    equipmentLimit: 5,
-    hasReports: false,
+
     hasDigitalMenu: false,
     hasCloudBackup: false,
+    hasAiAssistant: false,
   );
 
   static const pro = PlanLimits(
@@ -56,10 +56,10 @@ class PlanLimits {
     priceLabel: 'R\$ 9,90/mês',
     recipeLimit: -1,
     ingredientLimit: -1,
-    equipmentLimit: -1,
-    hasReports: true,
-    hasDigitalMenu: false,
+
+    hasDigitalMenu: true,
     hasCloudBackup: true,
+    hasAiAssistant: true,
   );
 
   static const premium = PlanLimits(
@@ -68,10 +68,10 @@ class PlanLimits {
     priceLabel: 'R\$ 14,90/mês',
     recipeLimit: -1,
     ingredientLimit: -1,
-    equipmentLimit: -1,
-    hasReports: true,
+
     hasDigitalMenu: true,
     hasCloudBackup: true,
+    hasAiAssistant: true,
   );
 
   static const all = [free, light, pro, premium];

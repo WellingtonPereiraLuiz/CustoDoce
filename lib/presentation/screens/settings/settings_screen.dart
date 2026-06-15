@@ -11,6 +11,7 @@ import 'package:custo_doce/core/utils/plan_gate.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
 import 'package:custo_doce/core/providers/auth_provider.dart' as custo_doce_auth;
+import 'package:custo_doce/core/providers/guest_mode_provider.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -39,6 +40,28 @@ class SettingsScreen extends ConsumerWidget {
         data: (settings) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (ref.watch(guestModeProvider))
+              Card(
+                color: Theme.of(context).colorScheme.errorContainer,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    children: [
+                      Text(
+                        'Você está usando sem login. Faça login para sincronizar seus dados.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Theme.of(context).colorScheme.onErrorContainer),
+                      ),
+                      const SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: () => context.go('/login'),
+                        child: const Text('Fazer login'),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            if (ref.watch(guestModeProvider)) const SizedBox(height: 24),
             // ── Appearance ──────────────────────────────────────────
             _SectionHeader(title: s.appearance, icon: Icons.palette_outlined),
             const SizedBox(height: 12),
@@ -86,7 +109,7 @@ class SettingsScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w800),
                   ),
                 ),
-                onTap: () => context.push('/paywall'),
+                onTap: () => PlanGate.navigateToPaywall(context, ref),
                 cardBg: cardBg,
               )
             else
@@ -111,49 +134,12 @@ class SettingsScreen extends ConsumerWidget {
                         fontWeight: FontWeight.w800),
                   ),
                 ),
-                onTap: () => context.push('/paywall'),
+                onTap: () => PlanGate.navigateToPaywall(context, ref),
                 cardBg: cardBg,
                 titleColor: Theme.of(context).colorScheme.onSurface,
               ),
             const SizedBox(height: 12),
-            _SettingsTile(
-              icon: Icons.bolt_outlined,
-              iconColor: accent,
-              title: 'Equipamentos',
-              subtitle: 'Gerenciar consumo de energia',
-              trailing: currentPlan.equipmentLimit != 0
-                  ? Icon(Icons.chevron_right_rounded, color: accent)
-                  : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
-              onTap: () {
-                if (PlanGate.checkFeature(
-                  context: context,
-                  hasAccess: currentPlan.equipmentLimit != 0,
-                  featureName: 'Equipamentos',
-                  requiredPlan: 'Light',
-                )) context.push('/equipment');
-              },
-              cardBg: cardBg,
-            ),
-            const SizedBox(height: 8),
             // ── Features Pro/Premium (protegidas por gates) ─────────
-            _SettingsTile(
-              icon: Icons.bar_chart_rounded,
-              iconColor: accent,
-              title: 'Relatórios e Gráficos',
-              subtitle: 'Análise de custos e margens',
-              trailing: currentPlan.hasReports
-                  ? Icon(Icons.chevron_right_rounded, color: accent)
-                  : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
-              onTap: () {
-                if (PlanGate.checkFeature(
-                  context: context,
-                  hasAccess: currentPlan.hasReports,
-                  featureName: 'Relatórios e gráficos',
-                  requiredPlan: 'Pro',
-                )) context.push('/dashboard');
-              },
-              cardBg: cardBg,
-            ),
             const SizedBox(height: 8),
             _SettingsTile(
               icon: Icons.restaurant_menu_rounded,
@@ -164,8 +150,7 @@ class SettingsScreen extends ConsumerWidget {
                   ? Icon(Icons.chevron_right_rounded, color: accent)
                   : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
               onTap: () {
-                if (PlanGate.checkFeature(
-                  context: context,
+                if (PlanGate.checkFeature(context: context, ref: ref,
                   hasAccess: currentPlan.hasDigitalMenu,
                   featureName: 'Cardápio digital',
                   requiredPlan: 'Premium',
@@ -183,8 +168,7 @@ class SettingsScreen extends ConsumerWidget {
                   ? Icon(Icons.chevron_right_rounded, color: accent)
                   : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
               onTap: () {
-                PlanGate.checkFeature(
-                  context: context,
+                PlanGate.checkFeature(context: context, ref: ref,
                   hasAccess: currentPlan.hasCloudBackup,
                   featureName: 'Backup em nuvem',
                   requiredPlan: 'Pro',
@@ -654,3 +638,4 @@ class _SettingsTile extends StatelessWidget {
     );
   }
 }
+

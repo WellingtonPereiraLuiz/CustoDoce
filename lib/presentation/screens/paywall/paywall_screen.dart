@@ -5,14 +5,34 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
+import 'package:custo_doce/core/providers/auth_provider.dart';
+import 'package:custo_doce/core/providers/guest_mode_provider.dart';
 import 'package:custo_doce/core/models/subscription_plan.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 
-class PaywallScreen extends ConsumerWidget {
+class PaywallScreen extends ConsumerStatefulWidget {
   const PaywallScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PaywallScreen> createState() => _PaywallScreenState();
+}
+
+class _PaywallScreenState extends ConsumerState<PaywallScreen> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      final isGuest = ref.read(guestModeProvider);
+      final user = ref.read(currentUserProvider);
+      if (isGuest || user == null) {
+        context.go('/login', extra: {'redirect': '/paywall'});
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     if (kIsWeb) {
       return const _WebPlanSelector();
     }
@@ -64,16 +84,10 @@ class _WebPlanSelector extends ConsumerWidget {
               : '${p.ingredientLimit} ingredientes',
           ok: true
         ),
-        (
-          label: p.equipmentLimit == 0
-              ? 'Equipamentos'
-              : (p.equipmentLimit == -1
-                  ? 'Equipamentos ilimitados'
-                  : '${p.equipmentLimit} equipamentos'),
-          ok: p.equipmentLimit != 0
-        ),
-        (label: 'Relatórios e gráficos', ok: p.hasReports),
+
+
         (label: 'Cardápio digital', ok: p.hasDigitalMenu),
+        (label: 'Assistente de IA', ok: p.hasAiAssistant),
         (label: 'Backup em nuvem', ok: p.hasCloudBackup),
       ];
 

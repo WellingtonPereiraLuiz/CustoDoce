@@ -2,8 +2,10 @@ import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:custo_doce/core/utils/plan_gate.dart';
 
-class LockedFeatureScreen extends StatelessWidget {
+class LockedFeatureScreen extends ConsumerWidget {
   final String featureName;
   final String requiredPlan;
 
@@ -14,7 +16,7 @@ class LockedFeatureScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final accent = isDark ? AppTheme.accentWarm : AppTheme.primaryColor;
     
@@ -40,7 +42,7 @@ class LockedFeatureScreen extends StatelessWidget {
               ),
               const SizedBox(height: 28),
               FilledButton.icon(
-                onPressed: () => context.push('/paywall'),
+                onPressed: () => PlanGate.navigateToPaywall(context, ref),
                 icon: const Icon(Icons.workspace_premium_rounded),
                 label: const Text('Ver planos'),
                 style: FilledButton.styleFrom(
@@ -55,3 +57,5 @@ class LockedFeatureScreen extends StatelessWidget {
     );
   }
 }
+
+

@@ -8,6 +8,9 @@ class RecipeEntity {
   final double additionalOperationalCost;
   final double totalCost;
   final double suggestedSellPrice;
+  final double? sellingPrice;
+  final String? imagePath;
+  final bool showInMenu;
   final DateTime createdAt;
   final List<RecipeIngredientEntity> ingredients;
   final String? userId;
@@ -21,6 +24,9 @@ class RecipeEntity {
     required this.additionalOperationalCost,
     required this.totalCost,
     required this.suggestedSellPrice,
+    this.sellingPrice,
+    this.imagePath,
+    this.showInMenu = false,
     required this.createdAt,
     required this.ingredients,
     this.userId,
@@ -35,6 +41,9 @@ class RecipeEntity {
     double? additionalOperationalCost,
     double? totalCost,
     double? suggestedSellPrice,
+    double? Function()? sellingPrice,
+    String? Function()? imagePath,
+    bool? showInMenu,
     DateTime? createdAt,
     List<RecipeIngredientEntity>? ingredients,
     String? userId,
@@ -50,6 +59,9 @@ class RecipeEntity {
           additionalOperationalCost ?? this.additionalOperationalCost,
       totalCost: totalCost ?? this.totalCost,
       suggestedSellPrice: suggestedSellPrice ?? this.suggestedSellPrice,
+      sellingPrice: sellingPrice != null ? sellingPrice() : this.sellingPrice,
+      imagePath: imagePath != null ? imagePath() : this.imagePath,
+      showInMenu: showInMenu ?? this.showInMenu,
       createdAt: createdAt ?? this.createdAt,
       ingredients: ingredients ?? this.ingredients,
       userId: userId ?? this.userId,

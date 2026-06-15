@@ -11,9 +11,10 @@ import 'package:custo_doce/presentation/screens/settings/settings_screen.dart';
 import 'package:custo_doce/presentation/screens/auth/login_screen.dart';
 import 'package:custo_doce/presentation/screens/main/main_scaffold.dart';
 import 'package:custo_doce/presentation/screens/splash/splash_screen.dart';
-import 'package:custo_doce/presentation/screens/equipment/equipment_screen.dart';
-import 'package:custo_doce/presentation/screens/dashboard/dashboard_screen.dart';
 import 'package:custo_doce/presentation/screens/digital_menu/digital_menu_screen.dart';
+import 'package:custo_doce/presentation/screens/recipe/recipes_screen.dart';
+import 'package:custo_doce/presentation/screens/auth/register_screen.dart';
+import 'package:custo_doce/presentation/screens/ai_chat/ai_chat_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
@@ -31,9 +32,21 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
+        path: '/register',
+        name: 'register',
+        builder: (context, state) => const RegisterScreen(),
+      ),
+      GoRoute(
         path: AppConstants.recipeBuilderRoute,
         name: 'recipe-builder',
-        builder: (context, state) => const RecipeBuilderScreen(),
+        builder: (context, state) => RecipeBuilderScreen(
+          editRecipeId: state.extra as String?,
+        ),
+      ),
+      GoRoute(
+        path: '/ai-chat',
+        name: 'ai-chat',
+        builder: (context, state) => const AiChatScreen(),
       ),
       GoRoute(
         path: AppConstants.recipeEditRoute,
@@ -57,9 +70,9 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const PaywallScreen(),
       ),
       GoRoute(
-        path: AppConstants.ingredientManagerRoute,
-        name: 'ingredients',
-        builder: (context, state) => const IngredientManagerScreen(),
+        path: AppConstants.menuRoute,
+        name: 'menu',
+        builder: (context, state) => const DigitalMenuScreen(),
       ),
       // Stateful shell route for bottom navigation
       StatefulShellRoute.indexedStack(
@@ -79,24 +92,27 @@ final routerProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
+                path: '/recipes',
+                name: 'recipes',
+                builder: (context, state) => const RecipesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: AppConstants.ingredientManagerRoute,
+                name: 'ingredients',
+                builder: (context, state) => const IngredientManagerScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
                 path: AppConstants.settingsRoute,
                 name: 'settings',
                 builder: (context, state) => const SettingsScreen(),
-              ),
-              GoRoute(
-                path: AppConstants.equipmentRoute,
-                name: 'equipment',
-                builder: (context, state) => const EquipmentScreen(),
-              ),
-              GoRoute(
-                path: AppConstants.dashboardRoute,
-                name: 'dashboard',
-                builder: (context, state) => const DashboardScreen(),
-              ),
-              GoRoute(
-                path: AppConstants.menuRoute,
-                name: 'menu',
-                builder: (context, state) => const DigitalMenuScreen(),
               ),
             ],
           ),
