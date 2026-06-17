@@ -1,7 +1,8 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/core/enums/recipe_category.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
@@ -89,7 +90,12 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
   Future<void> _pickImage() async {
     final picker = ImagePicker();
-    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    final pickedFile = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+      maxHeight: 800,
+      imageQuality: 85,
+    );
     if (pickedFile != null) {
       ref.read(recipeBuilderProvider.notifier).setImagePath(pickedFile.path);
     }
@@ -175,7 +181,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
             );
           }
         });
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        return Scaffold(body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: const Center(child: CircularProgressIndicator()))));
       }
     }
 
@@ -214,11 +220,16 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(16),
-                        image: state.imagePath != null && File(state.imagePath!).existsSync()
-                            ? DecorationImage(image: FileImage(File(state.imagePath!)), fit: BoxFit.cover)
+                        image: state.imagePath != null && (kIsWeb || File(state.imagePath!).existsSync())
+                            ? DecorationImage(
+                                image: kIsWeb 
+                                    ? NetworkImage(state.imagePath!) as ImageProvider 
+                                    : FileImage(File(state.imagePath!)), 
+                                fit: BoxFit.cover,
+                              )
                             : null,
                       ),
-                      child: state.imagePath == null || !File(state.imagePath!).existsSync()
+                      child: state.imagePath == null || !(kIsWeb || File(state.imagePath!).existsSync())
                           ? Icon(Icons.add_a_photo, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant)
                           : null,
                     ),
@@ -535,6 +546,34 @@ class _PricingDashboard extends StatelessWidget {
               ),
             ],
           ),
+          if (state.yieldQuantity > 0)
+            Builder(builder: (context) {
+              final totalPrice = state.sellingPrice ?? PriceUtils.roundSuggestedPrice(state.finalPrice);
+              final pricePerUnit = totalPrice / state.yieldQuantity;
+              return Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Preço por unidade:',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                    Text(
+                      currencyFormat.format(pricePerUnit),
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.grey[700],
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
         ],
       ),
     );

@@ -32,7 +32,7 @@ class SettingsScreen extends ConsumerWidget {
         title: Text(s.settingsTitle),
         leading: const BackButton(),
       ),
-      body: settingsAsync.when(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: settingsAsync.when(
         loading: () => const Center(
           child: CircularProgressIndicator(color: AppTheme.primaryColor),
         ),
@@ -227,7 +227,7 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 48),
           ],
         ),
-      ),
+      ))),
     );
   }
 

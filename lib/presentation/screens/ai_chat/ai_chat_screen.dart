@@ -1,202 +1,165 @@
-﻿import 'dart:convert';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:custo_doce/core/theme/app_theme.dart';
 
-import 'package:custo_doce/core/providers/subscription_provider.dart';
-import 'package:custo_doce/core/models/subscription_plan.dart';
-import 'package:custo_doce/core/services/ai_service.dart';
-
-class _ChatMessage {
-  final String text;
-  final bool isUser;
-  final String? imageBase64;
-  final DateTime timestamp;
-
-  _ChatMessage({
-    required this.text,
-    required this.isUser,
-    this.imageBase64,
-    required this.timestamp,
-  });
-}
-
-class AiChatScreen extends ConsumerStatefulWidget {
+class AiChatScreen extends StatelessWidget {
   const AiChatScreen({super.key});
 
   @override
-  ConsumerState<AiChatScreen> createState() => _AiChatScreenState();
-}
-
-class _AiChatScreenState extends ConsumerState<AiChatScreen> {
-  final List<_ChatMessage> _messages = [];
-  final _controller = TextEditingController();
-  bool _isLoading = false;
-
-  Widget _buildUpgradeBanner() => Scaffold(
-        appBar: AppBar(title: const Text('Assistente CustoDoce')),
-        body: Center(
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Assistente IA'),
+        backgroundColor: AppTheme.primaryColor,
+        foregroundColor: Colors.white,
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 600),
           child: Padding(
             padding: const EdgeInsets.all(32),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.auto_awesome_outlined, size: 64, color: Colors.grey),
-                const SizedBox(height: 16),
-                const Text(
-                  'O Assistente IA está disponível nos planos Pro e Premium.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16),
+                Container(
+                  width: 96,
+                  height: 96,
+                  decoration: BoxDecoration(
+                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    size: 48,
+                    color: AppTheme.primaryColor,
+                  ),
                 ),
                 const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: () => context.go('/paywall'),
-                  child: const Text('Ver planos'),
+                Text(
+                  'Assistente IA',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: AppTheme.primaryColor,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Em breve disponível',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 32),
+                const _FeatureCard(
+                  icon: Icons.add_circle_outline,
+                  title: 'Adicionar & editar ingredientes',
+                  description: 'Diga ao assistente quais ingredientes adicionar ou atualizar, sem navegar pelo app.',
+                ),
+                const SizedBox(height: 12),
+                const _FeatureCard(
+                  icon: Icons.receipt_long_outlined,
+                  title: 'Criar receitas por conversa',
+                  description: 'Descreva sua receita em linguagem natural e o assistente monta a ficha técnica completa.',
+                ),
+                const SizedBox(height: 12),
+                const _FeatureCard(
+                  icon: Icons.document_scanner_outlined,
+                  title: 'Leitura de nota fiscal por imagem',
+                  description: 'Fotografe a NF do mercado e o assistente atualiza automaticamente os preços dos ingredientes selecionados.',
+                ),
+                const SizedBox(height: 32),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: Colors.amber[50],
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.amber[300]!),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(Icons.schedule, color: Colors.amber[700], size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Disponível no plano Premium — lançamento em breve.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.amber[800],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
         ),
-      );
-
-  Future<void> _sendMessage([String? imageBase64]) async {
-    final text = _controller.text.trim();
-    if (text.isEmpty && imageBase64 == null) return;
-    
-    _controller.clear();
-    setState(() {
-      _messages.add(_ChatMessage(
-        text: text.isEmpty ? '[imagem]' : text,
-        isUser: true,
-        imageBase64: imageBase64,
-        timestamp: DateTime.now(),
-      ));
-      _isLoading = true;
-    });
-
-    final ai = ref.read(aiServiceProvider);
-    final response = await ai.sendMessage(text, imageBase64: imageBase64);
-
-    if (mounted) {
-      setState(() {
-        _messages.add(_ChatMessage(
-          text: response,
-          isUser: false,
-          timestamp: DateTime.now(),
-        ));
-        _isLoading = false;
-      });
-    }
+      ),
+    );
   }
+}
 
-  Future<void> _pickAndSendImage() async {
-    final limits = ref.read(currentPlanProvider);
+class _FeatureCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String description;
 
-    if (!limits.hasInvoiceScan) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Análise de nota fiscal é exclusiva do plano Premium.')),
-      );
-      return;
-    }
-
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery, maxWidth: 800);
-    if (picked == null) return;
-
-    final bytes = await File(picked.path).readAsBytes();
-    final base64Img = base64Encode(bytes);
-    await _sendMessage(base64Img);
-  }
+  const _FeatureCard({
+    required this.icon,
+    required this.title,
+    required this.description,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final limits = ref.watch(currentPlanProvider);
-
-    if (!limits.hasChatAi) return _buildUpgradeBanner();
-
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Assistente CustoDoce'),
-        actions: const [
-          Icon(Icons.auto_awesome_rounded),
-          SizedBox(width: 16),
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey[200]!),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
         ],
       ),
-      body: Column(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: _messages.length,
-              itemBuilder: (context, index) {
-                final msg = _messages[index];
-                return Align(
-                  alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
-                  child: Container(
-                    margin: const EdgeInsets.symmetric(vertical: 4),
-                    padding: const EdgeInsets.all(12),
-                    constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-                    decoration: BoxDecoration(
-                      color: msg.isUser
-                          ? Theme.of(context).colorScheme.primary
-                          : Theme.of(context).colorScheme.surfaceContainerHighest,
-                      borderRadius: BorderRadius.circular(16),
-                    ),
-                    child: Text(
-                      msg.text,
-                      style: TextStyle(
-                        color: msg.isUser ? Theme.of(context).colorScheme.onPrimary : null,
-                      ),
-                    ),
-                  ),
-                );
-              },
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              color: AppTheme.primaryColor.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
             ),
+            child: Icon(icon, color: AppTheme.primaryColor, size: 20),
           ),
-          if (_isLoading)
-            const Padding(
-              padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(),
-            ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      decoration: InputDecoration(
-                        hintText: 'Digite sua mensagem...',
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                      ),
-                      onSubmitted: (_) => _sendMessage(),
-                    ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
-                  if (limits.hasInvoiceScan)
-                    IconButton(
-                      icon: const Icon(Icons.camera_alt),
-                      onPressed: _pickAndSendImage,
-                    )
-                  else
-                    IconButton(
-                      icon: const Icon(Icons.camera_alt, color: Colors.grey),
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Análise de nota fiscal é exclusiva do plano Premium.')),
-                        );
-                      },
-                    ),
-                  IconButton(
-                    icon: const Icon(Icons.send),
-                    onPressed: _sendMessage,
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: TextStyle(
+                    fontSize: 13,
+                    color: Colors.grey[600],
+                    height: 1.4,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],

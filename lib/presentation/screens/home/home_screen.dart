@@ -27,7 +27,7 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('CustoDoce'),
       ),
-      body: Stack(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Stack(
         children: [
           // Decorating Background Glows
           Positioned(
@@ -137,7 +137,7 @@ class HomeScreen extends ConsumerWidget {
           ),
           ),
         ],
-      ),
+      ))),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (isPro) {

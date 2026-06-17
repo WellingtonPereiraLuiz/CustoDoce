@@ -26,7 +26,7 @@ class IngredientManagerScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: ingredientsAsync.when(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ingredientsAsync.when(
         loading: () => const Center(
             child: CircularProgressIndicator(color: AppTheme.primaryColor)),
         error: (e, _) => Center(child: Text('Erro: $e')),
@@ -135,7 +135,7 @@ class IngredientManagerScreen extends ConsumerWidget {
             ),
           );
         },
-      ),
+      ))),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_ingredient',
         onPressed: () {

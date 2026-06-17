@@ -9,6 +9,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
@@ -25,6 +26,20 @@ class DigitalMenuScreen extends ConsumerStatefulWidget {
 
 class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
   final ScreenshotController _screenshotController = ScreenshotController();
+
+  String _categoryLabel(RecipeCategory cat) {
+    switch (cat) {
+      case RecipeCategory.bolo: return 'Bolos';
+      case RecipeCategory.torta: return 'Tortas';
+      case RecipeCategory.brigadeiro: return 'Brigadeiros';
+      case RecipeCategory.cookies: return 'Cookies';
+      case RecipeCategory.paes: return 'Pães';
+      case RecipeCategory.salgados: return 'Salgados';
+      case RecipeCategory.bebidas: return 'Bebidas';
+      case RecipeCategory.outro: return 'Outros';
+      default: return 'Outros';
+    }
+  }
 
   void _showUpgradeDialog(String message) {
     showDialog(
@@ -49,25 +64,66 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
     );
   }
 
-  void _shareAsText(List<RecipeEntity> recipes) {
-    final buffer = StringBuffer();
-    buffer.writeln('🍰 Cardápio');
-    buffer.writeln('─────────────────────────');
-    for (final r in recipes) {
-      final priceDisplay = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
-      buffer.writeln('• ${r.name} — R\$ ${priceDisplay.toStringAsFixed(2)}');
+  Future<void> _shareAsText(List<RecipeEntity> recipes) async {
+    if (recipes.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Nenhuma receita no cardápio para compartilhar.')),
+      );
+      return;
     }
+
+    final buffer = StringBuffer();
+    buffer.writeln('🍰 CARDÁPIO — CustoDoce');
     buffer.writeln('─────────────────────────');
-    buffer.writeln('Feito com CustoDoce 🎂');
-    Share.share(buffer.toString(), subject: 'Cardápio');
+    buffer.writeln();
+
+    final Map<String, List<RecipeEntity>> grouped = {};
+    for (final r in recipes) {
+      final label = _categoryLabel(r.category);
+      grouped.putIfAbsent(label, () => []).add(r);
+    }
+
+    for (final entry in grouped.entries) {
+      buffer.writeln('📌 ${entry.key.toUpperCase()}');
+      for (final r in entry.value) {
+        final price = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
+        final unitPrice = (r.yieldQuantity > 0)
+            ? ' (R\$ ${(price / r.yieldQuantity).toStringAsFixed(2)} por unidade)'
+            : '';
+        buffer.writeln('• ${r.name} — R\$ ${price.toStringAsFixed(2)}$unitPrice');
+      }
+      buffer.writeln();
+    }
+
+    buffer.writeln('─────────────────────────');
+    buffer.writeln('Calculado com CustoDoce 🍬');
+    buffer.writeln('custodoce-b07ce.web.app');
+
+    await Share.share(buffer.toString(), subject: 'Meu Cardápio — CustoDoce');
   }
 
   Future<void> _exportAsJpg() async {
-    final image = await _screenshotController.capture(pixelRatio: 2.0);
-    if (image == null) return;
-    final dir = await getTemporaryDirectory();
-    final file = await File('${dir.path}/cardapio_custodoce.png').writeAsBytes(image);
-    await Share.shareXFiles([XFile(file.path)], text: 'Cardápio CustoDoce');
+    if (kIsWeb) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No navegador, use "Exportar PDF" para salvar o cardápio.'),
+          duration: Duration(seconds: 3),
+        ),
+      );
+      return;
+    }
+
+    try {
+      final image = await _screenshotController.capture(pixelRatio: 2.0);
+      if (image == null) return;
+      final dir = await getTemporaryDirectory();
+      final file = await File('${dir.path}/cardapio_custodoce.png').writeAsBytes(image);
+      await Share.shareXFiles([XFile(file.path)], text: 'Meu cardápio CustoDoce');
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao exportar imagem: $e')),
+      );
+    }
   }
 
   Future<void> _exportAsPdf(List<RecipeEntity> recipes) async {
@@ -127,12 +183,10 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                     pw.Text('R\$ ${price.toStringAsFixed(2)}', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: highlightColor)),
                   ],
                 ),
-                if (r.category != RecipeCategory.outro) ...[
-                  pw.SizedBox(height: 4),
-                  pw.Divider(color: borderColor, thickness: 0.5),
-                  pw.SizedBox(height: 4),
-                  pw.Text(r.category.label, style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
-                ],
+                pw.SizedBox(height: 4),
+                pw.Divider(color: borderColor, thickness: 0.5),
+                pw.SizedBox(height: 4),
+                pw.Text(_categoryLabel(r.category), style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
               ],
             ),
           );
@@ -157,7 +211,7 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
 
   Widget _buildUpgradeBanner(BuildContext context, String message) => Scaffold(
     appBar: AppBar(title: const Text('Cardápio Digital')),
-    body: Center(
+    body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
         child: Column(
@@ -174,7 +228,7 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
           ],
         ),
       ),
-    ),
+    ))),
   );
 
   @override

@@ -16,7 +16,7 @@ class RecipeDetailScreen extends ConsumerWidget {
     final currencyFormat = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
     return recipesAsync.when(
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () => Scaffold(body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: const Center(child: CircularProgressIndicator())))),
       error: (e, _) => Scaffold(body: Center(child: Text('Erro: $e'))),
       data: (recipes) {
         final recipe = recipes.where((r) => r.id == recipeId).firstOrNull;

@@ -35,7 +35,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-      body: Center(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -71,7 +71,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             ),
           ],
         ),
-      ),
+      ))),
     );
   }
 }

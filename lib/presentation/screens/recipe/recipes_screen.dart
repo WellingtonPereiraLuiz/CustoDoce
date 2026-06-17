@@ -19,7 +19,7 @@ class RecipesScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Receitas'),
       ),
-      body: recipesAsync.when(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: recipesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Erro ao carregar receitas: $e')),
         data: (recipes) {
@@ -114,7 +114,7 @@ class RecipesScreen extends ConsumerWidget {
             },
           );
         },
-      ),
+      ))),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           final plan = ref.read(currentPlanProvider);

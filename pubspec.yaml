@@ -1,4 +1,4 @@
-﻿name: custo_doce
+name: custo_doce
 description: "CustoDoce - Calculadora de custos de receitas e precificaÃ§Ã£o de produtos."
 publish_to: 'none'
 version: 1.1.0+2
@@ -52,6 +52,7 @@ dependencies:
   printing: ^5.14.3
   google_generative_ai: ^0.4.7
   screenshot: ^3.0.0
+  path_provider: ^2.1.6
 
 dev_dependencies:
   flutter_test:

@@ -37,7 +37,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       return const _WebPlanSelector();
     }
     return Scaffold(
-      body: SafeArea(
+      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
         child: PaywallView(
           onPurchaseCompleted: (customerInfo, storeTransaction) {
             ref.read(subscriptionNotifierProvider.notifier).checkStatus();
@@ -63,7 +63,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             }
           },
         ),
-      ),
+      ))),
     );
   }
 }
