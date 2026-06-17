@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
@@ -12,9 +12,9 @@ import 'package:go_router/go_router.dart';
 
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
-import 'package:custo_doce/core/models/subscription_plan.dart';
 import 'package:custo_doce/core/utils/price_utils.dart';
 import 'package:custo_doce/domain/entities/recipe_entity.dart';
+import 'package:custo_doce/core/enums/recipe_category.dart';
 
 class DigitalMenuScreen extends ConsumerStatefulWidget {
   const DigitalMenuScreen({super.key});
@@ -40,7 +40,7 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
           ElevatedButton(
             onPressed: () {
               ctx.pop();
-              context.go('/plans'); // Ou /paywall dependendo da rota correta
+              context.go('/paywall');
             },
             child: const Text('Ver planos'),
           ),
@@ -54,8 +54,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
     buffer.writeln('🍰 Cardápio');
     buffer.writeln('─────────────────────────');
     for (final r in recipes) {
-      final price = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
-      buffer.writeln('•  — R\$ ');
+      final priceDisplay = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
+      buffer.writeln('• ${r.name} — R\$ ${priceDisplay.toStringAsFixed(2)}');
     }
     buffer.writeln('─────────────────────────');
     buffer.writeln('Feito com CustoDoce 🎂');
@@ -66,34 +66,91 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
     final image = await _screenshotController.capture(pixelRatio: 2.0);
     if (image == null) return;
     final dir = await getTemporaryDirectory();
-    final file = await File('\/cardapio_custodoce.png').writeAsBytes(image);
+    final file = await File('${dir.path}/cardapio_custodoce.png').writeAsBytes(image);
     await Share.shareXFiles([XFile(file.path)], text: 'Cardápio CustoDoce');
   }
 
   Future<void> _exportAsPdf(List<RecipeEntity> recipes) async {
     final doc = pw.Document();
+    
+    final primaryColor = PdfColor.fromHex('#1E0A07');
+    final highlightColor = PdfColor.fromHex('#6B5A60');
+    final borderColor = PdfColor.fromHex('#D4C3BF');
+    final creamColor = PdfColor.fromHex('#FFF8F6');
+    final whiteColor = PdfColors.white;
+
     doc.addPage(pw.MultiPage(
-      pageFormat: PdfPageFormat.a4,
+      pageTheme: pw.PageTheme(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(40),
+        buildBackground: (ctx) => pw.FullPage(
+          ignoreMargins: true,
+          child: pw.Container(color: whiteColor),
+        ),
+      ),
       build: (ctx) => [
-        pw.Header(level: 0, child: pw.Text('Cardápio', style: pw.TextStyle(fontSize: 28))),
+        pw.Center(
+          child: pw.Column(
+            children: [
+              pw.Text('Cardápio', style: pw.TextStyle(fontSize: 32, fontWeight: pw.FontWeight.bold, color: primaryColor)),
+              pw.SizedBox(height: 4),
+              pw.Text('Confeitaria Artesanal', style: pw.TextStyle(fontSize: 14, color: highlightColor)),
+            ],
+          ),
+        ),
         pw.SizedBox(height: 16),
+        pw.Divider(color: primaryColor, thickness: 1.5),
+        pw.SizedBox(height: 8),
+        pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text('Atualizado em ${DateFormat('dd/MM/yyyy').format(DateTime.now())}', style: pw.TextStyle(fontSize: 10, color: highlightColor)),
+        ),
+        pw.SizedBox(height: 24),
+        
         ...recipes.map((r) {
           final price = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
           return pw.Container(
-            margin: const pw.EdgeInsets.only(bottom: 12),
+            margin: const pw.EdgeInsets.only(bottom: 8),
             padding: const pw.EdgeInsets.all(12),
-            decoration: pw.BoxDecoration(border: pw.Border.all()),
-            child: pw.Row(
-              mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            decoration: pw.BoxDecoration(
+              color: creamColor,
+              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+              border: pw.Border.all(color: borderColor, width: 1),
+            ),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Text(r.name, style: pw.TextStyle(fontSize: 16)),
-                pw.Text('R\$ ${price.toStringAsFixed(2)}',
-                    style: pw.TextStyle(fontSize: 16, fontWeight: pw.FontWeight.bold)),
+                pw.Row(
+                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+                  children: [
+                    pw.Text(r.name, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: primaryColor)),
+                    pw.Text('R\$ ${price.toStringAsFixed(2)}', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: highlightColor)),
+                  ],
+                ),
+                if (r.category != RecipeCategory.outro) ...[
+                  pw.SizedBox(height: 4),
+                  pw.Divider(color: borderColor, thickness: 0.5),
+                  pw.SizedBox(height: 4),
+                  pw.Text(r.category.label, style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+                ],
               ],
             ),
           );
         }),
       ],
+      footer: (ctx) => pw.Column(
+        children: [
+          pw.Divider(color: primaryColor, thickness: 1),
+          pw.SizedBox(height: 4),
+          pw.Row(
+            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+            children: [
+              pw.Text('Feito com CustoDoce • custodoce.app', style: pw.TextStyle(fontSize: 10, color: highlightColor)),
+              pw.Text('${ctx.pageNumber} / ${ctx.pagesCount}', style: pw.TextStyle(fontSize: 10, color: highlightColor)),
+            ],
+          ),
+        ],
+      ),
     ));
     await Printing.layoutPdf(onLayout: (_) async => doc.save());
   }
@@ -193,47 +250,112 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
             controller: _screenshotController,
             child: Container(
               color: Theme.of(context).scaffoldBackgroundColor,
-              child: ListView.builder(
-                itemCount: menuRecipes.length,
-                itemBuilder: (context, index) {
-                  final recipe = menuRecipes[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (recipe.imagePath != null)
-                          ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                            child: Image.file(
-                              File(recipe.imagePath!),
-                              width: double.infinity,
-                              height: 140,
-                              fit: BoxFit.cover,
+              child: ListView(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                children: [
+                  const SizedBox(height: 16),
+                  const Text(
+                    'Cardápio',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: 'serif',
+                      fontSize: 32,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Toque para exportar',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  ...menuRecipes.map((recipe) {
+                    return Card(
+                      elevation: 2,
+                      margin: const EdgeInsets.only(bottom: 8),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          if (recipe.imagePath != null && File(recipe.imagePath!).existsSync())
+                            ClipRRect(
+                              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                              child: Image.file(
+                                File(recipe.imagePath!),
+                                width: double.infinity,
+                                height: 160,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          else
+                            Container(
+                              height: 160,
+                              decoration: const BoxDecoration(
+                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+                                gradient: LinearGradient(
+                                  colors: [Color(0xFFE8E0DD), Color(0xFFD4C3BF)],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                              ),
+                              child: const Center(
+                                child: Icon(Icons.cake_rounded, size: 64, color: Colors.white70),
+                              ),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        recipe.name,
+                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        recipe.category.label,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          color: Theme.of(context).colorScheme.secondary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFFF8F6),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Text(
+                                    formatter.format(
+                                      recipe.sellingPrice ?? PriceUtils.roundSuggestedPrice(recipe.suggestedSellPrice),
+                                    ),
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF6B5A60),
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(recipe.name,
-                                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                              ),
-                              Text(
-                                formatter.format(
-                                  recipe.sellingPrice ?? PriceUtils.roundSuggestedPrice(recipe.suggestedSellPrice),
-                                ),
-                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
+                        ],
+                      ),
+                    );
+                  }),
+                ],
               ),
             ),
           ),
@@ -242,4 +364,3 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
     );
   }
 }
-

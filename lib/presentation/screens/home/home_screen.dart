@@ -8,6 +8,7 @@ import 'package:custo_doce/core/utils/plan_gate.dart';
 import 'package:custo_doce/domain/entities/recipe_entity.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
 import 'package:intl/intl.dart';
+import 'package:custo_doce/core/utils/price_utils.dart';
 
 import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
 import 'package:shimmer/shimmer.dart';
@@ -676,16 +677,16 @@ class _RecipeListTile extends StatelessWidget {
             Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                const Text(
-                  'Venda',
-                  style: TextStyle(
+                Text(
+                  recipe.sellingPrice != null ? 'Venda' : 'Sugerido',
+                  style: const TextStyle(
                     fontSize: 10,
                     color: AppTheme.successColor,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Text(
-                  currencyFormat.format(recipe.suggestedSellPrice),
+                  currencyFormat.format(recipe.sellingPrice ?? PriceUtils.roundSuggestedPrice(recipe.suggestedSellPrice)),
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
@@ -699,8 +700,8 @@ class _RecipeListTile extends StatelessWidget {
       ),
     );
   }
+
+
+
+
 }
-
-
-
-

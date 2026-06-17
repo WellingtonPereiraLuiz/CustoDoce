@@ -63,7 +63,7 @@ O vídeo apresenta a solução completa, ferramentas utilizadas, uso de IA, o qu
 
 1. Acesse o link do MVP acima
 2. Faça login com Google ou use a conta de teste:
-   - E-mail: `avaliador@custodoce.app` *(a definir)*
+   - E-mail: `avaliador@custodoce.app`
    - Senha: `hackathon2026`
 3. Navegue pelo app: Home → Ingredientes → Nova Receita → Precificar
 

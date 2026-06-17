@@ -86,7 +86,7 @@ class _WebPlanSelector extends ConsumerWidget {
         ),
 
 
-        (label: 'CardÃ¡pio digital', ok: p.hasDigitalMenu),
+        (label: 'Cardápio digital', ok: p.hasDigitalMenu),
         (label: 'Assistente de IA', ok: p.hasChatAi),
         (label: 'Backup em nuvem', ok: p.hasCloudBackup),
       ];
@@ -151,7 +151,7 @@ class _WebPlanSelector extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Modo demonstraÃ§Ã£o â€” pagamentos reais no app mobile.',
+                      'Modo demonstração â€” pagamentos reais no app mobile.',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context)
