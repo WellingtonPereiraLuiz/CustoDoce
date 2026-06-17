@@ -6,8 +6,8 @@ import 'package:flutter/foundation.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: kIsWeb ? const String.fromEnvironment('GOOGLE_SIGN_IN_WEB_CLIENT_ID') : null,
-    serverClientId: kIsWeb ? null : const String.fromEnvironment('GOOGLE_SIGN_IN_WEB_CLIENT_ID'),
+    clientId: kIsWeb ? '842901176561-b143g01ee083h7ir3020rqnms6t50hrs.apps.googleusercontent.com' : null,
+    serverClientId: kIsWeb ? null : '842901176561-b143g01ee083h7ir3020rqnms6t50hrs.apps.googleusercontent.com',
   );
 
   User? get currentUser => _auth.currentUser;
