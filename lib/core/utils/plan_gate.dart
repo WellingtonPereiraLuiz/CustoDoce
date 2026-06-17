@@ -109,7 +109,7 @@ class PlanGate {
             ElevatedButton(
               onPressed: () {
                 Navigator.pop(context);
-                context.go('/login', extra: {'redirect': '/paywall'});
+                context.push('/login', extra: {'redirect': '/paywall'});
               },
               child: const Text('Fazer login'),
             ),

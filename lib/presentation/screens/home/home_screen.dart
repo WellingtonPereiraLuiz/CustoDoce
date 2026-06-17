@@ -1,3 +1,5 @@
+import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -640,16 +642,25 @@ class _RecipeListTile extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Icon(
-                Icons.cake_rounded,
-                color: Theme.of(context).colorScheme.primary,
-              ),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: recipe.imagePath != null
+                  ? (kIsWeb
+                      ? Image.network(
+                          recipe.imagePath!,
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildPlaceholder(context),
+                        )
+                      : Image.file(
+                          File(recipe.imagePath!),
+                          width: 48,
+                          height: 48,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _buildPlaceholder(context),
+                        ))
+                  : _buildPlaceholder(context),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -702,6 +713,18 @@ class _RecipeListTile extends StatelessWidget {
   }
 
 
-
-
+  Widget _buildPlaceholder(BuildContext context) {
+    return Container(
+      width: 48,
+      height: 48,
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Icon(
+        Icons.cake_rounded,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+    );
+  }
 }

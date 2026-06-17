@@ -8,122 +8,93 @@ class AppStrings {
     return AppStrings(Localizations.localeOf(context));
   }
 
-  bool get _isPt => locale.languageCode == 'pt';
-
   // App
   String get appName => 'CustoDoce';
 
   // Navigation
-  String get home => _isPt ? 'Início' : 'Home';
-  String get settings => _isPt ? 'Configurações' : 'Settings';
-  String get ingredients => _isPt ? 'Ingredientes' : 'Ingredients';
-  String get recipes => _isPt ? 'Receitas' : 'Recipes';
+  String get home => 'Início';
+  String get settings => 'Configurações';
+  String get ingredients => 'Ingredientes';
+  String get recipes => 'Receitas';
 
   // Home Screen
-  String get noRecipesYet => _isPt ? 'Nenhuma receita ainda' : 'No recipes yet';
-  String get noRecipesSubtitle => _isPt
-      ? 'Toque em + para criar sua primeira receita'
-      : 'Tap + to create your first recipe';
-  String get newRecipe => _isPt ? 'Nova Receita' : 'New Recipe';
-  String get manageIngredients =>
-      _isPt ? 'Gerenciar Ingredientes' : 'Manage Ingredients';
-  String get errorLoadingRecipes =>
-      _isPt ? 'Erro ao carregar receitas' : 'Error loading recipes';
-  String get tryAgain => _isPt ? 'Tentar novamente' : 'Try again';
-  String get deleteRecipe => _isPt ? 'Excluir receita' : 'Delete recipe';
-  String get deleteRecipeConfirm => _isPt
-      ? 'Deseja excluir esta receita? Esta ação não pode ser desfeita.'
-      : 'Delete this recipe? This action cannot be undone.';
-  String get cancel => _isPt ? 'Cancelar' : 'Cancel';
-  String get delete => _isPt ? 'Excluir' : 'Delete';
-  String get edit => _isPt ? 'Editar' : 'Edit';
+  String get noRecipesYet => 'Nenhuma receita ainda';
+  String get noRecipesSubtitle => 'Toque em + para criar sua primeira receita';
+  String get newRecipe => 'Nova Receita';
+  String get manageIngredients => 'Gerenciar Ingredientes';
+  String get errorLoadingRecipes => 'Erro ao carregar receitas';
+  String get tryAgain => 'Tentar novamente';
+  String get deleteRecipe => 'Excluir receita';
+  String get deleteRecipeConfirm => 'Deseja excluir esta receita? Esta ação não pode ser desfeita.';
+  String get cancel => 'Cancelar';
+  String get delete => 'Excluir';
+  String get edit => 'Editar';
 
   // Costs
-  String get totalCost => _isPt ? 'Custo Total' : 'Total Cost';
-  String get suggestedPrice => _isPt ? 'Preço Sugerido' : 'Suggested Price';
-  String get margin => _isPt ? 'Margem' : 'Margin';
+  String get totalCost => 'Custo Total';
+  String get suggestedPrice => 'Preço Sugerido';
+  String get margin => 'Margem';
 
   // Ingredient Screen
-  String get noIngredientsYet =>
-      _isPt ? 'Nenhum ingrediente cadastrado' : 'No ingredients yet';
-  String get addIngredient => _isPt ? 'Novo Ingrediente' : 'New Ingredient';
-  String get newIngredient => _isPt ? 'Novo Ingrediente' : 'New Ingredient';
-  String get editIngredient => _isPt ? 'Editar Ingrediente' : 'Edit Ingredient';
-  String get ingredientName =>
-      _isPt ? 'Nome do Ingrediente' : 'Ingredient Name';
-  String get unitOfMeasure => _isPt ? 'Unidade de Medida' : 'Unit of Measure';
-  String get packageSize => _isPt ? 'Tamanho da Embalagem' : 'Package Size';
-  String get packageCost =>
-      _isPt ? 'Custo da Embalagem (R\$)' : 'Package Cost (R\$)';
-  String get calculatedUnitCost =>
-      _isPt ? 'Custo por unidade calculado' : 'Calculated unit cost';
-  String get saveIngredient => _isPt ? 'Salvar Ingrediente' : 'Save Ingredient';
-  String get updateIngredient => _isPt ? 'Atualizar' : 'Update';
-  String get deleteIngredient => _isPt ? 'Excluir ingrediente' : 'Delete ingredient';
-  String get perUnit => _isPt ? 'por' : 'per';
-  String get required => _isPt ? 'Obrigatório' : 'Required';
-  String get enterName => _isPt ? 'Informe o nome' : 'Enter a name';
-  String get invalidValue => _isPt ? 'Valor inválido' : 'Invalid value';
+  String get noIngredientsYet => 'Nenhum ingrediente cadastrado';
+  String get addIngredient => 'Novo Ingrediente';
+  String get newIngredient => 'Novo Ingrediente';
+  String get editIngredient => 'Editar Ingrediente';
+  String get ingredientName => 'Nome do Ingrediente';
+  String get unitOfMeasure => 'Unidade de Medida';
+  String get packageSize => 'Tamanho da Embalagem';
+  String get packageCost => 'Custo da Embalagem (R\$)';
+  String get calculatedUnitCost => 'Custo por unidade calculado';
+  String get saveIngredient => 'Salvar Ingrediente';
+  String get updateIngredient => 'Atualizar';
+  String get deleteIngredient => 'Excluir ingrediente';
+  String get perUnit => 'por';
+  String get required => 'Obrigatório';
+  String get enterName => 'Informe o nome';
+  String get invalidValue => 'Valor inválido';
 
   // Recipe Builder
-  String get newRecipeTitle => _isPt ? 'Nova Receita' : 'New Recipe';
-  String get editRecipeTitle => _isPt ? 'Editar Receita' : 'Edit Recipe';
-  String get save => _isPt ? 'Salvar' : 'Save';
-  String get recipeDetails => _isPt ? 'Detalhes da Receita' : 'Recipe Details';
-  String get recipeName => _isPt ? 'Nome da Receita' : 'Recipe Name';
-  String get ingredientsSection => _isPt ? 'Ingredientes' : 'Ingredients';
-  String get selectIngredient =>
-      _isPt ? 'Selecionar Ingrediente' : 'Select Ingredient';
-  String get quantity => _isPt ? 'Qtd' : 'Qty';
-  String get operationalCosts =>
-      _isPt ? 'Custos Operacionais' : 'Operational Costs';
-  String get operationalCostLabel =>
-      _isPt ? 'Custo Operacional (gás, energia...) R\$' : 'Operational Cost (gas, electricity...) R\$';
-  String get pricing => _isPt ? 'Precificação' : 'Pricing';
-  String get costSummary => _isPt ? 'Resumo de Custo' : 'Cost Summary';
-  String get profitMargin => _isPt ? 'Margem de lucro' : 'Profit margin';
-  String get saveRecipe => _isPt ? 'Salvar Receita' : 'Save Recipe';
-  String get updateRecipe => _isPt ? 'Atualizar Receita' : 'Update Recipe';
-  String get addAtLeastOneIngredient => _isPt
-      ? 'Adicione pelo menos um ingrediente'
-      : 'Add at least one ingredient';
-  String get noIngredientsWarning => _isPt
-      ? 'Nenhum ingrediente cadastrado. Vá em Ingredientes para adicionar.'
-      : 'No ingredients registered. Go to Ingredients to add some.';
+  String get newRecipeTitle => 'Nova Receita';
+  String get editRecipeTitle => 'Editar Receita';
+  String get save => 'Salvar';
+  String get recipeDetails => 'Detalhes da Receita';
+  String get recipeName => 'Nome da Receita';
+  String get ingredientsSection => 'Ingredientes';
+  String get selectIngredient => 'Selecionar Ingrediente';
+  String get quantity => 'Qtd';
+  String get operationalCosts => 'Custos Operacionais';
+  String get operationalCostLabel => 'Custo Operacional (gás, energia...) R\$';
+  String get pricing => 'Precificação';
+  String get costSummary => 'Resumo de Custo';
+  String get profitMargin => 'Margem de lucro';
+  String get saveRecipe => 'Salvar Receita';
+  String get updateRecipe => 'Atualizar Receita';
+  String get addAtLeastOneIngredient => 'Adicione pelo menos um ingrediente';
+  String get noIngredientsWarning => 'Nenhum ingrediente cadastrado. Vá em Ingredientes para adicionar.';
 
   // Settings Screen
-  String get settingsTitle => _isPt ? 'Configurações' : 'Settings';
-  String get appearance => _isPt ? 'Aparência' : 'Appearance';
-  String get theme => _isPt ? 'Tema' : 'Theme';
-  String get darkTheme => _isPt ? 'Escuro' : 'Dark';
-  String get lightTheme => _isPt ? 'Claro' : 'Light';
-  String get systemTheme => _isPt ? 'Sistema' : 'System';
-  String get language => _isPt ? 'Idioma' : 'Language';
-  String get portuguese => 'Português (BR)';
-  String get english => 'English (US)';
-  String get about => _isPt ? 'Sobre' : 'About';
-  String get version => _isPt ? 'Versão' : 'Version';
-  String get aboutApp => _isPt ? 'Sobre o CustoDoce' : 'About CustoDoce';
-  String get aboutDescription => _isPt
-      ? 'Calculadora de custos para confeiteiros e empreendedores da culinária.'
-      : 'Cost calculator for bakers and culinary entrepreneurs.';
-  String get dataAndPrivacy => _isPt ? 'Dados e Privacidade' : 'Data & Privacy';
-  String get clearAllData => _isPt ? 'Limpar todos os dados' : 'Clear all data';
-  String get clearAllDataConfirm => _isPt
-      ? 'Isso irá apagar todas as receitas e ingredientes. Esta ação não pode ser desfeita.'
-      : 'This will erase all recipes and ingredients. This action cannot be undone.';
-  String get confirm => _isPt ? 'Confirmar' : 'Confirm';
+  String get settingsTitle => 'Configurações';
+  String get appearance => 'Aparência';
+  String get theme => 'Tema';
+  String get darkTheme => 'Escuro';
+  String get lightTheme => 'Claro';
+  String get systemTheme => 'Sistema';
+  String get language => 'Idioma';
+  String get about => 'Sobre';
+  String get version => 'Versão';
+  String get aboutApp => 'Sobre o CustoDoce';
+  String get aboutDescription => 'Calculadora de custos para confeiteiros e empreendedores da culinária.';
+  String get dataAndPrivacy => 'Dados e Privacidade';
+  String get clearAllData => 'Limpar todos os dados';
+  String get clearAllDataConfirm => 'Isso irá apagar todas as receitas e ingredientes. Esta ação não pode ser desfeita.';
+  String get confirm => 'Confirmar';
   String get pro => 'Pro';
-  String get upgradeToPro => _isPt ? 'Upgrade para Pro' : 'Upgrade to Pro';
-  String get upgradeDescription => _isPt
-      ? 'Receitas ilimitadas + sincronização na nuvem'
-      : 'Unlimited recipes + cloud sync';
+  String get upgradeToPro => 'Upgrade para Pro';
+  String get upgradeDescription => 'Receitas ilimitadas + sincronização na nuvem';
 
   // Paywall
   String get paywallTitle => 'CustoDoce Pro';
-  String get paywallSubtitle => _isPt
-      ? 'Você atingiu o limite de 3 receitas do plano gratuito.'
-      : 'You reached the 3-recipe limit of the free plan.';
-  String get subscribeNow => _isPt ? 'Assinar Pro Agora 🚀' : 'Subscribe Pro Now 🚀';
-  String get restorePurchases => _isPt ? 'Restaurar Compras' : 'Restore Purchases';
+  String get paywallSubtitle => 'Você atingiu o limite de 3 receitas do plano gratuito.';
+  String get subscribeNow => 'Assinar Pro Agora 🚀';
+  String get restorePurchases => 'Restaurar Compras';
 }
