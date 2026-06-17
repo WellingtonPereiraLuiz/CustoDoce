@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -26,7 +26,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
       final isGuest = ref.read(guestModeProvider);
       final user = ref.read(currentUserProvider);
       if (isGuest || user == null) {
-        context.go('/login', extra: {'redirect': '/paywall'});
+        context.push('/login', extra: {'redirect': '/paywall'});
       }
     });
   }

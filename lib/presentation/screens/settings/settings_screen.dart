@@ -73,17 +73,7 @@ class SettingsScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 24),
 
-            // ── Language ────────────────────────────────────────────
-            _SectionHeader(
-                title: s.language, icon: Icons.language_rounded),
-            const SizedBox(height: 12),
-            _LanguageSelector(
-              currentLocale: settings.locale,
-              s: s,
-              onSelect: (locale) =>
-                  ref.read(settingsProvider.notifier).setLocale(locale),
-            ),
-            const SizedBox(height: 24),
+
 
             // ── Account ─────────────────────────────────────────────
             const _SectionHeader(title: 'Conta', icon: Icons.person_outline_rounded),
@@ -466,103 +456,6 @@ class _ThemeOption extends StatelessWidget {
   }
 }
 
-class _LanguageSelector extends StatelessWidget {
-  final Locale currentLocale;
-  final AppStrings s;
-  final void Function(Locale) onSelect;
-
-  const _LanguageSelector({
-    required this.currentLocale,
-    required this.s,
-    required this.onSelect,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _LanguageTile(
-          emoji: '🇧🇷',
-          label: s.portuguese,
-          locale: const Locale('pt', 'BR'),
-          currentLocale: currentLocale,
-          onSelect: onSelect,
-          cardBg: Theme.of(context).colorScheme.surfaceContainerHighest,
-        ),
-        const SizedBox(height: 8),
-        _LanguageTile(
-          emoji: '🇺🇸',
-          label: s.english,
-          locale: const Locale('en', 'US'),
-          currentLocale: currentLocale,
-          onSelect: onSelect,
-          cardBg: Theme.of(context).colorScheme.surfaceContainerHighest,
-        ),
-      ],
-    );
-  }
-}
-
-class _LanguageTile extends StatelessWidget {
-  final String emoji;
-  final String label;
-  final Locale locale;
-  final Locale currentLocale;
-  final void Function(Locale) onSelect;
-  final Color cardBg;
-
-  const _LanguageTile({
-    required this.emoji,
-    required this.label,
-    required this.locale,
-    required this.currentLocale,
-    required this.onSelect,
-    required this.cardBg,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final isSelected = currentLocale.languageCode == locale.languageCode;
-    final accent = Theme.of(context).brightness == Brightness.dark
-        ? AppTheme.accentWarm
-        : AppTheme.primaryColor;
-    return GestureDetector(
-      onTap: () => onSelect(locale),
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: isSelected ? accent.withAlpha(25) : cardBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: isSelected ? accent : Colors.transparent,
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 24)),
-            const SizedBox(width: 14),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  fontSize: 15,
-                  fontWeight:
-                      isSelected ? FontWeight.w700 : FontWeight.w400,
-                  color: isSelected ? accent : null,
-                ),
-              ),
-            ),
-            if (isSelected)
-              Icon(Icons.check_circle_rounded,
-                  color: accent, size: 20),
-          ],
-        ),
-      ),
-    );
-  }
-}
 
 class _SettingsTile extends StatelessWidget {
   final IconData icon;

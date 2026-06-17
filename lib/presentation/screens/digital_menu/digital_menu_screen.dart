@@ -126,86 +126,202 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
     }
   }
 
+  Widget _buildMenuImagePlaceholder() {
+    return Container(
+      height: 160,
+      decoration: const BoxDecoration(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+        gradient: LinearGradient(
+          colors: [Color(0xFFE8E0DD), Color(0xFFD4C3BF)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: const Center(
+        child: Icon(Icons.cake_rounded, size: 64, color: Colors.white70),
+      ),
+    );
+  }
+
   Future<void> _exportAsPdf(List<RecipeEntity> recipes) async {
     final doc = pw.Document();
-    
-    final primaryColor = PdfColor.fromHex('#1E0A07');
-    final highlightColor = PdfColor.fromHex('#6B5A60');
-    final borderColor = PdfColor.fromHex('#D4C3BF');
-    final creamColor = PdfColor.fromHex('#FFF8F6');
-    final whiteColor = PdfColors.white;
+
+    final primaryColor = PdfColor.fromHex('#3D1A10');
+    final accentColor = PdfColor.fromHex('#C4956A');
+    final lightBg = PdfColor.fromHex('#FFF8F6');
+    final separatorColor = PdfColor.fromHex('#E8D5CB');
+    final textDark = PdfColor.fromHex('#1E0A07');
+    final textMuted = PdfColor.fromHex('#9E8A82');
+
+    // Agrupar por categoria
+    final Map<String, List<RecipeEntity>> grouped = {};
+    for (final r in recipes) {
+      final label = _categoryLabel(r.category);
+      grouped.putIfAbsent(label, () => []).add(r);
+    }
 
     doc.addPage(pw.MultiPage(
       pageTheme: pw.PageTheme(
         pageFormat: PdfPageFormat.a4,
-        margin: const pw.EdgeInsets.all(40),
+        margin: const pw.EdgeInsets.symmetric(horizontal: 40, vertical: 36),
         buildBackground: (ctx) => pw.FullPage(
           ignoreMargins: true,
-          child: pw.Container(color: whiteColor),
+          child: pw.Container(color: lightBg),
         ),
       ),
       build: (ctx) => [
-        pw.Center(
-          child: pw.Column(
-            children: [
-              pw.Text('Cardápio', style: pw.TextStyle(fontSize: 32, fontWeight: pw.FontWeight.bold, color: primaryColor)),
-              pw.SizedBox(height: 4),
-              pw.Text('Confeitaria Artesanal', style: pw.TextStyle(fontSize: 14, color: highlightColor)),
-            ],
-          ),
-        ),
-        pw.SizedBox(height: 16),
-        pw.Divider(color: primaryColor, thickness: 1.5),
-        pw.SizedBox(height: 8),
-        pw.Align(
-          alignment: pw.Alignment.centerRight,
-          child: pw.Text('Atualizado em ${DateFormat('dd/MM/yyyy').format(DateTime.now())}', style: pw.TextStyle(fontSize: 10, color: highlightColor)),
-        ),
-        pw.SizedBox(height: 24),
-        
-        ...recipes.map((r) {
-          final price = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
-          return pw.Container(
-            margin: const pw.EdgeInsets.only(bottom: 8),
-            padding: const pw.EdgeInsets.all(12),
-            decoration: pw.BoxDecoration(
-              color: creamColor,
-              borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
-              border: pw.Border.all(color: borderColor, width: 1),
-            ),
-            child: pw.Column(
+        // ── Cabeçalho ──────────────────────────────────────────────
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: pw.CrossAxisAlignment.end,
+          children: [
+            pw.Column(
               crossAxisAlignment: pw.CrossAxisAlignment.start,
               children: [
-                pw.Row(
-                  mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-                  children: [
-                    pw.Text(r.name, style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: primaryColor)),
-                    pw.Text('R\$ ${price.toStringAsFixed(2)}', style: pw.TextStyle(fontSize: 14, fontWeight: pw.FontWeight.bold, color: highlightColor)),
-                  ],
+                pw.Text(
+                  'CARDÁPIO',
+                  style: pw.TextStyle(
+                    fontSize: 28,
+                    fontWeight: pw.FontWeight.bold,
+                    color: primaryColor,
+                    letterSpacing: 3,
+                  ),
                 ),
                 pw.SizedBox(height: 4),
-                pw.Divider(color: borderColor, thickness: 0.5),
-                pw.SizedBox(height: 4),
-                pw.Text(_categoryLabel(r.category), style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700)),
+                pw.Text(
+                  'Confeitaria Artesanal',
+                  style: pw.TextStyle(fontSize: 12, color: accentColor),
+                ),
               ],
             ),
-          );
+            pw.Text(
+              DateFormat('dd/MM/yyyy').format(DateTime.now()),
+              style: pw.TextStyle(fontSize: 10, color: textMuted),
+            ),
+          ],
+        ),
+        pw.SizedBox(height: 8),
+        pw.Divider(color: primaryColor, thickness: 2),
+        pw.SizedBox(height: 20),
+
+        // ── Seções por categoria (estilo iFood) ────────────────────
+        ...grouped.entries.expand((entry) {
+          final categoryName = entry.key;
+          final categoryRecipes = entry.value;
+
+          return [
+            // Header da categoria
+            pw.Container(
+              width: double.infinity,
+              padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: pw.BoxDecoration(
+                color: primaryColor,
+                borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+              ),
+              child: pw.Text(
+                categoryName.toUpperCase(),
+                style: pw.TextStyle(
+                  fontSize: 12,
+                  fontWeight: pw.FontWeight.bold,
+                  color: PdfColors.white,
+                  letterSpacing: 1.5,
+                ),
+              ),
+            ),
+            pw.SizedBox(height: 8),
+
+            // Itens da categoria
+            ...categoryRecipes.map((r) {
+              final price = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
+              final unitPrice = r.yieldQuantity > 1
+                  ? 'R\$ ${(price / r.yieldQuantity).toStringAsFixed(2)} por unidade'
+                  : null;
+
+              return pw.Container(
+                margin: const pw.EdgeInsets.only(bottom: 6),
+                padding: const pw.EdgeInsets.all(10),
+                decoration: pw.BoxDecoration(
+                  color: PdfColors.white,
+                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+                  border: pw.Border.all(color: separatorColor, width: 0.8),
+                ),
+                child: pw.Row(
+                  crossAxisAlignment: pw.CrossAxisAlignment.center,
+                  children: [
+                    // Bolinha decorativa (estilo iFood)
+                    pw.Container(
+                      width: 8,
+                      height: 8,
+                      decoration: pw.BoxDecoration(
+                        color: accentColor,
+                        shape: pw.BoxShape.circle,
+                      ),
+                    ),
+                    pw.SizedBox(width: 10),
+                    pw.Expanded(
+                      child: pw.Column(
+                        crossAxisAlignment: pw.CrossAxisAlignment.start,
+                        children: [
+                          pw.Text(
+                            r.name,
+                            style: pw.TextStyle(
+                              fontSize: 13,
+                              fontWeight: pw.FontWeight.bold,
+                              color: textDark,
+                            ),
+                          ),
+                          if (unitPrice != null) ...[
+                            pw.SizedBox(height: 2),
+                            pw.Text(
+                              unitPrice,
+                              style: pw.TextStyle(fontSize: 9, color: textMuted),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    // Preço destacado
+                    pw.Container(
+                      padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: pw.BoxDecoration(
+                        color: accentColor,
+                        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
+                      ),
+                      child: pw.Text(
+                        'R\$ ${price.toStringAsFixed(2)}',
+                        style: pw.TextStyle(
+                          fontSize: 12,
+                          fontWeight: pw.FontWeight.bold,
+                          color: PdfColors.white,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            pw.SizedBox(height: 16),
+          ];
         }),
       ],
-      footer: (ctx) => pw.Column(
-        children: [
-          pw.Divider(color: primaryColor, thickness: 1),
-          pw.SizedBox(height: 4),
-          pw.Row(
-            mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
-            children: [
-              pw.Text('Feito com CustoDoce • custodoce.app', style: pw.TextStyle(fontSize: 10, color: highlightColor)),
-              pw.Text('${ctx.pageNumber} / ${ctx.pagesCount}', style: pw.TextStyle(fontSize: 10, color: highlightColor)),
-            ],
-          ),
-        ],
+      footer: (ctx) => pw.Padding(
+        padding: const pw.EdgeInsets.only(top: 8),
+        child: pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Text(
+              'Gerado com CustoDoce • custodoce-b07ce.web.app',
+              style: pw.TextStyle(fontSize: 9, color: textMuted),
+            ),
+            pw.Text(
+              '${ctx.pageNumber} / ${ctx.pagesCount}',
+              style: pw.TextStyle(fontSize: 9, color: textMuted),
+            ),
+          ],
+        ),
       ),
     ));
+
     await Printing.layoutPdf(onLayout: (_) async => doc.save());
   }
 
@@ -335,31 +451,27 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (recipe.imagePath != null && File(recipe.imagePath!).existsSync())
+                          if (recipe.imagePath != null)
                             ClipRRect(
                               borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                              child: Image.file(
-                                File(recipe.imagePath!),
-                                width: double.infinity,
-                                height: 160,
-                                fit: BoxFit.cover,
-                              ),
+                              child: kIsWeb
+                                  ? Image.network(
+                                      recipe.imagePath!,
+                                      width: double.infinity,
+                                      height: 160,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => _buildMenuImagePlaceholder(),
+                                    )
+                                  : Image.file(
+                                      File(recipe.imagePath!),
+                                      width: double.infinity,
+                                      height: 160,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => _buildMenuImagePlaceholder(),
+                                    ),
                             )
                           else
-                            Container(
-                              height: 160,
-                              decoration: const BoxDecoration(
-                                borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
-                                gradient: LinearGradient(
-                                  colors: [Color(0xFFE8E0DD), Color(0xFFD4C3BF)],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                ),
-                              ),
-                              child: const Center(
-                                child: Icon(Icons.cake_rounded, size: 64, color: Colors.white70),
-                              ),
-                            ),
+                            _buildMenuImagePlaceholder(),
                           Padding(
                             padding: const EdgeInsets.all(16),
                             child: Row(

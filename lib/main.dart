@@ -83,8 +83,6 @@ class CustoDoceApp extends ConsumerWidget {
 
     // Default settings while loading
     final themeMode = settingsAsync.valueOrNull?.themeMode ?? ThemeMode.light;
-    final locale =
-        settingsAsync.valueOrNull?.locale ?? const Locale('pt', 'BR');
 
     return MaterialApp.router(
       title: 'CustoDoce',
@@ -96,10 +94,9 @@ class CustoDoceApp extends ConsumerWidget {
       themeMode: themeMode,
 
       // Localization
-      locale: locale,
+      locale: const Locale('pt', 'BR'),
       supportedLocales: const [
         Locale('pt', 'BR'),
-        Locale('en', 'US'),
       ],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
