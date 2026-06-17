@@ -37,7 +37,7 @@ O **CustoDoce** é um app multiplataforma (Android + Web) que resolve a precific
 
 ## Link do MVP
 
-> 🌐 **Acesse a versão Web:** [link do deploy — adicionar após publicação]
+> 🌐 **Acesse a versão Web:** https://custodoce-b07ce.web.app/#/login
 
 A versão Web é responsiva e funciona no navegador, sem instalação. Para testar no Android, baixe o APK na seção [Releases](https://github.com/WellingtonPereiraLuiz/CustoDoce/releases).
 
