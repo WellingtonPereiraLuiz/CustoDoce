@@ -1,4 +1,4 @@
-﻿# Deploy Firebase Hosting
+# Deploy Firebase Hosting
 
 ## Pré-requisitos
 - Flutter 3+ instalado
@@ -30,4 +30,6 @@ pm install -g firebase-tools)
 4. Copiar a URL gerada e atualizar o link no README.md.
 
 ## Link MVP
-[a preencher após deploy]
+https://custodoce-b07ce.web.app/#/login
+
+Último deploy bem-sucedido: 2026-06-18
