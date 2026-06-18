@@ -96,9 +96,23 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
       maxHeight: 800,
       imageQuality: 85,
     );
-    if (pickedFile != null) {
+    if (pickedFile == null) return;
+
+    if (kIsWeb) {
+      final bytes = await pickedFile.readAsBytes();
+      ref.read(recipeBuilderProvider.notifier).setImageBytes(bytes);
+    } else {
       ref.read(recipeBuilderProvider.notifier).setImagePath(pickedFile.path);
     }
+  }
+
+  Widget _buildImagePreview(RecipeBuilderState state) {
+    if (kIsWeb && state.imageBytes != null) {
+      return Image.memory(state.imageBytes!, fit: BoxFit.cover);
+    } else if (!kIsWeb && state.imagePath != null && File(state.imagePath!).existsSync()) {
+      return Image.file(File(state.imagePath!), fit: BoxFit.cover);
+    }
+    return Icon(Icons.add_a_photo, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant);
   }
 
   void _showInfoPopup(String title, String explanation) {
@@ -220,19 +234,10 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(16),
-                        image: state.imagePath != null && (kIsWeb || File(state.imagePath!).existsSync())
-                            ? DecorationImage(
-                                image: kIsWeb 
-                                    ? NetworkImage(state.imagePath!) as ImageProvider 
-                                    : FileImage(File(state.imagePath!)), 
-                                fit: BoxFit.cover,
-                              )
-                            : null,
                       ),
-                      child: state.imagePath == null || !(kIsWeb || File(state.imagePath!).existsSync())
-                          ? Icon(Icons.add_a_photo, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant)
-                          : null,
-                    ),
+                      clipBehavior: Clip.hardEdge,
+                      child: _buildImagePreview(state),
+                    )
                   ),
                 ),
                 const SizedBox(height: 16),
@@ -256,7 +261,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                     Expanded(
                       flex: 2,
                       child: DropdownButtonFormField<RecipeCategory>(
-                        value: state.category,
+                        initialValue: state.category,
                         decoration: const InputDecoration(labelText: 'Categoria'),
                         items: RecipeCategory.values.map((c) => DropdownMenuItem(value: c, child: Text(c.label))).toList(),
                         onChanged: (v) {
@@ -288,7 +293,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                     Expanded(
                       flex: 3,
                       child: DropdownButtonFormField<IngredientEntity>(
-                        value: _selectedIngredient,
+                        initialValue: _selectedIngredient,
                         decoration: const InputDecoration(labelText: 'Selecionar'),
                         isExpanded: true,
                         items: ingredients.map((i) => DropdownMenuItem(value: i, child: Text(i.name, overflow: TextOverflow.ellipsis))).toList(),
@@ -404,7 +409,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   contentPadding: EdgeInsets.zero,
                 ),
                 if (state.useMarkup) ...[
-                  Text('Multiplicar custo total por:', style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
+                  const Text('Multiplicar custo total por:', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
                   _NumericInput(
                     value: state.markupMultiplier,
                     min: 1.0, max: 10.0, divisions: 90,
@@ -413,7 +418,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                     onChanged: notifier.setMarkupMultiplier,
                   ),
                 ] else ...[
-                  Text('Margem de Lucro:', style: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
+                  const Text('Margem de Lucro:', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
                   _NumericInput(
                     value: state.profitMarginPercentage,
                     min: 0, max: 300, divisions: 300,
@@ -447,7 +452,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 const SizedBox(height: 32),
 
                 // Selling Price
-                _SectionHeader(title: 'Preço de Venda', icon: Icons.sell_rounded),
+                const _SectionHeader(title: 'Preço de Venda', icon: Icons.sell_rounded),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _sellingPriceCtrl,

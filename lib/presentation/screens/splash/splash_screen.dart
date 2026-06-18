@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:custo_doce/core/theme/app_theme.dart';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:custo_doce/core/providers/auth_provider.dart';
@@ -44,7 +43,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.2),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
                     blurRadius: 30,
                     spreadRadius: 5,
                   ),
@@ -57,17 +56,17 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
                   width: 150,
                   height: 150,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => const Icon(
+                  errorBuilder: (_, __, ___) => Icon(
                     Icons.cake,
                     size: 100,
-                    color: AppTheme.primaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
               ),
             ),
             const SizedBox(height: 48),
-            const CircularProgressIndicator(
-              color: AppTheme.primaryColor,
+            CircularProgressIndicator(
+              color: Theme.of(context).colorScheme.primary,
             ),
           ],
         ),

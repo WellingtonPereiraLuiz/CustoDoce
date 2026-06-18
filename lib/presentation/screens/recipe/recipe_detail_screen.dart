@@ -98,8 +98,8 @@ Calculado com CustoDoce 🍫
                 // Category Chip
                 Chip(
                   label: Text(recipe.category.label),
-                  backgroundColor: AppTheme.primaryColor.withValues(alpha: 0.1),
-                  labelStyle: const TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold),
+                  backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                  labelStyle: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 24),
                 
@@ -109,7 +109,7 @@ Calculado com CustoDoce 🍫
                   decoration: BoxDecoration(
                     color: Theme.of(context).colorScheme.surface,
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.2)),
+                    border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
                   ),
                   child: Column(
                     children: [
@@ -120,6 +120,12 @@ Calculado com CustoDoce 🍫
                       _CostRow('Custo por Porção', currencyFormat.format(recipe.totalCost / recipe.yieldQuantity)),
                       const Divider(),
                       _CostRow('Preço Sugerido', currencyFormat.format(recipe.suggestedSellPrice), isHighlighted: true),
+                      if (recipe.sellingPrice != null) ...[
+                        const Divider(),
+                        _CostRow('Preço de Venda', currencyFormat.format(recipe.sellingPrice!), isHighlighted: true),
+                        const Divider(),
+                        _CostRow('Lucro (estimado)', currencyFormat.format(recipe.sellingPrice! - recipe.totalCost), isHighlighted: false),
+                      ],
                     ],
                   ),
                 ),
@@ -203,7 +209,7 @@ class _CostRow extends StatelessWidget {
             style: TextStyle(
               fontSize: isHighlighted ? 20 : 16,
               fontWeight: isHighlighted ? FontWeight.w800 : FontWeight.bold,
-              color: isHighlighted ? AppTheme.primaryColor : null,
+              color: isHighlighted ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onSurface,
             ),
           ),
         ],

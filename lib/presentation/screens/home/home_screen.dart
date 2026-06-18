@@ -1,5 +1,3 @@
-import 'dart:io';
-import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,6 +5,7 @@ import 'package:custo_doce/core/utils/image_utils.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
+import 'package:custo_doce/core/providers/auth_provider.dart';
 import 'package:custo_doce/core/utils/plan_gate.dart';
 import 'package:custo_doce/domain/entities/recipe_entity.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
@@ -82,7 +81,7 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              _buildHeader(context, isPro),
+              _buildHeader(context, isPro, ref),
               const SizedBox(height: 24),
               _buildKpiRow(context, recipesAsync, ingredientsAsync),
               if (!isPro) ...[
@@ -106,7 +105,7 @@ class HomeScreen extends ConsumerWidget {
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: isAtLimit ? AppTheme.errorColor : null,
+                        color: isAtLimit ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                     backgroundColor: isAtLimit
@@ -157,14 +156,17 @@ class HomeScreen extends ConsumerWidget {
         },
         icon: const Icon(Icons.auto_awesome),
         label: const Text('Assistente'),
-        backgroundColor: AppTheme.primaryColor,
-        foregroundColor: Colors.white,
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
       ),
     );
   }
 
 
-  Widget _buildHeader(BuildContext context, bool isPro) {
+  Widget _buildHeader(BuildContext context, bool isPro, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+    final firstName = user?.displayName?.split(' ').first ?? 'Chef';
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -172,7 +174,7 @@ class HomeScreen extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Olá, Chef! 👨‍🍳',
+              'Olá, $firstName! 👨‍🍳',
               style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                     fontWeight: FontWeight.w800,
                     color: Theme.of(context).colorScheme.onSurface,
@@ -401,7 +403,9 @@ class HomeScreen extends ConsumerWidget {
                     hasAccess: plan.hasDigitalMenu,
                     featureName: 'Cardápio Digital',
                     requiredPlan: 'Premium',
-                  )) context.push('/menu');
+                  )) {
+                    context.push('/menu');
+                  }
                 },
                 icon: const Icon(Icons.restaurant_menu_rounded),
                 label: const Text('Cardápio'),
@@ -666,7 +670,7 @@ class _RecipeListTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Custo: ${currencyFormat.format(recipe.totalCost)}',
+                    '${recipe.category.label} • Custo: ${currencyFormat.format(recipe.totalCost)}',
                     style: TextStyle(
                       color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
                       fontSize: 13,

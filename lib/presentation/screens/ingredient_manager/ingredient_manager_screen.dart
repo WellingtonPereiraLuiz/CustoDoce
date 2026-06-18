@@ -27,8 +27,8 @@ class IngredientManagerScreen extends ConsumerWidget {
         ),
       ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ingredientsAsync.when(
-        loading: () => const Center(
-            child: CircularProgressIndicator(color: AppTheme.primaryColor)),
+        loading: () => Center(
+            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary)),
         error: (e, _) => Center(child: Text('Erro: $e')),
         data: (ingredients) {
           if (ingredients.isEmpty) {
@@ -149,7 +149,7 @@ class IngredientManagerScreen extends ConsumerWidget {
           );
           if (canAdd) _showIngredientForm(context, ref, null);
         },
-        icon: const Icon(Icons.add_rounded),
+        icon: Icon(Icons.add_rounded),
         label: const Text('Novo Ingrediente'),
       ),
     );
@@ -202,11 +202,11 @@ class _IngredientCard extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.12),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: const Icon(Icons.kitchen_rounded,
-                      color: AppTheme.primaryColor, size: 22),
+                  child: Icon(Icons.kitchen_rounded,
+                      color: Theme.of(context).colorScheme.primary, size: 22),
                 ),
                 const SizedBox(width: 14),
                 Expanded(
@@ -215,7 +215,7 @@ class _IngredientCard extends StatelessWidget {
                     children: [
                       Text(
                         ingredient.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                             fontWeight: FontWeight.w700, fontSize: 15),
                       ),
                       const SizedBox(height: 4),
@@ -232,8 +232,8 @@ class _IngredientCard extends StatelessWidget {
                   children: [
                     Text(
                       currencyFormat.format(ingredient.calculatedUnitCost),
-                      style: const TextStyle(
-                        color: AppTheme.primaryColor,
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -247,7 +247,7 @@ class _IngredientCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 4),
                 PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert_rounded, size: 18),
+                  icon: Icon(Icons.more_vert_rounded, size: 18),
                   onSelected: (v) {
                     if (v == 'edit') onEdit();
                     if (v == 'delete') onDelete();
@@ -394,7 +394,7 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
             const SizedBox(height: 14),
             // Unit of measure dropdown
             DropdownButtonFormField<UnitOfMeasure>(
-              value: _selectedUnit,
+              initialValue: _selectedUnit,
               decoration:
                   const InputDecoration(labelText: 'Unidade de Medida'),
               items: UnitOfMeasure.values
@@ -461,15 +461,15 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppTheme.primaryColor.withValues(alpha: 0.08),
+                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.2)),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.calculate_rounded,
-                      color: AppTheme.primaryColor, size: 20),
+                  Icon(Icons.calculate_rounded,
+                      color: Theme.of(context).colorScheme.primary, size: 20),
                   const SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -479,10 +479,10 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
                               fontSize: 11, color: Theme.of(context).colorScheme.outline)),
                       Text(
                         currencyFormat.format(_calculatedUnitCost),
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.w700,
-                          color: AppTheme.primaryColor,
+                          color: Theme.of(context).colorScheme.primary,
                         ),
                       ),
                     ],

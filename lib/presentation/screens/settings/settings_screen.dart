@@ -23,9 +23,9 @@ class SettingsScreen extends ConsumerWidget {
     final isFree = currentPlan.plan == SubscriptionPlan.free;
     final s = AppStrings(Localizations.localeOf(context));
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = isDark ? AppTheme.surfaceDark : AppTheme.surfaceLight;
-    final accent = isDark ? AppTheme.accentWarm : AppTheme.primaryColor;
-    final onAccent = isDark ? AppTheme.primaryColor : Theme.of(context).colorScheme.onPrimary;
+    final cardBg = Theme.of(context).colorScheme.surfaceContainerHighest;
+    final accent = isDark ? AppTheme.accentWarm : Theme.of(context).colorScheme.primary;
+    final onAccent = isDark ? Theme.of(context).colorScheme.primary : Theme.of(context).colorScheme.onPrimary;
 
     return Scaffold(
       appBar: AppBar(
@@ -33,8 +33,8 @@ class SettingsScreen extends ConsumerWidget {
         leading: const BackButton(),
       ),
       body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: settingsAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppTheme.primaryColor),
+        loading: () => Center(
+          child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary),
         ),
         error: (e, _) => Center(child: Text('Erro: $e')),
         data: (settings) => ListView(
@@ -118,7 +118,7 @@ class SettingsScreen extends ConsumerWidget {
                   ),
                   child: Text(
                     currentPlan.name.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                         color: AppTheme.successColor,
                         fontSize: 11,
                         fontWeight: FontWeight.w800),
@@ -138,13 +138,15 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Link compartilhável com seus produtos',
               trailing: currentPlan.hasDigitalMenu
                   ? Icon(Icons.chevron_right_rounded, color: accent)
-                  : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
+                  : Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
               onTap: () {
                 if (PlanGate.checkFeature(context: context, ref: ref,
                   hasAccess: currentPlan.hasDigitalMenu,
                   featureName: 'Cardápio digital',
                   requiredPlan: 'Premium',
-                )) context.push('/menu');
+                )) {
+                  context.push('/menu');
+                }
               },
               cardBg: cardBg,
             ),
@@ -156,7 +158,7 @@ class SettingsScreen extends ConsumerWidget {
               subtitle: 'Sincronize seus dados com segurança',
               trailing: currentPlan.hasCloudBackup
                   ? Icon(Icons.chevron_right_rounded, color: accent)
-                  : const Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
+                  : Icon(Icons.lock_outline_rounded, size: 18, color: AppTheme.secondaryColor),
               onTap: () {
                 PlanGate.checkFeature(context: context, ref: ref,
                   hasAccess: currentPlan.hasCloudBackup,
@@ -173,10 +175,10 @@ class SettingsScreen extends ConsumerWidget {
             const SizedBox(height: 12),
             _SettingsTile(
               icon: Icons.info_outline_rounded,
-              iconColor: AppTheme.primaryColor,
+              iconColor: Theme.of(context).colorScheme.primary,
               title: 'Sobre o CustoDoce',
               subtitle: 'Versão, como usar e informações',
-              trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.primaryColor),
+              trailing: Icon(Icons.chevron_right_rounded, color: Theme.of(context).colorScheme.primary),
               onTap: () => _showAboutDialog(context, s),
               cardBg: cardBg,
               titleColor: Theme.of(context).colorScheme.onSurface,
@@ -192,7 +194,7 @@ class SettingsScreen extends ConsumerWidget {
               iconColor: AppTheme.errorColor,
               title: s.clearAllData,
               subtitle: 'Apagar todas as receitas e ingredientes',
-              trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.errorColor),
+              trailing: Icon(Icons.chevron_right_rounded, color: AppTheme.errorColor),
               onTap: () => _confirmClearData(context, ref, s),
               cardBg: cardBg,
               titleColor: AppTheme.errorColor,
@@ -203,7 +205,7 @@ class SettingsScreen extends ConsumerWidget {
               iconColor: AppTheme.errorColor,
               title: 'Sair da Conta',
               subtitle: 'Desconectar do aplicativo',
-              trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.errorColor),
+              trailing: Icon(Icons.chevron_right_rounded, color: AppTheme.errorColor),
               onTap: () async {
                 final auth = ref.read(custo_doce_auth.authServiceProvider);
                 await auth.signOut();
@@ -227,7 +229,7 @@ class SettingsScreen extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: Row(
           children: [
-            Image.asset('assets/images/CustoDoce.png', height: 40, errorBuilder: (_,__,___) => const Icon(Icons.cake)),
+            Image.asset('assets/images/CustoDoce.png', height: 40, errorBuilder: (_,__,___) => Icon(Icons.cake)),
             const SizedBox(width: 12),
             const Text('CustoDoce'),
           ],
@@ -418,7 +420,7 @@ class _ThemeOption extends StatelessWidget {
             color: isSelected
                 ? (Theme.of(context).brightness == Brightness.dark
                     ? AppTheme.accentWarm
-                    : AppTheme.primaryColor)
+                    : Theme.of(context).colorScheme.primary)
                 : Colors.transparent,
             borderRadius: BorderRadius.circular(10),
           ),
@@ -430,7 +432,7 @@ class _ThemeOption extends StatelessWidget {
                 size: 22,
                 color: isSelected
                     ? (Theme.of(context).brightness == Brightness.dark
-                        ? AppTheme.primaryColor
+                        ? Theme.of(context).colorScheme.primary
                         : Theme.of(context).colorScheme.onPrimary)
                     : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -443,7 +445,7 @@ class _ThemeOption extends StatelessWidget {
                       isSelected ? FontWeight.w700 : FontWeight.w400,
                   color: isSelected
                       ? (Theme.of(context).brightness == Brightness.dark
-                          ? AppTheme.primaryColor
+                          ? Theme.of(context).colorScheme.primary
                           : Theme.of(context).colorScheme.onPrimary)
                       : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),

@@ -75,7 +75,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(Icons.person_add_rounded, size: 64, color: AppTheme.primaryColor),
+                Icon(Icons.person_add_rounded, size: 64, color: AppTheme.primaryColor),
                 const SizedBox(height: 32),
                 Form(
                   key: _formKey,

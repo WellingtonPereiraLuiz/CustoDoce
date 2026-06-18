@@ -39,7 +39,7 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCLvavDQjfYQIGpMDj-Vh8brdI6nOWEmZ0',
-    appId: const String.fromEnvironment('FIREBASE_APP_ID_IOS', defaultValue: ''),
+    appId: String.fromEnvironment('FIREBASE_APP_ID_IOS', defaultValue: ''),
     messagingSenderId: '842901176561',
     projectId: 'custodoce-b07ce',
     storageBucket: 'custodoce-b07ce.firebasestorage.app',

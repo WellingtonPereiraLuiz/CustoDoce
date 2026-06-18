@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:custo_doce/core/theme/app_theme.dart';
 
 class AiChatScreen extends StatelessWidget {
   const AiChatScreen({super.key});
@@ -9,7 +8,7 @@ class AiChatScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Assistente IA'),
-        backgroundColor: AppTheme.primaryColor,
+        backgroundColor: Theme.of(context).colorScheme.primary,
         foregroundColor: Colors.white,
       ),
       body: Center(
@@ -24,13 +23,13 @@ class AiChatScreen extends StatelessWidget {
                   width: 96,
                   height: 96,
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: const Icon(
+                  child: Icon(
                     Icons.auto_awesome_rounded,
                     size: 48,
-                    color: AppTheme.primaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -38,7 +37,7 @@ class AiChatScreen extends StatelessWidget {
                   'Assistente IA',
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: AppTheme.primaryColor,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -120,7 +119,7 @@ class _FeatureCard extends StatelessWidget {
         border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -133,10 +132,10 @@ class _FeatureCard extends StatelessWidget {
             width: 40,
             height: 40,
             decoration: BoxDecoration(
-              color: AppTheme.primaryColor.withOpacity(0.1),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(icon, color: AppTheme.primaryColor, size: 20),
+            child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
           ),
           const SizedBox(width: 12),
           Expanded(

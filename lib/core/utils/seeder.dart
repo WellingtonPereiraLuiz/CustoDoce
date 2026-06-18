@@ -11,11 +11,11 @@ Future<void> seedDatabase() async {
 
     String generateId() => DateTime.now().microsecondsSinceEpoch.toString();
 
-    final leiteCondId = generateId() + '1';
-    final farinhaId = generateId() + '2';
-    final ovoId = generateId() + '3';
-    final acucarId = generateId() + '4';
-    final leiteId = generateId() + '5';
+    final leiteCondId = '${generateId()}1';
+    final farinhaId = '${generateId()}2';
+    final ovoId = '${generateId()}3';
+    final acucarId = '${generateId()}4';
+    final leiteId = '${generateId()}5';
 
     final ingredients = [
       [leiteCondId, 'Leite Condensado', 'g', 450.0, 7.00, 7.00/450.0, null],
@@ -37,9 +37,9 @@ Future<void> seedDatabase() async {
       });
     }
 
-    final recipeId = generateId() + '6';
-    final totalCost = (10.0/12.0)*3 + (5.50/1000.0)*300 + (4.00/1000.0)*200 + (5.00/1000.0)*200; 
-    final suggestedPrice = totalCost + (totalCost * 0.50); 
+    final recipeId = '${generateId()}6';
+    const totalCost = (10.0/12.0)*3 + (5.50/1000.0)*300 + (4.00/1000.0)*200 + (5.00/1000.0)*200; 
+    const suggestedPrice = totalCost + (totalCost * 0.50); 
     
     await db.insert('recipes', {
       'id': recipeId,

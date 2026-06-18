@@ -1,6 +1,5 @@
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:custo_doce/core/utils/plan_gate.dart';

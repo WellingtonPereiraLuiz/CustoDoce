@@ -72,24 +72,24 @@ class _WebPlanSelector extends ConsumerWidget {
   const _WebPlanSelector();
 
   List<({String label, bool ok})> _featureRows(PlanLimits p) => [
-        (
-          label: p.isUnlimitedRecipes
-              ? 'Receitas ilimitadas'
-              : '${p.recipeLimit} receitas',
-          ok: true
-        ),
-        (
-          label: p.isUnlimitedIngredients
-              ? 'Ingredientes ilimitados'
-              : '${p.ingredientLimit} ingredientes',
-          ok: true
-        ),
-
-
-        (label: 'Cardápio digital', ok: p.hasDigitalMenu),
-        (label: 'Assistente de IA', ok: p.hasChatAi),
-        (label: 'Backup em nuvem', ok: p.hasCloudBackup),
-      ];
+  (
+    label: p.isUnlimitedRecipes
+        ? 'Receitas ilimitadas'
+        : '${p.recipeLimit} receitas',
+    ok: true,
+  ),
+  (
+    label: p.isUnlimitedIngredients
+        ? 'Ingredientes ilimitados'
+        : '${p.ingredientLimit} ingredientes',
+    ok: true,
+  ),
+  (label: 'Preço de venda personalizado', ok: p.hasCustomSellingPrice),
+  (label: 'Backup em nuvem', ok: p.hasCloudBackup),
+  (label: 'Cardápio digital', ok: p.hasDigitalMenu),
+  (label: 'Exportar PDF', ok: p.hasExportPdf),
+  (label: 'Assistente de IA', ok: p.hasChatAi),
+];
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {

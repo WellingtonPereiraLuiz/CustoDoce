@@ -1,4 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:typed_data';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:custo_doce/core/utils/uuid_generator.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
 import 'package:custo_doce/domain/entities/recipe_entity.dart';
@@ -12,6 +14,7 @@ class RecipeBuilderState {
   final int yieldQuantity;
   final RecipeCategory category;
   final String? imagePath;
+  final Uint8List? imageBytes;
   final bool showInMenu;
   
   // Costs
@@ -39,6 +42,7 @@ class RecipeBuilderState {
     this.yieldQuantity = 1,
     this.category = RecipeCategory.outro,
     this.imagePath,
+    this.imageBytes,
     this.showInMenu = false,
     this.fixedOperationalCost = 0.0,
     this.invisibleCostPercentage = 20.0,
@@ -87,6 +91,7 @@ class RecipeBuilderState {
     int? yieldQuantity,
     RecipeCategory? category,
     String? Function()? imagePath,
+    Uint8List? imageBytes,
     bool? showInMenu,
     double? fixedOperationalCost,
     double? invisibleCostPercentage,
@@ -107,6 +112,7 @@ class RecipeBuilderState {
       yieldQuantity: yieldQuantity ?? this.yieldQuantity,
       category: category ?? this.category,
       imagePath: imagePath != null ? imagePath() : this.imagePath,
+      imageBytes: imageBytes ?? this.imageBytes,
       showInMenu: showInMenu ?? this.showInMenu,
       fixedOperationalCost: fixedOperationalCost ?? this.fixedOperationalCost,
       invisibleCostPercentage: invisibleCostPercentage ?? this.invisibleCostPercentage,
@@ -140,6 +146,7 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
 
   void setSellingPrice(double? price) => state = state.copyWith(sellingPrice: () => price);
   void setImagePath(String? path) => state = state.copyWith(imagePath: () => path);
+  void setImageBytes(Uint8List bytes) => state = state.copyWith(imageBytes: bytes, imagePath: () => null);
   void setShowInMenu(bool val) => state = state.copyWith(showInMenu: val);
 
   void toggleInvestment(bool val) => state = state.copyWith(useInvestment: val);
@@ -203,7 +210,7 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
       totalCost: state.totalCost,
       suggestedSellPrice: state.finalPrice,
       sellingPrice: state.sellingPrice,
-      imagePath: state.imagePath,
+      imagePath: kIsWeb ? null : state.imagePath,
       showInMenu: state.showInMenu,
       createdAt: DateTime.now(),
       ingredients: state.ingredients.map((i) => i.copyWith(recipeId: id)).toList(),

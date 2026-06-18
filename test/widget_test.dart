@@ -1,4 +1,4 @@
-﻿import 'package:flutter_test/flutter_test.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:custo_doce/core/models/subscription_plan.dart';
 
 void main() {
@@ -6,14 +6,14 @@ void main() {
     test('custo unitário calculado corretamente', () {
       const packageSize = 1000.0;
       const costPerPackage = 5.50;
-      final result = costPerPackage / packageSize;
+      const result = costPerPackage / packageSize;
       expect(result, closeTo(0.0055, 0.0001));
     });
 
     test('preço de venda com margem 40% calculado corretamente', () {
       const custoTotal = 12.0;
       const margem = 40.0;
-      final result = custoTotal * (1 + margem / 100);
+      const result = custoTotal * (1 + margem / 100);
       expect(result, closeTo(16.80, 0.01));
     });
 
@@ -30,7 +30,7 @@ void main() {
 
     test('margem zero mantém o mesmo valor do custo', () {
       const custoTotal = 20.0;
-      final result = custoTotal * (1 + 0.0 / 100);
+      const result = custoTotal * (1 + 0.0 / 100);
       expect(result, equals(20.0));
     });
 
@@ -43,7 +43,7 @@ void main() {
     test('sellingPrice usa valor definido ou cai para sugerido', () {
       const sugerido = 15.0;
       double? sellingPrice = 18.0 as double?;
-      expect((sellingPrice as double?) ?? sugerido, equals(18.0));
+      expect(sellingPrice ?? sugerido, equals(18.0));
       sellingPrice = null;
       expect(sellingPrice ?? sugerido, equals(15.0));
     });
@@ -139,14 +139,14 @@ void main() {
     test('visitante não pode acessar paywall', () {
       const isGuest = true;
       const isLoggedIn = false;
-      final canAccessPaywall = !isGuest && isLoggedIn;
+      const canAccessPaywall = !isGuest && isLoggedIn;
       expect(canAccessPaywall, isFalse);
     });
 
     test('usuário logado pode acessar paywall', () {
       const isGuest = false;
       const isLoggedIn = true;
-      final canAccessPaywall = !isGuest && isLoggedIn;
+      const canAccessPaywall = !isGuest && isLoggedIn;
       expect(canAccessPaywall, isTrue);
     });
   });
@@ -197,7 +197,7 @@ void main() {
     test('preço exibido usa sellingPrice se definido', () {
       const sugerido = 15.0;
       const sellingPrice = 18.0;
-      final exibido = sellingPrice;
+      const exibido = sellingPrice;
       expect(exibido, equals(18.0));
     });
 

@@ -57,7 +57,7 @@ class PlanLimits {
   static const light = PlanLimits(
     plan: SubscriptionPlan.light,
     name: 'Light',
-    priceLabel: 'R\$ 9,90/mês',
+    priceLabel: r'R$ 19,90/mês',
     recipeLimit: 30,
     ingredientLimit: 100,
     hasCustomSellingPrice: true,
@@ -68,13 +68,13 @@ class PlanLimits {
     hasChatAi: false,
     hasExportPdf: false,
     hasInvoiceScan: false,
-    hasCloudBackup: false,
+    hasCloudBackup: true,
   );
 
   static const pro = PlanLimits(
     plan: SubscriptionPlan.pro,
     name: 'Pro',
-    priceLabel: 'R\$ 19,90/mês',
+    priceLabel: r'R$ 34,90/mês',
     recipeLimit: -1,
     ingredientLimit: -1,
     hasCustomSellingPrice: true,
@@ -82,8 +82,8 @@ class PlanLimits {
     hasDigitalMenu: true,
     hasExportJpg: true,
     hasShareText: true,
-    hasChatAi: true,
-    hasExportPdf: false,
+    hasChatAi: false,
+    hasExportPdf: true,
     hasInvoiceScan: false,
     hasCloudBackup: true,
   );
@@ -91,7 +91,7 @@ class PlanLimits {
   static const premium = PlanLimits(
     plan: SubscriptionPlan.premium,
     name: 'Premium',
-    priceLabel: 'R\$ 34,90/mês',
+    priceLabel: r'R$ 49,90/mês',
     recipeLimit: -1,
     ingredientLimit: -1,
     hasCustomSellingPrice: true,

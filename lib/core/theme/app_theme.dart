@@ -41,7 +41,7 @@ class AppTheme {
   static const Color surfaceVariantDark = Color(0xFF33302F);
 
   static ThemeData get lightTheme {
-    final colorScheme = const ColorScheme(
+    const colorScheme = ColorScheme(
       brightness: Brightness.light,
       primary: primaryColor,
       onPrimary: onPrimary,
@@ -61,17 +61,17 @@ class AppTheme {
       onSurfaceVariant: onSurfaceVariant,
       outline: outline,
       outlineVariant: outlineVariant,
-      tertiary: const Color(0xFF4A7B6F),
-      onTertiary: const Color(0xFFFFFFFF),
-      tertiaryContainer: const Color(0xFF132924),
-      onTertiaryContainer: const Color(0xFF7A918A),
+      tertiary: Color(0xFF4A7B6F),
+      onTertiary: Color(0xFFFFFFFF),
+      tertiaryContainer: Color(0xFF132924),
+      onTertiaryContainer: Color(0xFF7A918A),
     );
 
     return _buildTheme(colorScheme);
   }
 
   static ThemeData get darkTheme {
-    final colorScheme = const ColorScheme.dark(
+    const colorScheme = ColorScheme.dark(
       primary: Color(0xFFE5BEB6), 
       onPrimary: Color(0xFF1E0A07),
       primaryContainer: Color(0xFF361F1A),
@@ -84,12 +84,12 @@ class AppTheme {
       onSurface: Color(0xFFFFF8F6),
       surfaceContainerHighest: Color(0xFF33302F), 
       onSurfaceVariant: Color(0xFFE9E1DF),
-      outline: const Color(0xFF827471),
-      outlineVariant: const Color(0xFF504442),
-      tertiary: const Color(0xFFB3CCC4),
-      onTertiary: const Color(0xFF091F1B),
-      tertiaryContainer: const Color(0xFF354B45),
-      onTertiaryContainer: const Color(0xFFCFE8E0),
+      outline: Color(0xFF827471),
+      outlineVariant: Color(0xFF504442),
+      tertiary: Color(0xFFB3CCC4),
+      onTertiary: Color(0xFF091F1B),
+      tertiaryContainer: Color(0xFF354B45),
+      onTertiaryContainer: Color(0xFFCFE8E0),
     );
     return _buildTheme(colorScheme);
   }
@@ -129,7 +129,7 @@ class AppTheme {
         ),
       ),
       floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: colorScheme.primaryContainer,
+        backgroundColor: colorScheme.primary,
         foregroundColor: colorScheme.onPrimary,
         elevation: 4,
       ),
@@ -149,7 +149,7 @@ class AppTheme {
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: colorScheme.primaryContainer,
+          backgroundColor: colorScheme.primary,
           foregroundColor: colorScheme.onPrimary,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
           shape: RoundedRectangleBorder(

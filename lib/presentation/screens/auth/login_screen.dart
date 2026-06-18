@@ -67,7 +67,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(Icons.lock_rounded, size: 64, color: AppTheme.primaryColor),
+                Icon(Icons.lock_rounded, size: 64, color: AppTheme.primaryColor),
                 const SizedBox(height: 16),
                 Text(
                   'Precifique com confiança. Lucre com clareza.',
@@ -156,7 +156,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       if (mounted) setState(() => _isLoading = false);
                     }
                   },
-                  icon: const Icon(Icons.g_mobiledata_rounded, size: 32),
+                  icon: Icon(Icons.g_mobiledata_rounded, size: 32),
                   label: const Text('Entrar com Google'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
