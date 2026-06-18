@@ -1,7 +1,7 @@
 name: custo_doce
 description: "CustoDoce - Calculadora de custos de receitas e precificaÃ§Ã£o de produtos."
 publish_to: 'none'
-version: 1.1.0+2
+version: 1.3.1+4
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
