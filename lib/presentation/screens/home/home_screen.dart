@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:custo_doce/core/utils/image_utils.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
@@ -644,23 +645,12 @@ class _RecipeListTile extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
-              child: recipe.imagePath != null
-                  ? (kIsWeb
-                      ? Image.network(
-                          recipe.imagePath!,
-                          width: 48,
-                          height: 48,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildPlaceholder(context),
-                        )
-                      : Image.file(
-                          File(recipe.imagePath!),
-                          width: 48,
-                          height: 48,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, __, ___) => _buildPlaceholder(context),
-                        ))
-                  : _buildPlaceholder(context),
+              child: RecipeImage.build(
+                imagePath: recipe.imagePath,
+                width: 48,
+                height: 48,
+                placeholder: _buildPlaceholder(context),
+              ),
             ),
             const SizedBox(width: 16),
             Expanded(

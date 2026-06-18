@@ -11,6 +11,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 
+import 'package:custo_doce/core/utils/image_utils.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
 import 'package:custo_doce/core/utils/price_utils.dart';
@@ -451,27 +452,15 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          if (recipe.imagePath != null)
-                            ClipRRect(
-                              borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                              child: kIsWeb
-                                  ? Image.network(
-                                      recipe.imagePath!,
-                                      width: double.infinity,
-                                      height: 160,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => _buildMenuImagePlaceholder(),
-                                    )
-                                  : Image.file(
-                                      File(recipe.imagePath!),
-                                      width: double.infinity,
-                                      height: 160,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, __, ___) => _buildMenuImagePlaceholder(),
-                                    ),
-                            )
-                          else
-                            _buildMenuImagePlaceholder(),
+                          ClipRRect(
+                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                            child: RecipeImage.build(
+                              imagePath: recipe.imagePath,
+                              width: double.infinity,
+                              height: 160,
+                              placeholder: _buildMenuImagePlaceholder(),
+                            ),
+                          ),
                           Padding(
                             padding: const EdgeInsets.all(16),
                             child: Row(
