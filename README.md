@@ -30,7 +30,6 @@ O **CustoDoce** é um app multiplataforma (Android + Web) que resolve a precific
 - Precificação inteligente: informe a margem de lucro desejada → app sugere o preço de venda ideal
 - Dashboard com relatórios de lucratividade e ranking de receitas (plano Pro)
 - Cardápio digital compartilhável com link simulado (plano Premium)
-- Gestão de equipamentos com cálculo de custo por hora de uso (kWh)
 - Funciona offline (SQLite local) com login via Google (Firebase Auth)
 
 ---
@@ -178,12 +177,12 @@ lib/
 
 ## Planos
 
-| Plano | Receitas | Ingredientes | Equipamentos | Relatórios | Cardápio Digital |
-|-------|----------|--------------|--------------|------------|-----------------|
+| Plano | Receitas | Ingredientes | Preço Personalizado | Cardápio Digital | Exportar PDF |
+|-------|----------|--------------|---------------------|------------------|--------------|
 | Free | 3 | 15 | ❌ | ❌ | ❌ |
-| Light R$4,90/mês | 30 | 100 | 5 | ❌ | ❌ |
-| Pro R$9,90/mês | Ilimitado | Ilimitado | Ilimitado | ✅ | ❌ |
-| Premium R$14,90/mês | Ilimitado | Ilimitado | Ilimitado | ✅ | ✅ |
+| Light R$4,90/mês | 30 | 100 | ✅ | ❌ | ❌ |
+| Pro R$9,90/mês | Ilimitado | Ilimitado | ✅ | ❌ | ❌ |
+| Premium R$14,90/mês | Ilimitado | Ilimitado | ✅ | ✅ | ✅ |
 
 ---
 
