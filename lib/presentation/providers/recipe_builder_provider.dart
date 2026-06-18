@@ -146,7 +146,12 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
 
   void setSellingPrice(double? price) => state = state.copyWith(sellingPrice: () => price);
   void setImagePath(String? path) => state = state.copyWith(imagePath: () => path);
-  void setImageBytes(Uint8List bytes) => state = state.copyWith(imageBytes: bytes, imagePath: () => null);
+  void setImageBytes(Uint8List bytes, String base64Path) {
+    state = state.copyWith(
+      imageBytes: bytes,
+      imagePath: () => base64Path,
+    );
+  }
   void setShowInMenu(bool val) => state = state.copyWith(showInMenu: val);
 
   void toggleInvestment(bool val) => state = state.copyWith(useInvestment: val);

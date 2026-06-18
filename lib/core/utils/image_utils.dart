@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 
 /// Resolve a exibição de imagens de receita de forma cross-platform.
-/// - Se o path for uma URL HTTP(S), usa Image.network em qualquer plataforma.
-/// - Se for um caminho local: usa Image.file apenas no mobile/desktop.
-///   Na web, caminhos locais não existem → retorna o placeholder.
+/// Suporta:
+///   - Base64 data URI (data:image/...;base64,...) → Image.memory — web e mobile
+///   - URL HTTP(S) → Image.network — qualquer plataforma
+///   - Caminho local → Image.file — somente mobile/desktop
 class RecipeImage {
   static Widget build({
     required String? imagePath,
@@ -18,9 +21,25 @@ class RecipeImage {
       return placeholder;
     }
 
-    final isUrl = imagePath.startsWith('http://') || imagePath.startsWith('https://');
+    // Base64 data URI — funciona web e mobile
+    if (imagePath.startsWith('data:image')) {
+      try {
+        final base64Data = imagePath.split(',').last;
+        final bytes = base64Decode(base64Data);
+        return Image.memory(
+          bytes,
+          width: width,
+          height: height,
+          fit: fit,
+          errorBuilder: (_, __, ___) => placeholder,
+        );
+      } catch (_) {
+        return placeholder;
+      }
+    }
 
-    if (isUrl) {
+    // URL remota HTTP(S)
+    if (imagePath.startsWith('http://') || imagePath.startsWith('https://')) {
       return Image.network(
         imagePath,
         width: width,
@@ -30,7 +49,7 @@ class RecipeImage {
       );
     }
 
-    // Caminho local: só funciona fora da web.
+    // Caminho local: apenas mobile/desktop
     if (kIsWeb) {
       return placeholder;
     }
@@ -42,5 +61,10 @@ class RecipeImage {
       fit: fit,
       errorBuilder: (_, __, ___) => placeholder,
     );
+  }
+
+  /// Converte bytes para data URI base64.
+  static String bytesToBase64Uri(Uint8List bytes) {
+    return 'data:image/jpeg;base64,${base64Encode(bytes)}';
   }
 }

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/core/enums/recipe_category.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
@@ -11,7 +11,8 @@ import 'package:custo_doce/presentation/providers/recipe_builder_provider.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:intl/intl.dart';
 
-import 'dart:io';
+import 'dart:convert';
+
 import 'package:image_picker/image_picker.dart';
 import 'package:custo_doce/core/utils/price_utils.dart';
 import 'package:custo_doce/core/utils/plan_gate.dart';
@@ -98,21 +99,32 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
     );
     if (pickedFile == null) return;
 
-    if (kIsWeb) {
-      final bytes = await pickedFile.readAsBytes();
-      ref.read(recipeBuilderProvider.notifier).setImageBytes(bytes);
-    } else {
-      ref.read(recipeBuilderProvider.notifier).setImagePath(pickedFile.path);
-    }
+    final bytes = await pickedFile.readAsBytes();
+    final base64Str = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+
+    ref.read(recipeBuilderProvider.notifier).setImageBytes(bytes, base64Str);
   }
 
-  Widget _buildImagePreview(RecipeBuilderState state) {
-    if (kIsWeb && state.imageBytes != null) {
-      return Image.memory(state.imageBytes!, fit: BoxFit.cover);
-    } else if (!kIsWeb && state.imagePath != null && File(state.imagePath!).existsSync()) {
-      return Image.file(File(state.imagePath!), fit: BoxFit.cover);
+  DecorationImage? _buildDecorationImage(RecipeBuilderState state) {
+    if (state.imageBytes != null) {
+      return DecorationImage(
+        image: MemoryImage(state.imageBytes!),
+        fit: BoxFit.cover,
+      );
     }
-    return Icon(Icons.add_a_photo, size: 40, color: Theme.of(context).colorScheme.onSurfaceVariant);
+    if (state.imagePath != null && state.imagePath!.startsWith('data:image')) {
+      final base64Data = state.imagePath!.split(',').last;
+      try {
+        final bytes = base64Decode(base64Data);
+        return DecorationImage(
+          image: MemoryImage(bytes),
+          fit: BoxFit.cover,
+        );
+      } catch (_) {
+        return null;
+      }
+    }
+    return null;
   }
 
   void _showInfoPopup(String title, String explanation) {
@@ -234,9 +246,16 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                       decoration: BoxDecoration(
                         color: Theme.of(context).colorScheme.surfaceContainerHighest,
                         borderRadius: BorderRadius.circular(16),
+                        image: _buildDecorationImage(state),
                       ),
                       clipBehavior: Clip.hardEdge,
-                      child: _buildImagePreview(state),
+                      child: _buildDecorationImage(state) == null
+                          ? Icon(
+                              Icons.add_a_photo,
+                              size: 40,
+                              color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            )
+                          : null,
                     )
                   ),
                 ),
