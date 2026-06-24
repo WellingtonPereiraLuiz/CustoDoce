@@ -13,8 +13,8 @@ class RecipeBuilderState {
   final List<RecipeIngredientEntity> ingredients;
   final int yieldQuantity;
   final RecipeCategory category;
-  final String? imagePath;       // base64 data URI persistido no banco
-  final Uint8List? imageBytes;   // bytes em memória para preview imediato
+  final String? imagePath; // base64 data URI persistido no banco
+  final Uint8List? imageBytes; // bytes em memória para preview imediato
   final bool showInMenu;
 
   // Costs
@@ -60,10 +60,12 @@ class RecipeBuilderState {
   double get totalIngredientsCost =>
       ingredients.fold(0.0, (sum, i) => sum + i.calculatedIngredientCost);
 
-  double get invisibleCost =>
-      useInvisibleCost ? (totalIngredientsCost * (invisibleCostPercentage / 100)) : 0.0;
+  double get invisibleCost => useInvisibleCost
+      ? (totalIngredientsCost * (invisibleCostPercentage / 100))
+      : 0.0;
 
-  double get totalCost => totalIngredientsCost + fixedOperationalCost + invisibleCost;
+  double get totalCost =>
+      totalIngredientsCost + fixedOperationalCost + invisibleCost;
 
   double get finalPrice {
     if (totalCost == 0) return 0.0;
@@ -91,7 +93,7 @@ class RecipeBuilderState {
     int? yieldQuantity,
     RecipeCategory? category,
     String? Function()? imagePath,
-    Uint8List? Function()? imageBytes,   // wrapper para suportar setar null
+    Uint8List? Function()? imageBytes, // wrapper para suportar setar null
     bool? showInMenu,
     double? fixedOperationalCost,
     double? invisibleCostPercentage,
@@ -115,11 +117,13 @@ class RecipeBuilderState {
       imageBytes: imageBytes != null ? imageBytes() : this.imageBytes,
       showInMenu: showInMenu ?? this.showInMenu,
       fixedOperationalCost: fixedOperationalCost ?? this.fixedOperationalCost,
-      invisibleCostPercentage: invisibleCostPercentage ?? this.invisibleCostPercentage,
+      invisibleCostPercentage:
+          invisibleCostPercentage ?? this.invisibleCostPercentage,
       useInvisibleCost: useInvisibleCost ?? this.useInvisibleCost,
       useMarkup: useMarkup ?? this.useMarkup,
       markupMultiplier: markupMultiplier ?? this.markupMultiplier,
-      profitMarginPercentage: profitMarginPercentage ?? this.profitMarginPercentage,
+      profitMarginPercentage:
+          profitMarginPercentage ?? this.profitMarginPercentage,
       sellingPrice: sellingPrice != null ? sellingPrice() : this.sellingPrice,
       useInvestment: useInvestment ?? this.useInvestment,
       investmentPercentage: investmentPercentage ?? this.investmentPercentage,
@@ -134,21 +138,30 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
   RecipeBuilderState build() => const RecipeBuilderState();
 
   void setName(String name) => state = state.copyWith(name: name);
-  void setYieldQuantity(int yieldQuantity) => state = state.copyWith(yieldQuantity: yieldQuantity);
-  void setCategory(RecipeCategory category) => state = state.copyWith(category: category);
-  void setFixedCost(double cost) => state = state.copyWith(fixedOperationalCost: cost);
-  void setInvisibleCostPercentage(double pct) => state = state.copyWith(invisibleCostPercentage: pct);
-  void toggleInvisibleCost(bool val) => state = state.copyWith(useInvisibleCost: val);
+  void setYieldQuantity(int yieldQuantity) =>
+      state = state.copyWith(yieldQuantity: yieldQuantity);
+  void setCategory(RecipeCategory category) =>
+      state = state.copyWith(category: category);
+  void setFixedCost(double cost) =>
+      state = state.copyWith(fixedOperationalCost: cost);
+  void setInvisibleCostPercentage(double pct) =>
+      state = state.copyWith(invisibleCostPercentage: pct);
+  void toggleInvisibleCost(bool val) =>
+      state = state.copyWith(useInvisibleCost: val);
 
   void toggleMarkup(bool val) => state = state.copyWith(useMarkup: val);
-  void setMarkupMultiplier(double mult) => state = state.copyWith(markupMultiplier: mult);
-  void setProfitMargin(double margin) => state = state.copyWith(profitMarginPercentage: margin);
+  void setMarkupMultiplier(double mult) =>
+      state = state.copyWith(markupMultiplier: mult);
+  void setProfitMargin(double margin) =>
+      state = state.copyWith(profitMarginPercentage: margin);
 
-  void setSellingPrice(double? price) => state = state.copyWith(sellingPrice: () => price);
+  void setSellingPrice(double? price) =>
+      state = state.copyWith(sellingPrice: () => price);
   void setShowInMenu(bool val) => state = state.copyWith(showInMenu: val);
 
   void toggleInvestment(bool val) => state = state.copyWith(useInvestment: val);
-  void setInvestmentPercentage(double pct) => state = state.copyWith(investmentPercentage: pct);
+  void setInvestmentPercentage(double pct) =>
+      state = state.copyWith(investmentPercentage: pct);
 
   /// Recebe bytes brutos da galeria, converte internamente para base64 data URI.
   /// O imagePath (base64) é o que será persistido no SQLite.
@@ -162,11 +175,13 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
   }
 
   /// Mantido por compatibilidade com loadRecipeForEdit.
-  void setImagePath(String? path) => state = state.copyWith(imagePath: () => path);
+  void setImagePath(String? path) =>
+      state = state.copyWith(imagePath: () => path);
 
   void addIngredient(IngredientEntity ingredient, double quantityUsed) {
     final cost = quantityUsed * ingredient.calculatedUnitCost;
-    final existing = state.ingredients.indexWhere((i) => i.ingredientId == ingredient.id);
+    final existing =
+        state.ingredients.indexWhere((i) => i.ingredientId == ingredient.id);
     final updated = List<RecipeIngredientEntity>.from(state.ingredients);
     final entry = RecipeIngredientEntity(
       recipeId: state.editingRecipeId ?? '',
@@ -186,7 +201,9 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
 
   void removeIngredient(String ingredientId) {
     state = state.copyWith(
-        ingredients: state.ingredients.where((i) => i.ingredientId != ingredientId).toList());
+        ingredients: state.ingredients
+            .where((i) => i.ingredientId != ingredientId)
+            .toList());
   }
 
   void loadRecipeForEdit(RecipeEntity recipe) {
@@ -206,8 +223,9 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
       markupMultiplier: recipe.profitMarginPercentage >= 100.0
           ? (recipe.profitMarginPercentage / 100.0) + 1.0
           : 3.0,
-      profitMarginPercentage:
-          recipe.profitMarginPercentage < 100.0 ? recipe.profitMarginPercentage : 50.0,
+      profitMarginPercentage: recipe.profitMarginPercentage < 100.0
+          ? recipe.profitMarginPercentage
+          : 50.0,
       useInvestment: false,
     );
   }
@@ -222,18 +240,21 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
       yieldQuantity: state.yieldQuantity,
       category: state.category,
       profitMarginPercentage: state.effectiveMargin,
-      additionalOperationalCost: state.fixedOperationalCost + state.invisibleCost,
+      additionalOperationalCost:
+          state.fixedOperationalCost + state.invisibleCost,
       totalCost: state.totalCost,
       suggestedSellPrice: state.finalPrice,
       sellingPrice: state.sellingPrice,
       imagePath: state.imagePath, // base64 data URI — funciona em web E mobile
       showInMenu: state.showInMenu,
       createdAt: DateTime.now(),
-      ingredients: state.ingredients.map((i) => i.copyWith(recipeId: id)).toList(),
+      ingredients:
+          state.ingredients.map((i) => i.copyWith(recipeId: id)).toList(),
     );
   }
 }
 
-final recipeBuilderProvider = NotifierProvider<RecipeBuilderNotifier, RecipeBuilderState>(
+final recipeBuilderProvider =
+    NotifierProvider<RecipeBuilderNotifier, RecipeBuilderState>(
   RecipeBuilderNotifier.new,
 );

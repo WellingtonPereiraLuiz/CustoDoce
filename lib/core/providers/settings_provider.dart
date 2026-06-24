@@ -25,7 +25,8 @@ class SettingsNotifier extends AsyncNotifier<AppSettings> {
   @override
   Future<AppSettings> build() async {
     _prefs = await SharedPreferences.getInstance();
-    final themeIndex = _prefs.getInt(_kThemeModeKey) ?? 1; // 0=dark, 1=light, 2=system
+    final themeIndex =
+        _prefs.getInt(_kThemeModeKey) ?? 1; // 0=dark, 1=light, 2=system
     return AppSettings(
       themeMode: _themeModeFromIndex(themeIndex),
     );

@@ -17,13 +17,13 @@ import 'package:image_picker/image_picker.dart';
 import 'package:custo_doce/core/utils/price_utils.dart';
 import 'package:custo_doce/core/utils/plan_gate.dart';
 
-
 class RecipeBuilderScreen extends ConsumerStatefulWidget {
   final String? editRecipeId;
   const RecipeBuilderScreen({super.key, this.editRecipeId});
 
   @override
-  ConsumerState<RecipeBuilderScreen> createState() => _RecipeBuilderScreenState();
+  ConsumerState<RecipeBuilderScreen> createState() =>
+      _RecipeBuilderScreenState();
 }
 
 class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
@@ -34,7 +34,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
   final _fixedCostCtrl = TextEditingController(text: '0');
   final _sellingPriceCtrl = TextEditingController();
   final _sellingPriceFocus = FocusNode();
-  
+
   IngredientEntity? _selectedIngredient;
   bool _isSaving = false;
 
@@ -57,7 +57,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
         if (sp != null && sp < state.finalPrice) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Aviso: O preço de venda está abaixo do preço sugerido!'),
+              content: Text(
+                  'Aviso: O preço de venda está abaixo do preço sugerido!'),
               backgroundColor: Colors.orange,
             ),
           );
@@ -68,7 +69,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
   void _loadForEdit() {
     final recipes = ref.read(recipesProvider).valueOrNull ?? [];
-    final recipe = recipes.where((r) => r.id == widget.editRecipeId).firstOrNull;
+    final recipe =
+        recipes.where((r) => r.id == widget.editRecipeId).firstOrNull;
     if (recipe != null) {
       ref.read(recipeBuilderProvider.notifier).loadRecipeForEdit(recipe);
       _nameCtrl.text = recipe.name;
@@ -128,26 +130,35 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
   void _showInfoPopup(String title, String explanation) {
     showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: Theme.of(context).colorScheme.surfaceContainerHigh,
-        title: Text(title, style: TextStyle(color: Theme.of(context).colorScheme.onSurface)),
-        content: Text(explanation, style: TextStyle(color: Theme.of(context).colorScheme.onSurface, height: 1.5)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Entendi', style: TextStyle(color: Theme.of(context).colorScheme.primary)),
-          )
-        ],
-      )
-    );
+        context: context,
+        builder: (ctx) => AlertDialog(
+              backgroundColor:
+                  Theme.of(context).colorScheme.surfaceContainerHigh,
+              title: Text(title,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface)),
+              content: Text(explanation,
+                  style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSurface,
+                      height: 1.5)),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx),
+                  child: Text('Entendi',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary)),
+                )
+              ],
+            ));
   }
 
   void _addIngredient() {
     if (_selectedIngredient == null) return;
     final qty = double.tryParse(_qtyCtrl.text);
     if (qty == null || qty <= 0) return;
-    ref.read(recipeBuilderProvider.notifier).addIngredient(_selectedIngredient!, qty);
+    ref
+        .read(recipeBuilderProvider.notifier)
+        .addIngredient(_selectedIngredient!, qty);
     _qtyCtrl.clear();
     setState(() => _selectedIngredient = null);
   }
@@ -189,13 +200,20 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.editRecipeId != null ? 'Editar Receita' : 'Nova Receita'),
+        title: Text(
+            widget.editRecipeId != null ? 'Editar Receita' : 'Nova Receita'),
         actions: [
           TextButton(
             onPressed: _isSaving ? null : _save,
             child: _isSaving
-                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : Text('Salvar', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+                ? const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2))
+                : Text('Salvar',
+                    style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold)),
           ),
           const SizedBox(width: 8),
         ],
@@ -211,24 +229,28 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
               children: [
                 Center(
                   child: GestureDetector(
-                    onTap: _pickImage,
-                    child: Container(
-                      width: 120, height: 120,
-                      decoration: BoxDecoration(
-                        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-                        borderRadius: BorderRadius.circular(16),
-                        image: _buildDecorationImage(state),
-                      ),
-                      clipBehavior: Clip.hardEdge,
-                      child: _buildDecorationImage(state) == null
-                          ? Icon(
-                              Icons.add_a_photo,
-                              size: 40,
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                            )
-                          : null,
-                    )
-                  ),
+                      onTap: _pickImage,
+                      child: Container(
+                        width: 120,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(16),
+                          image: _buildDecorationImage(state),
+                        ),
+                        clipBehavior: Clip.hardEdge,
+                        child: _buildDecorationImage(state) == null
+                            ? Icon(
+                                Icons.add_a_photo,
+                                size: 40,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurfaceVariant,
+                              )
+                            : null,
+                      )),
                 ),
                 const SizedBox(height: 16),
                 SwitchListTile(
@@ -240,10 +262,12 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 const SizedBox(height: 16),
                 TextFormField(
                   controller: _nameCtrl,
-                  decoration: const InputDecoration(labelText: 'Nome da Receita'),
+                  decoration:
+                      const InputDecoration(labelText: 'Nome da Receita'),
                   textCapitalization: TextCapitalization.words,
                   onChanged: notifier.setName,
-                  validator: (v) => (v == null || v.trim().isEmpty) ? 'Informe o nome' : null,
+                  validator: (v) =>
+                      (v == null || v.trim().isEmpty) ? 'Informe o nome' : null,
                 ),
                 const SizedBox(height: 12),
                 Row(
@@ -252,8 +276,12 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                       flex: 2,
                       child: DropdownButtonFormField<RecipeCategory>(
                         initialValue: state.category,
-                        decoration: const InputDecoration(labelText: 'Categoria'),
-                        items: RecipeCategory.values.map((c) => DropdownMenuItem(value: c, child: Text(c.label))).toList(),
+                        decoration:
+                            const InputDecoration(labelText: 'Categoria'),
+                        items: RecipeCategory.values
+                            .map((c) => DropdownMenuItem(
+                                value: c, child: Text(c.label)))
+                            .toList(),
                         onChanged: (v) {
                           if (v != null) notifier.setCategory(v);
                         },
@@ -264,10 +292,14 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                       flex: 1,
                       child: TextFormField(
                         controller: _yieldCtrl,
-                        decoration: const InputDecoration(labelText: 'Rendimento'),
+                        decoration:
+                            const InputDecoration(labelText: 'Rendimento'),
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                        onChanged: (v) => notifier.setYieldQuantity(int.tryParse(v) ?? 1),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly
+                        ],
+                        onChanged: (v) =>
+                            notifier.setYieldQuantity(int.tryParse(v) ?? 1),
                       ),
                     ),
                   ],
@@ -276,7 +308,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 const SizedBox(height: 24),
 
                 // Ingredients
-                _SectionHeader(title: 'Ingredientes Base', icon: Icons.kitchen_rounded),
+                _SectionHeader(
+                    title: 'Ingredientes Base', icon: Icons.kitchen_rounded),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -284,10 +317,17 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                       flex: 3,
                       child: DropdownButtonFormField<IngredientEntity>(
                         initialValue: _selectedIngredient,
-                        decoration: const InputDecoration(labelText: 'Selecionar'),
+                        decoration:
+                            const InputDecoration(labelText: 'Selecionar'),
                         isExpanded: true,
-                        items: ingredients.map((i) => DropdownMenuItem(value: i, child: Text(i.name, overflow: TextOverflow.ellipsis))).toList(),
-                        onChanged: (v) => setState(() => _selectedIngredient = v),
+                        items: ingredients
+                            .map((i) => DropdownMenuItem(
+                                value: i,
+                                child: Text(i.name,
+                                    overflow: TextOverflow.ellipsis)))
+                            .toList(),
+                        onChanged: (v) =>
+                            setState(() => _selectedIngredient = v),
                       ),
                     ),
                     const SizedBox(width: 10),
@@ -295,68 +335,79 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                       flex: 2,
                       child: TextFormField(
                         controller: _qtyCtrl,
-                        decoration: InputDecoration(labelText: 'Qtd (${_selectedIngredient?.unitOfMeasure.label ?? 'un'})'),
-                        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                        inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
+                        decoration: InputDecoration(
+                            labelText:
+                                'Qtd (${_selectedIngredient?.unitOfMeasure.label ?? 'un'})'),
+                        keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
+                        ],
                       ),
                     ),
                     const SizedBox(width: 10),
                     IconButton.filled(
                       onPressed: _addIngredient,
                       icon: const Icon(Icons.add_rounded),
-                      style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
+                      style: IconButton.styleFrom(
+                          backgroundColor:
+                              Theme.of(context).colorScheme.primary),
                     ),
                   ],
                 ),
                 const SizedBox(height: 12),
                 ...state.ingredients.map((ri) => Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 4.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              ri.ingredientName,
-                              style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+                      padding: const EdgeInsets.symmetric(vertical: 4.0),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  ri.ingredientName,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15),
+                                ),
+                                Text(
+                                  '${ri.quantityUsed} ${ri.ingredientUnit}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
                             ),
-                            Text(
-                              '${ri.quantityUsed} ${ri.ingredientUnit}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              ),
+                          ),
+                          Text(
+                            _currencyFormat.format(ri.calculatedIngredientCost),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 15,
                             ),
-                          ],
-                        ),
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: Icon(Icons.delete_outline,
+                                color: Theme.of(context).colorScheme.error),
+                            onPressed: () =>
+                                notifier.removeIngredient(ri.ingredientId),
+                          ),
+                        ],
                       ),
-                      Text(
-                        _currencyFormat.format(ri.calculatedIngredientCost),
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary, 
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      IconButton(
-                        icon: Icon(Icons.delete_outline, color: Theme.of(context).colorScheme.error),
-                        onPressed: () => notifier.removeIngredient(ri.ingredientId),
-                      ),
-                    ],
-                  ),
-                )),
+                    )),
                 const SizedBox(height: 24),
 
                 // Invisible Costs
                 _SectionHeader(
-                  title: 'Custos Invisíveis & Fixos', 
+                  title: 'Custos Invisíveis & Fixos',
                   icon: Icons.visibility_off_rounded,
-                  onInfoTap: () => _showInfoPopup(
-                    'Custos Invisíveis', 
-                    'Todo produto tem custos invisíveis de pelo menos 20% (água, luz, gás, detergente, perdas). Isso garante que você não pague para trabalhar!'
-                  ),
+                  onInfoTap: () => _showInfoPopup('Custos Invisíveis',
+                      'Todo produto tem custos invisíveis de pelo menos 20% (água, luz, gás, detergente, perdas). Isso garante que você não pague para trabalhar!'),
                 ),
                 const SizedBox(height: 12),
                 SwitchListTile(
@@ -369,26 +420,29 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 if (state.useInvisibleCost)
                   _NumericInput(
                     value: state.invisibleCostPercentage,
-                    min: 0, max: 100, divisions: 100,
+                    min: 0,
+                    max: 100,
+                    divisions: 100,
                     onChanged: notifier.setInvisibleCostPercentage,
                   ),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _fixedCostCtrl,
-                  decoration: const InputDecoration(labelText: 'Custo Fixo Adicional / Embalagem (R\$)'),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  onChanged: (v) => notifier.setFixedCost(double.tryParse(v) ?? 0),
+                  decoration: const InputDecoration(
+                      labelText: 'Custo Fixo Adicional / Embalagem (R\$)'),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  onChanged: (v) =>
+                      notifier.setFixedCost(double.tryParse(v) ?? 0),
                 ),
                 const SizedBox(height: 24),
 
                 // Profit Strategy
                 _SectionHeader(
-                  title: 'Estratégia de Lucro', 
+                  title: 'Estratégia de Lucro',
                   icon: Icons.trending_up_rounded,
-                  onInfoTap: () => _showInfoPopup(
-                    'Lucro vs Markup', 
-                    'Você pode definir seu lucro por % de Margem (ex: ganhar 50% em cima do custo) ou por Fator Multiplicador/Markup (ex: Custo x 3), que é o padrão usado na confeitaria.'
-                  ),
+                  onInfoTap: () => _showInfoPopup('Lucro vs Markup',
+                      'Você pode definir seu lucro por % de Margem (ex: ganhar 50% em cima do custo) ou por Fator Multiplicador/Markup (ex: Custo x 3), que é o padrão usado na confeitaria.'),
                 ),
                 SwitchListTile(
                   title: const Text('Usar Fator Multiplicador (Markup)'),
@@ -399,19 +453,29 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   contentPadding: EdgeInsets.zero,
                 ),
                 if (state.useMarkup) ...[
-                  Text('Multiplicar custo total por:', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+                  Text('Multiplicar custo total por:',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold)),
                   _NumericInput(
                     value: state.markupMultiplier,
-                    min: 1.0, max: 10.0, divisions: 90,
+                    min: 1.0,
+                    max: 10.0,
+                    divisions: 90,
                     labelSuffix: 'x',
                     isDecimal: true,
                     onChanged: notifier.setMarkupMultiplier,
                   ),
                 ] else ...[
-                  Text('Margem de Lucro:', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+                  Text('Margem de Lucro:',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold)),
                   _NumericInput(
                     value: state.profitMarginPercentage,
-                    min: 0, max: 300, divisions: 300,
+                    min: 0,
+                    max: 300,
+                    divisions: 300,
                     onChanged: notifier.setProfitMargin,
                   ),
                 ],
@@ -419,12 +483,10 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
                 // Investment
                 _SectionHeader(
-                  title: 'Fundo de Investimento', 
+                  title: 'Fundo de Investimento',
                   icon: Icons.savings_rounded,
-                  onInfoTap: () => _showInfoPopup(
-                    'Fundo de Investimento', 
-                    'Separar uma % do seu Lucro Líquido para reinvestir na empresa (comprar equipamentos, marketing, etc.). Isso constrói o seu capital de giro.'
-                  ),
+                  onInfoTap: () => _showInfoPopup('Fundo de Investimento',
+                      'Separar uma % do seu Lucro Líquido para reinvestir na empresa (comprar equipamentos, marketing, etc.). Isso constrói o seu capital de giro.'),
                 ),
                 SwitchListTile(
                   title: const Text('Separar para Investimento'),
@@ -436,30 +498,39 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 if (state.useInvestment)
                   _NumericInput(
                     value: state.investmentPercentage,
-                    min: 0, max: 100, divisions: 100,
+                    min: 0,
+                    max: 100,
+                    divisions: 100,
                     onChanged: notifier.setInvestmentPercentage,
                   ),
                 const SizedBox(height: 32),
 
                 // Selling Price
-                _SectionHeader(title: 'Preço de Venda', icon: Icons.sell_rounded),
+                _SectionHeader(
+                    title: 'Preço de Venda', icon: Icons.sell_rounded),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _sellingPriceCtrl,
                   focusNode: _sellingPriceFocus,
                   decoration: InputDecoration(
                     labelText: 'Preço de venda (R\$)',
-                    helperText: 'Preço sugerido: ${_currencyFormat.format(PriceUtils.roundSuggestedPrice(state.finalPrice))}',
+                    helperText:
+                        'Preço sugerido: ${_currencyFormat.format(PriceUtils.roundSuggestedPrice(state.finalPrice))}',
                     helperStyle: const TextStyle(fontWeight: FontWeight.bold),
                   ),
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))],
-                  onChanged: (v) => notifier.setSellingPrice(double.tryParse(v)),
+                  keyboardType:
+                      const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
+                  ],
+                  onChanged: (v) =>
+                      notifier.setSellingPrice(double.tryParse(v)),
                 ),
                 const SizedBox(height: 32),
 
                 // Dashboard Chart
-                _PricingDashboard(state: state, currencyFormat: _currencyFormat),
+                _PricingDashboard(
+                    state: state, currencyFormat: _currencyFormat),
                 const SizedBox(height: 48),
               ],
             ),
@@ -474,7 +545,8 @@ class _SectionHeader extends StatelessWidget {
   final String title;
   final IconData icon;
   final VoidCallback? onInfoTap;
-  const _SectionHeader({required this.title, required this.icon, this.onInfoTap});
+  const _SectionHeader(
+      {required this.title, required this.icon, this.onInfoTap});
 
   @override
   Widget build(BuildContext context) {
@@ -482,7 +554,11 @@ class _SectionHeader extends StatelessWidget {
       children: [
         Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
         const SizedBox(width: 8),
-        Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
+        Text(title,
+            style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Theme.of(context).colorScheme.onSurface)),
         if (onInfoTap != null) ...[
           const SizedBox(width: 4),
           InkWell(
@@ -490,7 +566,8 @@ class _SectionHeader extends StatelessWidget {
             borderRadius: BorderRadius.circular(12),
             child: Padding(
               padding: const EdgeInsets.all(4.0),
-              child: Icon(Icons.help_outline_rounded, size: 18, color: Theme.of(context).colorScheme.outline),
+              child: Icon(Icons.help_outline_rounded,
+                  size: 18, color: Theme.of(context).colorScheme.outline),
             ),
           ),
         ],
@@ -516,34 +593,56 @@ class _PricingDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
+        border: Border.all(
+            color:
+                Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
-          const Text('Resumo Financeiro da Receita', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+          const Text('Resumo Financeiro da Receita',
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
           const SizedBox(height: 24),
           const SizedBox(height: 24),
-          _StatRow('Custo Bruto (Ingredientes + Fixo)', state.totalIngredientsCost + state.fixedOperationalCost, currencyFormat, color: Theme.of(context).colorScheme.onSurfaceVariant),
-          _StatRow('Custo Invisível (${state.invisibleCostPercentage.toStringAsFixed(0)}%)', state.invisibleCost, currencyFormat, color: Theme.of(context).colorScheme.primary),
+          _StatRow(
+              'Custo Bruto (Ingredientes + Fixo)',
+              state.totalIngredientsCost + state.fixedOperationalCost,
+              currencyFormat,
+              color: Theme.of(context).colorScheme.onSurfaceVariant),
+          _StatRow(
+              'Custo Invisível (${state.invisibleCostPercentage.toStringAsFixed(0)}%)',
+              state.invisibleCost,
+              currencyFormat,
+              color: Theme.of(context).colorScheme.primary),
           const Divider(height: 24),
-          _StatRow('Custo Total', state.totalCost, currencyFormat, isBold: true),
+          _StatRow('Custo Total', state.totalCost, currencyFormat,
+              isBold: true),
           const SizedBox(height: 12),
-          _StatRow('Fundo de Investimento', state.investmentValue, currencyFormat, color: Theme.of(context).colorScheme.secondary),
-          _StatRow('Lucro Líquido', state.netProfit, currencyFormat, color: AppTheme.successColor, isBold: true),
+          _StatRow(
+              'Fundo de Investimento', state.investmentValue, currencyFormat,
+              color: Theme.of(context).colorScheme.secondary),
+          _StatRow('Lucro Líquido', state.netProfit, currencyFormat,
+              color: AppTheme.successColor, isBold: true),
           const Divider(height: 24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Preço Sugerido de Venda', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.outline)),
+              Text('Preço Sugerido de Venda',
+                  style: TextStyle(
+                      fontSize: 16,
+                      color: Theme.of(context).colorScheme.outline)),
               Text(
                 currencyFormat.format(state.finalPrice),
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
+                style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: Theme.of(context).colorScheme.primary),
               ),
             ],
           ),
           if (state.yieldQuantity > 0)
             Builder(builder: (context) {
-              final totalPrice = state.sellingPrice ?? PriceUtils.roundSuggestedPrice(state.finalPrice);
+              final totalPrice = state.sellingPrice ??
+                  PriceUtils.roundSuggestedPrice(state.finalPrice);
               final pricePerUnit = totalPrice / state.yieldQuantity;
               return Padding(
                 padding: const EdgeInsets.only(top: 8),
@@ -582,7 +681,8 @@ class _StatRow extends StatelessWidget {
   final Color? color;
   final bool isBold;
 
-  const _StatRow(this.label, this.value, this.format, {this.color, this.isBold = false});
+  const _StatRow(this.label, this.value, this.format,
+      {this.color, this.isBold = false});
 
   @override
   Widget build(BuildContext context) {
@@ -594,13 +694,25 @@ class _StatRow extends StatelessWidget {
           Row(
             children: [
               if (color != null) ...[
-                Container(width: 12, height: 12, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+                Container(
+                    width: 12,
+                    height: 12,
+                    decoration:
+                        BoxDecoration(color: color, shape: BoxShape.circle)),
                 const SizedBox(width: 8),
               ],
-              Text(label, style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: isBold ? Theme.of(context).colorScheme.onSurface : Theme.of(context).colorScheme.outline)),
+              Text(label,
+                  style: TextStyle(
+                      fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                      color: isBold
+                          ? Theme.of(context).colorScheme.onSurface
+                          : Theme.of(context).colorScheme.outline)),
             ],
           ),
-          Text(format.format(value), style: TextStyle(fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color ?? Theme.of(context).colorScheme.onSurface)),
+          Text(format.format(value),
+              style: TextStyle(
+                  fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+                  color: color ?? Theme.of(context).colorScheme.onSurface)),
         ],
       ),
     );
@@ -644,13 +756,15 @@ class _NumericInputState extends State<_NumericInput> {
     super.didUpdateWidget(old);
     if (old.value != widget.value) {
       final newText = _format(widget.value);
-      if (_ctrl.text != newText && double.tryParse(_ctrl.text) != widget.value) {
+      if (_ctrl.text != newText &&
+          double.tryParse(_ctrl.text) != widget.value) {
         _ctrl.text = newText;
       }
     }
   }
 
-  String _format(double v) => widget.isDecimal ? v.toStringAsFixed(1) : v.toStringAsFixed(0);
+  String _format(double v) =>
+      widget.isDecimal ? v.toStringAsFixed(1) : v.toStringAsFixed(0);
 
   @override
   void dispose() {
@@ -676,7 +790,3 @@ class _NumericInputState extends State<_NumericInput> {
     );
   }
 }
-
-
-
-

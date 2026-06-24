@@ -48,13 +48,14 @@ final routerProvider = Provider<GoRouter>((ref) {
         );
       }
 
-      final planProtectedRoutes = <String, ({String feature, String requiredPlan, bool hasAccess})>{
+      final planProtectedRoutes =
+          <String, ({String feature, String requiredPlan, bool hasAccess})>{
         AppConstants.menuRoute: (
           feature: 'Cardápio digital',
           requiredPlan: 'Pro',
           hasAccess: currentPlan.hasDigitalMenu,
         ),
-        '/ai-chat': (
+        AppConstants.aiChatRoute: (
           feature: 'Assistente IA',
           requiredPlan: 'Premium',
           hasAccess: currentPlan.hasChatAi,
@@ -83,8 +84,8 @@ final routerProvider = Provider<GoRouter>((ref) {
       }
 
       final isCreatingRecipe = location == AppConstants.recipeBuilderRoute;
-      final reachedFreeRecipeLimit =
-          !currentPlan.isUnlimitedRecipes && recipes.length >= currentPlan.recipeLimit;
+      final reachedFreeRecipeLimit = !currentPlan.isUnlimitedRecipes &&
+          recipes.length >= currentPlan.recipeLimit;
       if (isCreatingRecipe && reachedFreeRecipeLimit) {
         return _guardRedirect(
           path: '/home',
@@ -132,7 +133,7 @@ final routerProvider = Provider<GoRouter>((ref) {
         ),
       ),
       GoRoute(
-        path: '/ai-chat',
+        path: AppConstants.aiChatRoute,
         name: 'ai-chat',
         builder: (context, state) => RouteGuardFeedback.wrap(
           state: state,

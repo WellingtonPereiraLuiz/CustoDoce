@@ -65,7 +65,6 @@ final recipesProvider =
   RecipesNotifier.new,
 );
 
-
 final recipeCountProvider = FutureProvider<int>((ref) async {
   final repository = ref.watch(recipeRepositoryProvider);
   return repository.getRecipeCount();

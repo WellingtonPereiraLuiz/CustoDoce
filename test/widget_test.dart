@@ -50,12 +50,14 @@ void main() {
 
     test('roundSuggestedPrice: decimal < 0.50 → X,50', () {
       double round(double raw) {
-        final i = raw.floor(); final d = raw - i;
+        final i = raw.floor();
+        final d = raw - i;
         if (d == 0.0) return raw;
         if (d < 0.50) return i + 0.50;
         if (d < 0.75) return i + 0.99;
         return (i + 1).toDouble();
       }
+
       expect(round(1.20), equals(1.50));
       expect(round(12.30), equals(12.50));
       expect(round(0.10), equals(0.50));
@@ -63,12 +65,14 @@ void main() {
 
     test('roundSuggestedPrice: 0.50 <= decimal < 0.75 → X,99', () {
       double round(double raw) {
-        final i = raw.floor(); final d = raw - i;
+        final i = raw.floor();
+        final d = raw - i;
         if (d == 0.0) return raw;
         if (d < 0.50) return i + 0.50;
         if (d < 0.75) return i + 0.99;
         return (i + 1).toDouble();
       }
+
       expect(round(1.70), equals(1.99));
       expect(round(7.72), equals(7.99));
       expect(round(5.50), equals(5.99));
@@ -76,12 +80,14 @@ void main() {
 
     test('roundSuggestedPrice: decimal >= 0.75 → inteiro seguinte', () {
       double round(double raw) {
-        final i = raw.floor(); final d = raw - i;
+        final i = raw.floor();
+        final d = raw - i;
         if (d == 0.0) return raw;
         if (d < 0.50) return i + 0.50;
         if (d < 0.75) return i + 0.99;
         return (i + 1).toDouble();
       }
+
       expect(round(1.76), equals(2.00));
       expect(round(7.82), equals(8.00));
       expect(round(9.99), equals(10.00));
@@ -89,12 +95,14 @@ void main() {
 
     test('roundSuggestedPrice: inteiro não muda', () {
       double round(double raw) {
-        final i = raw.floor(); final d = raw - i;
+        final i = raw.floor();
+        final d = raw - i;
         if (d == 0.0) return raw;
         if (d < 0.50) return i + 0.50;
         if (d < 0.75) return i + 0.99;
         return (i + 1).toDouble();
       }
+
       expect(round(5.00), equals(5.00));
       expect(round(10.00), equals(10.00));
     });
@@ -159,6 +167,7 @@ void main() {
         if (!regex.hasMatch(value)) return 'Email inválido';
         return null;
       }
+
       expect(validateEmail('nao-e-email'), isNotNull);
       expect(validateEmail('valido@email.com'), isNull);
     });
@@ -168,6 +177,7 @@ void main() {
         if (value == null || value.length < 6) return 'Mínimo 6 caracteres';
         return null;
       }
+
       expect(validatePassword('123'), isNotNull);
       expect(validatePassword('123456'), isNull);
     });
@@ -177,6 +187,7 @@ void main() {
         if (value != senha) return 'Senhas não coincidem';
         return null;
       }
+
       expect(validateConfirm('abc', '123'), isNotNull);
       expect(validateConfirm('abc', 'abc'), isNull);
     });
@@ -191,7 +202,8 @@ void main() {
       ];
       final menuReceitas = todasReceitas.where((r) => r.showInMenu).toList();
       expect(menuReceitas.length, equals(2));
-      expect(menuReceitas.map((r) => r.name), containsAll(['Bolo', 'Brigadeiro']));
+      expect(
+          menuReceitas.map((r) => r.name), containsAll(['Bolo', 'Brigadeiro']));
     });
 
     test('preço exibido usa sellingPrice se definido', () {
@@ -201,14 +213,17 @@ void main() {
       expect(exibido, equals(18.0));
     });
 
-    test('preço exibido usa roundSuggestedPrice quando sellingPrice é null', () {
+    test('preço exibido usa roundSuggestedPrice quando sellingPrice é null',
+        () {
       double round(double raw) {
-        final i = raw.floor(); final d = raw - i;
+        final i = raw.floor();
+        final d = raw - i;
         if (d == 0.0) return raw;
         if (d < 0.50) return i + 0.50;
         if (d < 0.75) return i + 0.99;
         return (i + 1).toDouble();
       }
+
       const sugerido = 15.30;
       final exibido = round(sugerido);
       expect(exibido, equals(15.50));

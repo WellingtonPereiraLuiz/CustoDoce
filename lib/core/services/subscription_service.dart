@@ -37,7 +37,8 @@ class SubscriptionService {
 
     final apiKey = _apiKeyForCurrentPlatform;
     if (!hasValidApiKeyForCurrentPlatform) {
-      debugPrint('RevenueCat skipped: ${configurationIssue ?? 'missing API key'}');
+      debugPrint(
+          'RevenueCat skipped: ${configurationIssue ?? 'missing API key'}');
       return;
     }
 
@@ -79,7 +80,6 @@ class SubscriptionService {
       return false;
     }
   }
-
 
   Future<bool> restorePurchases() async {
     if (kIsWeb) return false;
@@ -149,8 +149,7 @@ class PaywallAvailability {
     this.reason,
   });
 
-  const PaywallAvailability.available()
-      : this._(canShowNativePaywall: true);
+  const PaywallAvailability.available() : this._(canShowNativePaywall: true);
 
   const PaywallAvailability.unavailable(String reason)
       : this._(canShowNativePaywall: false, reason: reason);

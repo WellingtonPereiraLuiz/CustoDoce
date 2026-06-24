@@ -10,14 +10,22 @@ enum RecipeCategory {
 
   String get label {
     switch (this) {
-      case RecipeCategory.bolo: return 'Bolo';
-      case RecipeCategory.torta: return 'Torta';
-      case RecipeCategory.brigadeiro: return 'Brigadeiro';
-      case RecipeCategory.cookies: return 'Cookies';
-      case RecipeCategory.paes: return 'Pães';
-      case RecipeCategory.salgados: return 'Salgados';
-      case RecipeCategory.bebidas: return 'Bebidas';
-      case RecipeCategory.outro: return 'Outro';
+      case RecipeCategory.bolo:
+        return 'Bolo';
+      case RecipeCategory.torta:
+        return 'Torta';
+      case RecipeCategory.brigadeiro:
+        return 'Brigadeiro';
+      case RecipeCategory.cookies:
+        return 'Cookies';
+      case RecipeCategory.paes:
+        return 'Pães';
+      case RecipeCategory.salgados:
+        return 'Salgados';
+      case RecipeCategory.bebidas:
+        return 'Bebidas';
+      case RecipeCategory.outro:
+        return 'Outro';
     }
   }
 
