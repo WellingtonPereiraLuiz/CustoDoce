@@ -128,9 +128,9 @@ void main() {
       expect(limits.hasCloudBackup, isTrue);
     });
 
-    test('Pro não tem PDF nem nota fiscal', () {
+    test('Pro tem PDF mas não nota fiscal', () {
       const limits = PlanLimits.pro;
-      expect(limits.hasExportPdf, isFalse);
+      expect(limits.hasExportPdf, isTrue);
       expect(limits.hasInvoiceScan, isFalse);
     });
   });
