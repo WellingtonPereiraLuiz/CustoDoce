@@ -145,6 +145,109 @@ Senha:  hackathon2026
 
 ---
 
+## Testes e Validação
+
+Esta seção documenta o plano mínimo de teste do CustoDoce, atendendo ao item de qualidade exigido pelo edital da Hackathon Extensionista IFRO Ariquemes 2026/1.
+
+### Oráculo da solução
+
+O resultado está correto quando:
+- Os valores calculados pelo app coincidem com os cálculos manuais nas fórmulas de negócio
+- Os limites de plano impedem ações não permitidas sem quebrar o fluxo
+- Os dados persistem entre sessões exatamente como foram inseridos
+
+### Testes automatizados
+
+A suíte de testes está em `test/` e cobre **8 grupos** com **30+ asserções**:
+
+| Arquivo | Grupos | O que testa |
+|---|---|---|
+| `test/widget_test.dart` | Fórmulas de precificação, Limites de plano, Autenticação, Validação de formulários, Lógica de cardápio | Regras de negócio, limites de plano, guards de autenticação |
+| `test/models_test.dart` | Models Test | Entidades de domínio (IngredientEntity, RecipeEntity, copyWith) |
+
+### Plano mínimo de teste
+
+| Funcionalidade | Oráculo | Caminho feliz | Erro / borda | Evidência |
+|---|---|---|---|---|
+| Cálculo de custo unitário | `custo_embalagem / quantidade_embalagem` | 1000g × R$5,50 → R$0,0055/g | Qty=0 → validação impede divisão por zero | `widget_test.dart` grupo "Fórmulas" |
+| Preço sugerido com margem | `custo × (1 + margem/100)` | R$12,00 + 40% → R$16,80 | Margem 0% → preço = custo | `widget_test.dart` |
+| Arredondamento psicológico | decimal < 0,50→X,50; 0,50–0,74→X,99; ≥0,75→inteiro | R$1,20 bruto → R$1,50 exibido | R$5,00 inteiro → sem alteração | `widget_test.dart` (4 casos de borda) |
+| Limites de plano | Free: máx 3 receitas; Light: máx 30; Pro/Premium: ilimitado | Usuário Free cadastra 3ª → sucesso | Usuário Free tenta 4ª → paywall; 0 extras no banco | `widget_test.dart` grupo "Limites" |
+| Cardápio — filtro showInMenu | Exibe só receitas marcadas para o menu | 2/3 receitas marcadas → cardápio exibe 2 | 0 marcadas → lista vazia sem crash | `widget_test.dart` grupo "Cardápio" |
+| Validação de formulário de login | Email inválido e senha curta rejeitados antes de chamar Firebase | email válido + senha ≥6 → prossegue | Email sem @ → "Email inválido"; "123" → "Mínimo 6 caracteres" | `widget_test.dart` grupo "Formulários" |
+| Persistência SQLite | Receita cadastrada disponível ao reabrir o app | Cadastro + restart → receita listada com todos os campos | — | Validação manual — receitas reais |
+| Modo visitante — acesso restrito | Visitante não acessa features pagas | Visitante acessa telas públicas → sem redirecionamento indevido | Visitante tenta cardápio → `locked_feature_screen` sem crash | `widget_test.dart` grupo "Autenticação" |
+
+### Validação com usuário real
+
+- **Nossos Quitutes (Ariquemes/RO):** negócio artesanal de trufas e biscoitos. Receitas reais cadastradas e comparadas com planilha manual — resultados idênticos
+- **Cantinas de faculdades em Ariquemes:** entrevistas realizadas; feedback positivo sobre cálculo de custo e IA para atualização de preços
+- **Conta de avaliação pública:** `avaliador@custodoce.app` / `hackathon2026` — banca pode testar o fluxo completo sem cadastro
+
+### Abordagem adotada (BSTQB, 2023, Cap. 6)
+
+Testes baseados em exemplos (example-based testing): regras determinísticas de negócio permitem definir o oráculo com precisão e cobrir caminho feliz + caminhos de erro com entradas concretas. Complementado por validação manual com usuário real para cobertura de usabilidade e persistência.
+
+> "Ter testes passando não prova que o sistema está integralmente correto" (BSTQB, 2023) — por isso a validação manual com dados reais complementa a suíte automatizada.
+
+**Referências:**
+- BSTQB. *Certified Tester Foundation Level Syllabus v4.0*, Cap. 6, p. 52-53. 2023.
+- COUTINHO; NASCIMENTO. *Desafios e benefícios da implementação de testes automatizados em empresas de software.* Cuadernos de Educación y Desarrollo, v.17, n.4, 2025.
+
+---
+
+## Estrutura do Projeto
+
+```
+CustoDoce/
+├── lib/
+│   ├── main.dart                        # Entrypoint do app
+│   ├── firebase_options.dart            # Configuração Firebase (gerado)
+│   ├── core/
+│   │   ├── constants/                   # Strings, chaves e constantes globais
+│   │   ├── enums/                       # UnitOfMeasure, RecipeCategory, SubscriptionPlan
+│   │   ├── models/                      # SubscriptionPlan, PlanLimits
+│   │   ├── providers/                   # AuthProvider, SubscriptionProvider, ThemeProvider
+│   │   ├── router/                      # GoRouter config + RouteGuardFeedback
+│   │   ├── services/                    # FirebaseAuthService, FirestoreService
+│   │   ├── theme/                       # AppTheme (dark/light)
+│   │   └── utils/                       # ImageUtils, PriceUtils, ValidationUtils
+│   ├── data/
+│   │   ├── local/                       # SQLite datasources (v5 schema)
+│   │   └── repositories/               # Implementações dos repositórios
+│   ├── domain/
+│   │   ├── entities/                    # IngredientEntity, RecipeEntity
+│   │   └── repositories/               # Interfaces dos repositórios
+│   └── presentation/
+│       ├── providers/                   # RecipeBuilderProvider, RecipeListProvider, IngredientProvider
+│       ├── screens/
+│       │   ├── auth/                    # LoginScreen, RegisterScreen
+│       │   ├── home/                    # HomeScreen
+│       │   ├── recipe/                  # RecipesScreen, RecipeDetailScreen
+│       │   ├── recipe_builder/          # RecipeBuilderScreen (criar/editar receita)
+│       │   ├── ingredient_manager/      # IngredientManagerScreen
+│       │   ├── digital_menu/            # DigitalMenuScreen (Pro/Premium)
+│       │   ├── ai_chat/                 # AiChatScreen (Premium — Gemini API)
+│       │   ├── paywall/                 # PaywallScreen, LockedFeatureScreen
+│       │   ├── settings/                # SettingsScreen
+│       │   ├── splash/                  # SplashScreen
+│       │   └── main/                    # MainScreen (NavBar 4 abas)
+│       └── widgets/                     # Componentes reutilizáveis
+├── test/
+│   ├── widget_test.dart                 # 24+ testes de regras de negócio e limites de plano
+│   └── models_test.dart                 # Testes de entidades de domínio
+├── assets/                              # Imagens, ícones, fontes
+├── web/                                 # Configuração do build web (Firebase Hosting)
+├── android/                             # Configuração Android
+├── ios/                                 # Configuração iOS
+├── .github/workflows/                   # CI/CD — deploy automático Firebase
+├── CHANGELOG.md                         # Histórico de versões
+├── DEPLOY.md                            # Instruções de deploy Firebase
+└── pubspec.yaml                         # Dependências e versão (1.3.3+6)
+```
+
+---
+
 ## Rodando Localmente
 
 **Pré-requisitos:** Flutter SDK >= 3.22, conta Firebase configurada
