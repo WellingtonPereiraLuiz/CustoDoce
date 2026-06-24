@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
 import 'package:custo_doce/core/models/subscription_plan.dart';
+import 'package:custo_doce/core/services/subscription_service.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 
 class PaywallScreen extends ConsumerStatefulWidget {
@@ -21,40 +22,74 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
     if (kIsWeb) {
       return const _WebPlanSelector();
     }
-    return Scaffold(
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: SafeArea(
-        child: PaywallView(
-          onPurchaseCompleted: (customerInfo, storeTransaction) {
-            ref.read(subscriptionNotifierProvider.notifier).checkStatus();
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Bem-vindo ao CustoDoce Pro! 🚀')),
-              );
-              context.pop();
-            }
-          },
-          onRestoreCompleted: (customerInfo) {
-            ref.read(subscriptionNotifierProvider.notifier).checkStatus();
-            if (context.mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Compras restauradas com sucesso.')),
-              );
-              context.pop();
-            }
-          },
-          onDismiss: () {
-            if (context.mounted) {
-              context.pop();
-            }
-          },
-        ),
-      ))),
+    final service = ref.watch(subscriptionServiceProvider);
+
+    return FutureBuilder<PaywallAvailability>(
+      future: service.getPaywallAvailability(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Scaffold(
+            body: SafeArea(
+              child: Center(child: CircularProgressIndicator()),
+            ),
+          );
+        }
+
+        final availability = snapshot.data!;
+        if (!availability.canShowNativePaywall) {
+          return _WebPlanSelector(
+            headline: 'Planos indisponiveis no checkout nativo',
+            helperText: availability.reason,
+          );
+        }
+
+        return Scaffold(
+          body: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: SafeArea(
+                child: PaywallView(
+                  onPurchaseCompleted: (customerInfo, storeTransaction) {
+                    ref.read(subscriptionNotifierProvider.notifier).checkStatus();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Bem-vindo ao CustoDoce Pro! 🚀')),
+                      );
+                      context.pop();
+                    }
+                  },
+                  onRestoreCompleted: (customerInfo) {
+                    ref.read(subscriptionNotifierProvider.notifier).checkStatus();
+                    if (context.mounted) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Compras restauradas com sucesso.')),
+                      );
+                      context.pop();
+                    }
+                  },
+                  onDismiss: () {
+                    if (context.mounted) {
+                      context.pop();
+                    }
+                  },
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }
 
 class _WebPlanSelector extends ConsumerWidget {
-  const _WebPlanSelector();
+  final String? headline;
+  final String? helperText;
+
+  const _WebPlanSelector({
+    this.headline,
+    this.helperText,
+  });
 
   List<({String label, bool ok})> _featureRows(PlanLimits p) => [
   (
@@ -126,7 +161,7 @@ class _WebPlanSelector extends ConsumerWidget {
                         color: accent, size: 40),
                     const SizedBox(height: 12),
                     Text(
-                      'Escolha seu plano',
+                      headline ?? 'Escolha seu plano',
                       style: GoogleFonts.sourceSerif4(
                         fontSize: 28,
                         fontWeight: FontWeight.w700,
@@ -136,7 +171,7 @@ class _WebPlanSelector extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Modo demonstração — pagamentos reais no app mobile.',
+                      helperText ?? 'Modo demonstração — pagamentos reais no app mobile.',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context)

@@ -43,7 +43,7 @@ class SubscriptionNotifier extends StateNotifier<SubscriptionPlan> {
 
   /// Somente web/demo — troca o plano manualmente para testes
   void setPlan(SubscriptionPlan plan) {
-    if (kIsWeb) {
+    if (kIsWeb || !_service.hasValidApiKeyForCurrentPlatform) {
       state = plan;
     }
   }
