@@ -16,7 +16,7 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:custo_doce/core/utils/price_utils.dart';
 import 'package:custo_doce/core/utils/plan_gate.dart';
-import 'package:custo_doce/core/providers/subscription_provider.dart';
+
 
 class RecipeBuilderScreen extends ConsumerStatefulWidget {
   final String? editRecipeId;
@@ -100,9 +100,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
     if (pickedFile == null) return;
 
     final bytes = await pickedFile.readAsBytes();
-    final base64Str = 'data:image/jpeg;base64,${base64Encode(bytes)}';
-
-    ref.read(recipeBuilderProvider.notifier).setImageBytes(bytes, base64Str);
+    // CORRETO: 1 parâmetro — o provider converte base64 internamente
+    ref.read(recipeBuilderProvider.notifier).setImageBytes(bytes);
   }
 
   DecorationImage? _buildDecorationImage(RecipeBuilderState state) {

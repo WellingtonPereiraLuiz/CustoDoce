@@ -1,6 +1,6 @@
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:convert';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:custo_doce/core/utils/uuid_generator.dart';
 import 'package:custo_doce/domain/entities/ingredient_entity.dart';
 import 'package:custo_doce/domain/entities/recipe_entity.dart';
@@ -13,10 +13,10 @@ class RecipeBuilderState {
   final List<RecipeIngredientEntity> ingredients;
   final int yieldQuantity;
   final RecipeCategory category;
-  final String? imagePath;
-  final Uint8List? imageBytes;
+  final String? imagePath;       // base64 data URI persistido no banco
+  final Uint8List? imageBytes;   // bytes em memória para preview imediato
   final bool showInMenu;
-  
+
   // Costs
   final double fixedOperationalCost;
   final double invisibleCostPercentage;
@@ -91,7 +91,7 @@ class RecipeBuilderState {
     int? yieldQuantity,
     RecipeCategory? category,
     String? Function()? imagePath,
-    Uint8List? imageBytes,
+    Uint8List? Function()? imageBytes,   // wrapper para suportar setar null
     bool? showInMenu,
     double? fixedOperationalCost,
     double? invisibleCostPercentage,
@@ -112,7 +112,7 @@ class RecipeBuilderState {
       yieldQuantity: yieldQuantity ?? this.yieldQuantity,
       category: category ?? this.category,
       imagePath: imagePath != null ? imagePath() : this.imagePath,
-      imageBytes: imageBytes ?? this.imageBytes,
+      imageBytes: imageBytes != null ? imageBytes() : this.imageBytes,
       showInMenu: showInMenu ?? this.showInMenu,
       fixedOperationalCost: fixedOperationalCost ?? this.fixedOperationalCost,
       invisibleCostPercentage: invisibleCostPercentage ?? this.invisibleCostPercentage,
@@ -139,23 +139,30 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
   void setFixedCost(double cost) => state = state.copyWith(fixedOperationalCost: cost);
   void setInvisibleCostPercentage(double pct) => state = state.copyWith(invisibleCostPercentage: pct);
   void toggleInvisibleCost(bool val) => state = state.copyWith(useInvisibleCost: val);
-  
+
   void toggleMarkup(bool val) => state = state.copyWith(useMarkup: val);
   void setMarkupMultiplier(double mult) => state = state.copyWith(markupMultiplier: mult);
   void setProfitMargin(double margin) => state = state.copyWith(profitMarginPercentage: margin);
 
   void setSellingPrice(double? price) => state = state.copyWith(sellingPrice: () => price);
-  void setImagePath(String? path) => state = state.copyWith(imagePath: () => path);
-  void setImageBytes(Uint8List bytes, String base64Path) {
-    state = state.copyWith(
-      imageBytes: bytes,
-      imagePath: () => base64Path,
-    );
-  }
   void setShowInMenu(bool val) => state = state.copyWith(showInMenu: val);
 
   void toggleInvestment(bool val) => state = state.copyWith(useInvestment: val);
   void setInvestmentPercentage(double pct) => state = state.copyWith(investmentPercentage: pct);
+
+  /// Recebe bytes brutos da galeria, converte internamente para base64 data URI.
+  /// O imagePath (base64) é o que será persistido no SQLite.
+  /// O imageBytes é apenas para preview imediato sem re-decodificar.
+  void setImageBytes(Uint8List bytes) {
+    final base64Str = 'data:image/jpeg;base64,${base64Encode(bytes)}';
+    state = state.copyWith(
+      imageBytes: () => bytes,
+      imagePath: () => base64Str,
+    );
+  }
+
+  /// Mantido por compatibilidade com loadRecipeForEdit.
+  void setImagePath(String? path) => state = state.copyWith(imagePath: () => path);
 
   void addIngredient(IngredientEntity ingredient, double quantityUsed) {
     final cost = quantityUsed * ingredient.calculatedUnitCost;
@@ -183,6 +190,7 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
   }
 
   void loadRecipeForEdit(RecipeEntity recipe) {
+    // imageBytes fica null — exibição usa imagePath via RecipeImage (suporta base64)
     state = RecipeBuilderState(
       editingRecipeId: recipe.id,
       name: recipe.name,
@@ -195,9 +203,12 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
       ingredients: recipe.ingredients,
       useInvisibleCost: recipe.additionalOperationalCost > 0,
       useMarkup: recipe.profitMarginPercentage >= 100.0,
-      markupMultiplier: recipe.profitMarginPercentage >= 100.0 ? (recipe.profitMarginPercentage / 100.0) + 1.0 : 3.0,
-      profitMarginPercentage: recipe.profitMarginPercentage < 100.0 ? recipe.profitMarginPercentage : 50.0,
-      useInvestment: false, // Cannot be derived, defaults to false
+      markupMultiplier: recipe.profitMarginPercentage >= 100.0
+          ? (recipe.profitMarginPercentage / 100.0) + 1.0
+          : 3.0,
+      profitMarginPercentage:
+          recipe.profitMarginPercentage < 100.0 ? recipe.profitMarginPercentage : 50.0,
+      useInvestment: false,
     );
   }
 
@@ -215,7 +226,7 @@ class RecipeBuilderNotifier extends Notifier<RecipeBuilderState> {
       totalCost: state.totalCost,
       suggestedSellPrice: state.finalPrice,
       sellingPrice: state.sellingPrice,
-      imagePath: kIsWeb ? null : state.imagePath,
+      imagePath: state.imagePath, // base64 data URI — funciona em web E mobile
       showInMenu: state.showInMenu,
       createdAt: DateTime.now(),
       ingredients: state.ingredients.map((i) => i.copyWith(recipeId: id)).toList(),
