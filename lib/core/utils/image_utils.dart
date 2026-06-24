@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'dart:io';
+import 'dart:io' if (dart.library.html) 'package:custo_doce/core/utils/io_stub.dart';
 import 'dart:typed_data';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -55,7 +55,7 @@ class RecipeImage {
     }
 
     return Image.file(
-      File(imagePath),
+      File(imagePath) as dynamic,
       width: width,
       height: height,
       fit: fit,
