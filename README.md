@@ -42,23 +42,22 @@ O CustoDoce oferece 4 planos para atender desde quem está começando até negó
 - Ideal para testar o aplicativo e precificar seus produtos principais.
 
 ### 🥈 Light (R$ 19,90/mês)
-- Até **30 receitas** e **100 ingredientes**.
-- Precificação completa com preço de venda personalizado.
-- Backup em Nuvem para não perder seus dados.
-- Ideal para o confeiteiro iniciante que já possui um portfólio diversificado.
+- Até **30 receitas** e **100 ingredientes**
+- Precificação completa com preço de venda personalizado
+- **Backup em Nuvem**
+- Ideal para o confeiteiro iniciante com portfólio diversificado
 
 ### 🥇 Pro (R$ 34,90/mês)
-- Receitas e ingredientes **Ilimitados**.
-- **Assistente de IA** integrado.
-- Preço de venda personalizado.
-- Backup em Nuvem e exportação de PDF.
-- Ideal para confeiteiros em crescimento que precisam de liberdade e ferramentas de produtividade.
+- Receitas e ingredientes **Ilimitados**
+- **Cardápio Digital** exportável (PDF) e compartilhável (texto)
+- Preço de venda personalizado
+- **Backup em Nuvem** e exportação de PDF
+- Ideal para confeiteiros em crescimento
 
 ### 💎 Premium (R$ 49,90/mês)
-- **Tudo do plano Pro**.
-- **Cardápio Digital** exportável e com link compartilhável.
-- Inteligência Artificial, Exportação em PDF e Backup Ilimitado.
-- Ideal para negócios estabelecidos que querem oferecer a melhor experiência para seus clientes.
+- **Tudo do plano Pro**
+- **Assistente de IA** integrado (Gemini) para tirar dúvidas de confeitaria
+- Ideal para negócios estabelecidos que querem máxima produtividade
 
 *(Os pagamentos e gerenciamento de assinaturas são geridos de forma nativa e segura através da integração com o RevenueCat).*
 
@@ -67,6 +66,10 @@ O CustoDoce oferece 4 planos para atender desde quem está começando até negó
 ## 🔗 Links e Acesso
 
 > 🌐 **Acesse o MVP Web:** [CustoDoce na Web](https://custodoce-b07ce.web.app/#/login)
+
+> ⚠️ **Nota:** A versão web é otimizada para dispositivos móveis e tablets.
+> Em telas de desktop, o layout pode não preencher toda a largura da tela — isso é intencional nesta versão.
+> Para a experiência completa, use o app Android.
 
 A versão Web é totalmente responsiva e funciona em qualquer navegador, sem necessidade de instalação.
 Para testar no seu celular, você também pode baixar o APK do Android na [Seção de Releases](https://github.com/WellingtonPereiraLuiz/CustoDoce/releases).
