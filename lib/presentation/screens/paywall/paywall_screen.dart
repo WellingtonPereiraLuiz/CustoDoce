@@ -28,7 +28,7 @@ class _PaywallScreenState extends ConsumerState<PaywallScreen> {
             ref.read(subscriptionNotifierProvider.notifier).checkStatus();
             if (context.mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Bem-vindo ao CustoDoce Pro! ðŸš€')),
+                const SnackBar(content: Text('Bem-vindo ao CustoDoce Pro! 🚀')),
               );
               context.pop();
             }
@@ -136,7 +136,7 @@ class _WebPlanSelector extends ConsumerWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Modo demonstração â€” pagamentos reais no app mobile.',
+                      'Modo demonstração — pagamentos reais no app mobile.',
                       style: TextStyle(
                         fontSize: 12,
                         color: Theme.of(context)
@@ -303,7 +303,7 @@ class _WebPlanSelector extends ConsumerWidget {
                                                 .showSnackBar(
                                               SnackBar(
                                                 content: Text(
-                                                    'âœ… Plano ${plan.name} ativado!'),
+                                                    '✅ Plano ${plan.name} ativado!'),
                                                 backgroundColor:
                                                     AppTheme.successColor,
                                               ),
