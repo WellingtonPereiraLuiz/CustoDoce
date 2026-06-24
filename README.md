@@ -240,7 +240,62 @@ CustoDoce/
 
 ---
 
-## Rodando Localmente
+## Segurança da Informação
+
+Esta seção documenta as práticas de segurança adotadas no CustoDoce, alinhadas ao OWASP Top 10 e às diretrizes do Hackathon Extensionista IFRO 2026/1.
+
+### Medidas implementadas
+
+| Medida | Como foi aplicada |
+|---|---|
+| **Autenticação segura** | Firebase Authentication — senhas armazenadas com hash seguro (bcrypt/scrypt gerenciado pelo Firebase), nunca em texto puro |
+| **Recuperação de senha** | Nativo via Firebase Auth — link enviado por e-mail |
+| **Controle de acesso por perfil** | Quatro perfis: Free, Light, Pro e Premium — cada um com limites definidos em `PlanLimits` |
+| **Proteção de rotas** | `RouteGuardFeedback` (`lib/core/router/`) bloqueia acesso a telas restritas e redireciona com feedback visual |
+| **Validação de formulários** | Campos de e-mail, senha e dados de receita validados antes de qualquer requisição (testado em `widget_test.dart`) |
+| **Proteção contra SQL Injection** | Todas as queries SQLite usam `whereArgs` com parâmetros separados — zero interpolação de string em queries |
+| **HTTPS em produção** | Firebase Hosting aplica TLS automaticamente — toda comunicação web é criptografada |
+| **Chaves e credenciais fora do GitHub** | Nenhuma chave de API, token ou senha foi commitada. `firebase_options.dart` usa configuração pública do Firebase (sem secret keys). Gemini API Key gerenciada em variável de ambiente |
+| **Sem coleta de dados desnecessária** | O app armazena apenas: e-mail (autenticação), dados de receitas e ingredientes inseridos pelo próprio usuário. Nenhum dado de localização, biometria ou financeiro é coletado |
+| **Modo visitante com acesso limitado** | Conta guest não acessa features pagas — guard implementado e testado |
+
+---
+
+### OWASP Top 10 — Análise aplicada ao CustoDoce
+
+| # | Vulnerabilidade OWASP | Avaliação no projeto |
+|---|---|---|
+| A01 | Quebra de controle de acesso | **Mitigado** — RouteGuardFeedback + PlanLimits bloqueiam acesso indevido a rotas e features |
+| A02 | Falhas criptográficas | **Mitigado** — Firebase Auth gerencia hash de senhas; HTTPS em produção |
+| A03 | Injeção (SQL Injection) | **Mitigado** — sqflite com `whereArgs` parametrizados em 100% das queries |
+| A04 | Projeto inseguro | **Parcialmente mitigado** — arquitetura Clean com separação de camadas; sem lógica de negócio exposta na UI |
+| A05 | Configuração insegura | **Mitigado** — Firebase Hosting com HTTPS, sem portas expostas, sem painel admin público |
+| A06 | Componentes vulneráveis | **Parcialmente mitigado** — dependências gerenciadas via `pubspec.yaml`; versões fixadas |
+| A07 | Falhas de identificação e autenticação | **Mitigado** — Firebase Auth com validação de e-mail, senha mínima 6 caracteres, sem senhas em texto puro |
+| A08 | Falhas de integridade de software | **Parcialmente mitigado** — builds gerados localmente; CI/CD via GitHub Actions sem execução de código externo |
+| A09 | Falhas de registro e monitoramento | **Limitação conhecida** — sem log de auditoria de ações do usuário (ver seção abaixo) |
+| A10 | SSRF | **Não aplicável** — app não faz requisições server-side baseadas em input do usuário |
+
+---
+
+### Uso de IA na revisão de segurança
+
+- Trechos de código foram revisados com auxílio do **Runable (Claude)** para identificar padrões inseguros
+- Nenhuma credencial, chave de API, senha ou dado sensível de usuário real foi enviado para ferramentas de IA
+- A análise do OWASP Top 10 acima foi construída com apoio de IA e validada manualmente pelos integrantes
+
+---
+
+### Limitações conhecidas
+
+- **Sem log de auditoria:** ações do usuário (login, criação de receita, upgrade de plano) não são registradas em log estruturado — melhoria prevista para versão pós-hackathon
+- **Sem bloqueio por tentativas:** Firebase Auth não tem bloqueio automático por IP configurado neste MVP — mitigado pelo reCAPTCHA invisível do Firebase na web
+- **Sem teste formal com OWASP ZAP:** o MVP web foi verificado manualmente; teste automatizado de vulnerabilidades fica como melhoria futura
+- **Banco local sem criptografia:** o SQLite local no Android não usa SQLCipher — dados de receitas ficam no armazenamento interno do dispositivo (sem acesso externo sem root)
+
+---
+
+
 
 **Pré-requisitos:** Flutter SDK >= 3.22, conta Firebase configurada
 
