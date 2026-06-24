@@ -195,7 +195,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
             onPressed: _isSaving ? null : _save,
             child: _isSaving
                 ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2))
-                : const Text('Salvar', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
+                : Text('Salvar', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
           ),
           const SizedBox(width: 8),
         ],
@@ -276,7 +276,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 const SizedBox(height: 24),
 
                 // Ingredients
-                const _SectionHeader(title: 'Ingredientes Base', icon: Icons.kitchen_rounded),
+                _SectionHeader(title: 'Ingredientes Base', icon: Icons.kitchen_rounded),
                 const SizedBox(height: 12),
                 Row(
                   children: [
@@ -304,7 +304,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                     IconButton.filled(
                       onPressed: _addIngredient,
                       icon: const Icon(Icons.add_rounded),
-                      style: IconButton.styleFrom(backgroundColor: AppTheme.primaryColor),
+                      style: IconButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.primary),
                     ),
                   ],
                 ),
@@ -333,8 +333,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                       ),
                       Text(
                         _currencyFormat.format(ri.calculatedIngredientCost),
-                        style: const TextStyle(
-                          color: AppTheme.primaryColor, 
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary, 
                           fontWeight: FontWeight.bold,
                           fontSize: 15,
                         ),
@@ -363,7 +363,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   title: const Text('Aplicar Custo Invisível (%)'),
                   value: state.useInvisibleCost,
                   onChanged: notifier.toggleInvisibleCost,
-                  activeTrackColor: AppTheme.primaryColor,
+                  activeTrackColor: Theme.of(context).colorScheme.primary,
                   contentPadding: EdgeInsets.zero,
                 ),
                 if (state.useInvisibleCost)
@@ -395,11 +395,11 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   subtitle: const Text('Recomendado para confeitaria'),
                   value: state.useMarkup,
                   onChanged: notifier.toggleMarkup,
-                  activeTrackColor: AppTheme.primaryColor,
+                  activeTrackColor: Theme.of(context).colorScheme.primary,
                   contentPadding: EdgeInsets.zero,
                 ),
                 if (state.useMarkup) ...[
-                  const Text('Multiplicar custo total por:', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
+                  Text('Multiplicar custo total por:', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
                   _NumericInput(
                     value: state.markupMultiplier,
                     min: 1.0, max: 10.0, divisions: 90,
@@ -408,7 +408,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                     onChanged: notifier.setMarkupMultiplier,
                   ),
                 ] else ...[
-                  const Text('Margem de Lucro:', style: TextStyle(color: AppTheme.primaryColor, fontWeight: FontWeight.bold)),
+                  Text('Margem de Lucro:', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
                   _NumericInput(
                     value: state.profitMarginPercentage,
                     min: 0, max: 300, divisions: 300,
@@ -430,7 +430,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   title: const Text('Separar para Investimento'),
                   value: state.useInvestment,
                   onChanged: notifier.toggleInvestment,
-                  activeTrackColor: AppTheme.primaryColor,
+                  activeTrackColor: Theme.of(context).colorScheme.primary,
                   contentPadding: EdgeInsets.zero,
                 ),
                 if (state.useInvestment)
@@ -442,7 +442,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 const SizedBox(height: 32),
 
                 // Selling Price
-                const _SectionHeader(title: 'Preço de Venda', icon: Icons.sell_rounded),
+                _SectionHeader(title: 'Preço de Venda', icon: Icons.sell_rounded),
                 const SizedBox(height: 12),
                 TextFormField(
                   controller: _sellingPriceCtrl,
@@ -480,7 +480,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icon, color: AppTheme.primaryColor, size: 20),
+        Icon(icon, color: Theme.of(context).colorScheme.primary, size: 20),
         const SizedBox(width: 8),
         Text(title, style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurface)),
         if (onInfoTap != null) ...[
@@ -516,7 +516,7 @@ class _PricingDashboard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHigh,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppTheme.primaryColor.withValues(alpha: 0.3)),
+        border: Border.all(color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3)),
       ),
       child: Column(
         children: [
@@ -537,7 +537,7 @@ class _PricingDashboard extends StatelessWidget {
               Text('Preço Sugerido de Venda', style: TextStyle(fontSize: 16, color: Theme.of(context).colorScheme.outline)),
               Text(
                 currencyFormat.format(state.finalPrice),
-                style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppTheme.primaryColor),
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary),
               ),
             ],
           ),

@@ -75,7 +75,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   ),
                 ),
                 const SizedBox(height: 28),
-                Icon(Icons.lock_rounded, size: 64, color: AppTheme.primaryColor),
+                Icon(Icons.lock_rounded, size: 64, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 16),
                 Text(
                   'Precifique com confiança. Lucre com clareza.',
@@ -129,9 +129,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => context.push('/register'),
-                  child: const Text(
+                  child: Text(
                     'Não tem conta? Criar Conta',
-                    style: TextStyle(color: AppTheme.primaryColor),
+                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
                 const SizedBox(height: 24),

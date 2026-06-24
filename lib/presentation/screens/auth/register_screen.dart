@@ -81,7 +81,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(Icons.person_add_rounded, size: 64, color: AppTheme.primaryColor),
+                Icon(Icons.person_add_rounded, size: 64, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 32),
                 Form(
                   key: _formKey,
@@ -155,9 +155,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 const SizedBox(height: 16),
                 TextButton(
                   onPressed: () => context.go(_loginLocation()),
-                  child: const Text(
+                  child: Text(
                     'Já tem conta? Entrar',
-                    style: TextStyle(color: AppTheme.primaryColor),
+                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ],
