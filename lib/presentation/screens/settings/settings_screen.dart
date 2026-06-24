@@ -54,7 +54,10 @@ class SettingsScreen extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       ElevatedButton(
-                        onPressed: () => context.go('/login'),
+                        onPressed: () {
+                          ref.read(guestModeProvider.notifier).state = false;
+                          context.go('/login');
+                        },
                         child: const Text('Fazer login'),
                       ),
                     ],
@@ -143,7 +146,7 @@ class SettingsScreen extends ConsumerWidget {
                 if (PlanGate.checkFeature(context: context, ref: ref,
                   hasAccess: currentPlan.hasDigitalMenu,
                   featureName: 'Cardápio digital',
-                  requiredPlan: 'Premium',
+                  requiredPlan: 'Pro',
                 )) {
                   context.push('/menu');
                 }

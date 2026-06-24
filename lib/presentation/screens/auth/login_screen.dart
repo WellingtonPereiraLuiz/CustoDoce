@@ -18,6 +18,14 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _passwordController = TextEditingController();
   bool _isLoading = false;
 
+  String _resolveRedirectTarget() {
+    final state = GoRouterState.of(context);
+    final extra = state.extra as Map<String, dynamic>?;
+    return extra?['redirect'] as String? ??
+        state.uri.queryParameters['redirect'] ??
+        '/home';
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     
@@ -27,9 +35,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       await authService.signIn(_emailController.text.trim(), _passwordController.text);
       if (mounted) {
         ref.read(guestModeProvider.notifier).state = false;
-        final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
-        final redirectTo = extra?['redirect'] as String? ?? '/home';
-        context.go(redirectTo);
+        context.go(_resolveRedirectTarget());
       }
     } catch (e) {
       if (mounted) {
@@ -47,14 +53,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: AppBar(
-        leading: BackButton(onPressed: () {
-          if (context.canPop()) {
-            context.pop();
-          } else {
-            context.go('/home');
-          }
-        }),
-        title: const Text('Entrar'),
+        title: const Text(''),
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
@@ -67,6 +66,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Text(
+                  'Acesse sua conta',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
+                ),
+                const SizedBox(height: 28),
                 Icon(Icons.lock_rounded, size: 64, color: AppTheme.primaryColor),
                 const SizedBox(height: 16),
                 Text(
@@ -142,9 +150,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       final cred = await ref.read(authServiceProvider).signInWithGoogle();
                       if (cred != null && mounted) {
                         ref.read(guestModeProvider.notifier).state = false;
-                        final extra = GoRouterState.of(context).extra as Map<String, dynamic>?;
-                        final redirectTo = extra?['redirect'] as String? ?? '/home';
-                        context.go(redirectTo);
+                        context.go(_resolveRedirectTarget());
                       }
                     } catch (e) {
                       if (mounted) {
