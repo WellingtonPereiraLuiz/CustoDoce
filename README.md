@@ -54,17 +54,9 @@ O **CustoDoce** é um aplicativo multiplataforma (Android e Web) que resolve a p
 
 ---
 
-## Vídeo de Pitch
-
-> 🎥 *(link a ser adicionado antes da culminância — 26/06/2026)*
-
-O vídeo apresenta: o problema real, a solução desenvolvida, demonstração do MVP, ferramentas utilizadas, uso de IA, o que funciona e o que está em desenvolvimento.
-
----
-
 ## Pitch / Slides
 
-> 📊 *(link a ser adicionado antes da culminância — 26/06/2026)*
+> 📊 **Acesse os slides:** [Apresentação CoreMetrics — CustoDoce](https://docs.google.com/presentation/d/1HMquVg4HxbltH5g_aBpzByMYrBl4BlXSMM0wFQwfzLU/edit?usp=sharing)
 
 ---
 
