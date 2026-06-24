@@ -2,12 +2,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/foundation.dart';
 
-
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
-    clientId: kIsWeb ? '842901176561-b143g01ee083h7ir3020rqnms6t50hrs.apps.googleusercontent.com' : null,
-    serverClientId: kIsWeb ? null : '842901176561-b143g01ee083h7ir3020rqnms6t50hrs.apps.googleusercontent.com',
+    clientId: kIsWeb
+        ? '842901176561-b143g01ee083h7ir3020rqnms6t50hrs.apps.googleusercontent.com'
+        : null,
+    serverClientId: kIsWeb
+        ? null
+        : '842901176561-b143g01ee083h7ir3020rqnms6t50hrs.apps.googleusercontent.com',
   );
 
   User? get currentUser => _auth.currentUser;
@@ -19,11 +22,13 @@ class AuthService {
   }
 
   Future<UserCredential> signUp(String email, String password) async {
-    return await _auth.createUserWithEmailAndPassword(email: email, password: password);
+    return await _auth.createUserWithEmailAndPassword(
+        email: email, password: password);
   }
 
   Future<UserCredential> signIn(String email, String password) async {
-    return await _auth.signInWithEmailAndPassword(email: email, password: password);
+    return await _auth.signInWithEmailAndPassword(
+        email: email, password: password);
   }
 
   Future<UserCredential?> signInWithGoogle() async {
@@ -35,7 +40,8 @@ class AuthService {
         final GoogleSignInAccount? googleUser = await _googleSignIn.signIn();
         if (googleUser == null) return null; // The user canceled the sign-in
 
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
         final AuthCredential credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,

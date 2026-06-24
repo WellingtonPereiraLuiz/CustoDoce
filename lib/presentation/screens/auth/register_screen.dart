@@ -23,19 +23,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   String _loginLocation() {
     final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
     if (redirect == null || redirect.isEmpty) return '/login';
-    return Uri(path: '/login', queryParameters: {'redirect': redirect}).toString();
+    return Uri(path: '/login', queryParameters: {'redirect': redirect})
+        .toString();
   }
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     setState(() => _isLoading = true);
     try {
       final authService = ref.read(authServiceProvider);
-      
-      await authService.signUp(_emailController.text.trim(), _passwordController.text);
-      await authService.updateDisplayName(_firstNameController.text.trim(), _lastNameController.text.trim());
-      
+
+      await authService.signUp(
+          _emailController.text.trim(), _passwordController.text);
+      await authService.updateDisplayName(
+          _firstNameController.text.trim(), _lastNameController.text.trim());
+
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Conta criada com sucesso!')),
@@ -45,7 +48,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Erro ao criar conta: $e'), backgroundColor: AppTheme.errorColor),
+          SnackBar(
+              content: Text('Erro ao criar conta: $e'),
+              backgroundColor: AppTheme.errorColor),
         );
       }
     } finally {
@@ -81,7 +86,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Icon(Icons.person_add_rounded, size: 64, color: Theme.of(context).colorScheme.primary),
+                Icon(Icons.person_add_rounded,
+                    size: 64, color: Theme.of(context).colorScheme.primary),
                 const SizedBox(height: 32),
                 Form(
                   key: _formKey,
@@ -93,17 +99,20 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         decoration: const InputDecoration(labelText: 'Nome'),
                         textCapitalization: TextCapitalization.words,
                         validator: (value) {
-                          if (value == null || value.trim().length < 2) return 'Nome deve ter pelo menos 2 caracteres';
+                          if (value == null || value.trim().length < 2)
+                            return 'Nome deve ter pelo menos 2 caracteres';
                           return null;
                         },
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _lastNameController,
-                        decoration: const InputDecoration(labelText: 'Sobrenome'),
+                        decoration:
+                            const InputDecoration(labelText: 'Sobrenome'),
                         textCapitalization: TextCapitalization.words,
                         validator: (value) {
-                          if (value == null || value.trim().length < 2) return 'Sobrenome deve ter pelo menos 2 caracteres';
+                          if (value == null || value.trim().length < 2)
+                            return 'Sobrenome deve ter pelo menos 2 caracteres';
                           return null;
                         },
                       ),
@@ -113,8 +122,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         decoration: const InputDecoration(labelText: 'Email'),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
-                          if (value == null || value.isEmpty) return 'Informe o email';
-                          if (!value.contains('@') || !value.contains('.')) return 'Email inválido';
+                          if (value == null || value.isEmpty)
+                            return 'Informe o email';
+                          if (!value.contains('@') || !value.contains('.'))
+                            return 'Email inválido';
                           return null;
                         },
                       ),
@@ -124,18 +135,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         decoration: const InputDecoration(labelText: 'Senha'),
                         obscureText: true,
                         validator: (value) {
-                          if (value == null || value.isEmpty) return 'Informe a senha';
-                          if (value.length < 6) return 'A senha deve ter no mínimo 6 caracteres';
+                          if (value == null || value.isEmpty)
+                            return 'Informe a senha';
+                          if (value.length < 6)
+                            return 'A senha deve ter no mínimo 6 caracteres';
                           return null;
                         },
                       ),
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: _confirmPasswordController,
-                        decoration: const InputDecoration(labelText: 'Confirmar Senha'),
+                        decoration:
+                            const InputDecoration(labelText: 'Confirmar Senha'),
                         obscureText: true,
                         validator: (value) {
-                          if (value != _passwordController.text) return 'As senhas não coincidem';
+                          if (value != _passwordController.text)
+                            return 'As senhas não coincidem';
                           return null;
                         },
                       ),
@@ -149,7 +164,11 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
                   child: _isLoading
-                      ? SizedBox(width: 24, height: 24, child: CircularProgressIndicator(color: Theme.of(context).colorScheme.onPrimary))
+                      ? SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                              color: Theme.of(context).colorScheme.onPrimary))
                       : const Text('Criar conta'),
                 ),
                 const SizedBox(height: 16),
@@ -157,7 +176,8 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   onPressed: () => context.go(_loginLocation()),
                   child: Text(
                     'Já tem conta? Entrar',
-                    style: TextStyle(color: Theme.of(context).colorScheme.primary),
+                    style:
+                        TextStyle(color: Theme.of(context).colorScheme.primary),
                   ),
                 ),
               ],

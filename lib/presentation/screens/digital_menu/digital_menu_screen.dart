@@ -30,15 +30,24 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
 
   String _categoryLabel(RecipeCategory cat) {
     switch (cat) {
-      case RecipeCategory.bolo: return 'Bolos';
-      case RecipeCategory.torta: return 'Tortas';
-      case RecipeCategory.brigadeiro: return 'Brigadeiros';
-      case RecipeCategory.cookies: return 'Cookies';
-      case RecipeCategory.paes: return 'Pães';
-      case RecipeCategory.salgados: return 'Salgados';
-      case RecipeCategory.bebidas: return 'Bebidas';
-      case RecipeCategory.outro: return 'Outros';
-      default: return 'Outros';
+      case RecipeCategory.bolo:
+        return 'Bolos';
+      case RecipeCategory.torta:
+        return 'Tortas';
+      case RecipeCategory.brigadeiro:
+        return 'Brigadeiros';
+      case RecipeCategory.cookies:
+        return 'Cookies';
+      case RecipeCategory.paes:
+        return 'Pães';
+      case RecipeCategory.salgados:
+        return 'Salgados';
+      case RecipeCategory.bebidas:
+        return 'Bebidas';
+      case RecipeCategory.outro:
+        return 'Outros';
+      default:
+        return 'Outros';
     }
   }
 
@@ -68,7 +77,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
   Future<void> _shareAsText(List<RecipeEntity> recipes) async {
     if (recipes.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nenhuma receita no cardápio para compartilhar.')),
+        const SnackBar(
+            content: Text('Nenhuma receita no cardápio para compartilhar.')),
       );
       return;
     }
@@ -87,11 +97,13 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
     for (final entry in grouped.entries) {
       buffer.writeln('📌 ${entry.key.toUpperCase()}');
       for (final r in entry.value) {
-        final price = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
+        final price = r.sellingPrice ??
+            PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
         final unitPrice = (r.yieldQuantity > 0)
             ? ' (R\$ ${(price / r.yieldQuantity).toStringAsFixed(2)} por unidade)'
             : '';
-        buffer.writeln('• ${r.name} — R\$ ${price.toStringAsFixed(2)}$unitPrice');
+        buffer
+            .writeln('• ${r.name} — R\$ ${price.toStringAsFixed(2)}$unitPrice');
       }
       buffer.writeln();
     }
@@ -107,7 +119,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
     if (kIsWeb) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('No navegador, use "Exportar PDF" para salvar o cardápio.'),
+          content:
+              Text('No navegador, use "Exportar PDF" para salvar o cardápio.'),
           duration: Duration(seconds: 3),
         ),
       );
@@ -118,8 +131,10 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
       final image = await _screenshotController.capture(pixelRatio: 2.0);
       if (image == null) return;
       final dir = await getTemporaryDirectory();
-      final file = await File('${dir.path}/cardapio_custodoce.png').writeAsBytes(image);
-      await Share.shareXFiles([XFile(file.path)], text: 'Meu cardápio CustoDoce');
+      final file =
+          await File('${dir.path}/cardapio_custodoce.png').writeAsBytes(image);
+      await Share.shareXFiles([XFile(file.path)],
+          text: 'Meu cardápio CustoDoce');
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao exportar imagem: $e')),
@@ -214,7 +229,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
             // Header da categoria
             pw.Container(
               width: double.infinity,
-              padding: const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              padding:
+                  const pw.EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: pw.BoxDecoration(
                 color: primaryColor,
                 borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
@@ -233,7 +249,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
 
             // Itens da categoria
             ...categoryRecipes.map((r) {
-              final price = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
+              final price = r.sellingPrice ??
+                  PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
               final unitPrice = r.yieldQuantity > 1
                   ? 'R\$ ${(price / r.yieldQuantity).toStringAsFixed(2)} por unidade'
                   : null;
@@ -243,7 +260,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                 padding: const pw.EdgeInsets.all(10),
                 decoration: pw.BoxDecoration(
                   color: PdfColors.white,
-                  borderRadius: const pw.BorderRadius.all(pw.Radius.circular(6)),
+                  borderRadius:
+                      const pw.BorderRadius.all(pw.Radius.circular(6)),
                   border: pw.Border.all(color: separatorColor, width: 0.8),
                 ),
                 child: pw.Row(
@@ -275,7 +293,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                             pw.SizedBox(height: 2),
                             pw.Text(
                               unitPrice,
-                              style: pw.TextStyle(fontSize: 9, color: textMuted),
+                              style:
+                                  pw.TextStyle(fontSize: 9, color: textMuted),
                             ),
                           ],
                         ],
@@ -283,10 +302,12 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                     ),
                     // Preço destacado
                     pw.Container(
-                      padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const pw.EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: pw.BoxDecoration(
                         color: accentColor,
-                        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
+                        borderRadius:
+                            const pw.BorderRadius.all(pw.Radius.circular(12)),
                       ),
                       child: pw.Text(
                         'R\$ ${price.toStringAsFixed(2)}',
@@ -327,38 +348,46 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
   }
 
   Widget _buildUpgradeBanner(BuildContext context, String message) => Scaffold(
-    appBar: AppBar(title: const Text('Cardápio Digital')),
-    body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.menu_book_outlined, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            Text(message, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () => context.go('/paywall'),
-              child: const Text('Ver planos'),
-            ),
-          ],
-        ),
-      ),
-    ))),
-  );
+        appBar: AppBar(title: const Text('Cardápio Digital')),
+        body: Center(
+            child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(32),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.menu_book_outlined,
+                            size: 64, color: Colors.grey),
+                        const SizedBox(height: 16),
+                        Text(message,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(fontSize: 16)),
+                        const SizedBox(height: 24),
+                        ElevatedButton(
+                          onPressed: () => context.go('/paywall'),
+                          child: const Text('Ver planos'),
+                        ),
+                      ],
+                    ),
+                  ),
+                ))),
+      );
 
   @override
   Widget build(BuildContext context) {
     final limits = ref.watch(currentPlanProvider);
 
     if (!limits.hasDigitalMenu) {
-      return _buildUpgradeBanner(context, 'O cardápio digital está disponível nos planos Pro e Premium.');
+      return _buildUpgradeBanner(context,
+          'O cardápio digital está disponível nos planos Pro e Premium.');
     }
 
     final recipesAsync = ref.watch(recipesProvider);
     return recipesAsync.when(
-      loading: () => const Scaffold(body: Center(child: CircularProgressIndicator())),
+      loading: () =>
+          const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, s) => Scaffold(body: Center(child: Text('Erro: $e'))),
       data: (recipes) {
         final menuRecipes = recipes.where((r) => r.showInMenu).toList();
@@ -391,7 +420,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                   if (limits.hasShareText) {
                     _shareAsText(menuRecipes);
                   } else {
-                    _showUpgradeDialog('Compartilhar texto está disponível nos planos Pro e Premium.');
+                    _showUpgradeDialog(
+                        'Compartilhar texto está disponível nos planos Pro e Premium.');
                   }
                 },
               ),
@@ -401,7 +431,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                   if (limits.hasExportJpg) {
                     _exportAsJpg();
                   } else {
-                    _showUpgradeDialog('Exportar em JPG está disponível nos planos Pro e Premium.');
+                    _showUpgradeDialog(
+                        'Exportar em JPG está disponível nos planos Pro e Premium.');
                   }
                 },
               ),
@@ -411,7 +442,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                   if (limits.hasExportPdf) {
                     _exportAsPdf(menuRecipes);
                   } else {
-                    _showUpgradeDialog('Export em PDF é exclusivo do plano Premium.');
+                    _showUpgradeDialog(
+                        'Export em PDF é exclusivo do plano Premium.');
                   }
                 },
               ),
@@ -422,7 +454,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
             child: Container(
               color: Theme.of(context).scaffoldBackgroundColor,
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 children: [
                   const SizedBox(height: 16),
                   const Text(
@@ -448,12 +481,14 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                     return Card(
                       elevation: 2,
                       margin: const EdgeInsets.only(bottom: 8),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12)),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ClipRRect(
-                            borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                            borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(12)),
                             child: RecipeImage.build(
                               imagePath: recipe.imagePath,
                               width: double.infinity,
@@ -469,32 +504,40 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         recipe.name,
-                                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                                        style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold),
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         recipe.category.label,
                                         style: TextStyle(
                                           fontSize: 12,
-                                          color: Theme.of(context).colorScheme.secondary,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondary,
                                         ),
                                       ),
                                     ],
                                   ),
                                 ),
                                 Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
                                     color: const Color(0xFFFFF8F6),
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Text(
                                     formatter.format(
-                                      recipe.sellingPrice ?? PriceUtils.roundSuggestedPrice(recipe.suggestedSellPrice),
+                                      recipe.sellingPrice ??
+                                          PriceUtils.roundSuggestedPrice(
+                                              recipe.suggestedSellPrice),
                                     ),
                                     style: const TextStyle(
                                       fontSize: 16,

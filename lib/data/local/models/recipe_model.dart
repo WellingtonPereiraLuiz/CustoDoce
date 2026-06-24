@@ -48,13 +48,16 @@ class RecipeModel {
           (map['additional_operational_cost'] as num).toDouble(),
       totalCost: (map['total_cost'] as num).toDouble(),
       suggestedSellPrice: (map['suggested_sell_price'] as num).toDouble(),
-      sellingPrice: map['selling_price'] != null ? (map['selling_price'] as num).toDouble() : null,
+      sellingPrice: map['selling_price'] != null
+          ? (map['selling_price'] as num).toDouble()
+          : null,
       imagePath: map['image_path'] as String?,
       showInMenu: (map['show_in_menu'] as int? ?? 0) == 1,
       createdAtMs: map['created_at'] as int,
       userId: map['user_id'] as String?,
       yieldQuantity: map['yield_quantity'] as int? ?? 1,
-      category: RecipeCategory.fromString(map['category'] as String? ?? 'outro'),
+      category:
+          RecipeCategory.fromString(map['category'] as String? ?? 'outro'),
       ingredients: ingredients,
     );
   }

@@ -40,7 +40,9 @@ class MainScaffold extends ConsumerWidget {
           child: Text(
             user.displayName?.isNotEmpty == true
                 ? user.displayName![0].toUpperCase()
-                : (user.email?.isNotEmpty == true ? user.email![0].toUpperCase() : '?'),
+                : (user.email?.isNotEmpty == true
+                    ? user.email![0].toUpperCase()
+                    : '?'),
             style: const TextStyle(fontSize: 10),
           ),
         );
@@ -72,7 +74,9 @@ class MainScaffold extends ConsumerWidget {
           child: Text(
             user.displayName?.isNotEmpty == true
                 ? user.displayName![0].toUpperCase()
-                : (user.email?.isNotEmpty == true ? user.email![0].toUpperCase() : '?'),
+                : (user.email?.isNotEmpty == true
+                    ? user.email![0].toUpperCase()
+                    : '?'),
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
         );
@@ -88,17 +92,20 @@ class MainScaffold extends ConsumerWidget {
     final destinations = [
       (
         icon: const Icon(Icons.home_outlined),
-        selectedIcon: Icon(Icons.home, color: Theme.of(context).colorScheme.primary),
+        selectedIcon:
+            Icon(Icons.home, color: Theme.of(context).colorScheme.primary),
         label: 'Início',
       ),
       (
         icon: const Icon(Icons.menu_book_outlined),
-        selectedIcon: Icon(Icons.menu_book, color: Theme.of(context).colorScheme.primary),
+        selectedIcon:
+            Icon(Icons.menu_book, color: Theme.of(context).colorScheme.primary),
         label: 'Receitas',
       ),
       (
         icon: const Icon(Icons.egg_outlined),
-        selectedIcon: Icon(Icons.egg, color: Theme.of(context).colorScheme.primary),
+        selectedIcon:
+            Icon(Icons.egg, color: Theme.of(context).colorScheme.primary),
         label: 'Ingredientes',
       ),
       (
@@ -116,13 +123,16 @@ class MainScaffold extends ConsumerWidget {
               selectedIndex: navigationShell.currentIndex,
               onDestinationSelected: _goBranch,
               backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              indicatorColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+              indicatorColor:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
               labelType: NavigationRailLabelType.all,
-              destinations: destinations.map((d) => NavigationRailDestination(
-                icon: d.icon,
-                selectedIcon: d.selectedIcon,
-                label: Text(d.label),
-              )).toList(),
+              destinations: destinations
+                  .map((d) => NavigationRailDestination(
+                        icon: d.icon,
+                        selectedIcon: d.selectedIcon,
+                        label: Text(d.label),
+                      ))
+                  .toList(),
             ),
             const VerticalDivider(thickness: 1, width: 1),
             Expanded(child: navigationShell),
@@ -137,12 +147,15 @@ class MainScaffold extends ConsumerWidget {
         selectedIndex: navigationShell.currentIndex,
         onDestinationSelected: _goBranch,
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        indicatorColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
-        destinations: destinations.map((d) => NavigationDestination(
-          icon: d.icon,
-          selectedIcon: d.selectedIcon,
-          label: d.label,
-        )).toList(),
+        indicatorColor:
+            Theme.of(context).colorScheme.primary.withValues(alpha: 0.2),
+        destinations: destinations
+            .map((d) => NavigationDestination(
+                  icon: d.icon,
+                  selectedIcon: d.selectedIcon,
+                  label: d.label,
+                ))
+            .toList(),
       ),
     );
   }

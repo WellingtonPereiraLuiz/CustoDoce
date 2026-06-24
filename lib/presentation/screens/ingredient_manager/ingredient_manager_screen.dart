@@ -26,122 +26,147 @@ class IngredientManagerScreen extends ConsumerWidget {
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: ingredientsAsync.when(
-        loading: () => Center(
-            child: CircularProgressIndicator(color: Theme.of(context).colorScheme.primary)),
-        error: (e, _) => Center(child: Text('Erro: $e')),
-        data: (ingredients) {
-          if (ingredients.isEmpty) {
-            return Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.inventory_2_outlined,
-                      size: 64, color: Theme.of(context).colorScheme.onSurfaceVariant),
-                  const SizedBox(height: 16),
-                  Text('Nenhum ingrediente cadastrado',
-                      style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 8),
-                  Text('Toque em + para adicionar',
-                      style: TextStyle(color: Theme.of(context).colorScheme.outline)),
-                ],
-              ),
-            );
-          }
-          return Align(
-            alignment: Alignment.topCenter,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: Column(
-                children: [
-                  // Counter chip
-                  Builder(builder: (context) {
-                    final plan = ref.read(currentPlanProvider);
-                    final count = ingredients.length;
-                    if (plan.isUnlimitedIngredients) return const SizedBox.shrink();
-                    final isAtLimit = count >= plan.ingredientLimit;
-                    return Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                      child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: Chip(
-                          label: Text(
-                            '$count / ${plan.ingredientLimit} ingredientes',
-                            style: TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: isAtLimit ? AppTheme.errorColor : null,
-                            ),
-                          ),
-                          backgroundColor: isAtLimit
-                              ? AppTheme.errorColor.withAlpha(20)
-                              : Theme.of(context).colorScheme.surfaceContainerHighest,
-                          side: BorderSide(
-                            color: isAtLimit
-                                ? AppTheme.errorColor.withAlpha(60)
-                                : Colors.transparent,
-                          ),
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                        ),
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: ingredientsAsync.when(
+                loading: () => Center(
+                    child: CircularProgressIndicator(
+                        color: Theme.of(context).colorScheme.primary)),
+                error: (e, _) => Center(child: Text('Erro: $e')),
+                data: (ingredients) {
+                  if (ingredients.isEmpty) {
+                    return Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.inventory_2_outlined,
+                              size: 64,
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onSurfaceVariant),
+                          const SizedBox(height: 16),
+                          Text('Nenhum ingrediente cadastrado',
+                              style: Theme.of(context).textTheme.titleMedium),
+                          const SizedBox(height: 8),
+                          Text('Toque em + para adicionar',
+                              style: TextStyle(
+                                  color:
+                                      Theme.of(context).colorScheme.outline)),
+                        ],
                       ),
                     );
-                  }),
-                  Expanded(
-                    child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-            itemCount: ingredients.length,
-            itemBuilder: (context, index) {
-              final ingredient = ingredients[index];
-              return _IngredientCard(
-                ingredient: ingredient,
-                currencyFormat: currencyFormat,
-                onEdit: () =>
-                    _showIngredientForm(context, ref, ingredient),
-                onDelete: () async {
-                  final confirmed = await showDialog<bool>(
-                    context: context,
-                    builder: (ctx) => AlertDialog(
-                      title: const Text('Excluir ingrediente'),
-                      content: Text(
-                          'Excluir "${ingredient.name}"? Receitas que usam este ingrediente podem ser afetadas.'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Navigator.pop(ctx, false),
-                          child: const Text('Cancelar'),
-                        ),
-                        ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Theme.of(context).colorScheme.error,
-                            foregroundColor: Theme.of(context).colorScheme.onError,
+                  }
+                  return Align(
+                    alignment: Alignment.topCenter,
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 800),
+                      child: Column(
+                        children: [
+                          // Counter chip
+                          Builder(builder: (context) {
+                            final plan = ref.read(currentPlanProvider);
+                            final count = ingredients.length;
+                            if (plan.isUnlimitedIngredients)
+                              return const SizedBox.shrink();
+                            final isAtLimit = count >= plan.ingredientLimit;
+                            return Padding(
+                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                              child: Align(
+                                alignment: Alignment.centerLeft,
+                                child: Chip(
+                                  label: Text(
+                                    '$count / ${plan.ingredientLimit} ingredientes',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: isAtLimit
+                                          ? AppTheme.errorColor
+                                          : null,
+                                    ),
+                                  ),
+                                  backgroundColor: isAtLimit
+                                      ? AppTheme.errorColor.withAlpha(20)
+                                      : Theme.of(context)
+                                          .colorScheme
+                                          .surfaceContainerHighest,
+                                  side: BorderSide(
+                                    color: isAtLimit
+                                        ? AppTheme.errorColor.withAlpha(60)
+                                        : Colors.transparent,
+                                  ),
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                ),
+                              ),
+                            );
+                          }),
+                          Expanded(
+                            child: ListView.builder(
+                              padding:
+                                  const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                              itemCount: ingredients.length,
+                              itemBuilder: (context, index) {
+                                final ingredient = ingredients[index];
+                                return _IngredientCard(
+                                  ingredient: ingredient,
+                                  currencyFormat: currencyFormat,
+                                  onEdit: () => _showIngredientForm(
+                                      context, ref, ingredient),
+                                  onDelete: () async {
+                                    final confirmed = await showDialog<bool>(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title:
+                                            const Text('Excluir ingrediente'),
+                                        content: Text(
+                                            'Excluir "${ingredient.name}"? Receitas que usam este ingrediente podem ser afetadas.'),
+                                        actions: [
+                                          TextButton(
+                                            onPressed: () =>
+                                                Navigator.pop(ctx, false),
+                                            child: const Text('Cancelar'),
+                                          ),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .error,
+                                              foregroundColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .onError,
+                                            ),
+                                            onPressed: () =>
+                                                Navigator.pop(ctx, true),
+                                            child: const Text('Excluir'),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                    if (confirmed == true) {
+                                      await ref
+                                          .read(ingredientsProvider.notifier)
+                                          .deleteIngredient(ingredient.id);
+                                    }
+                                  },
+                                );
+                              },
+                            ),
                           ),
-                          onPressed: () => Navigator.pop(ctx, true),
-                          child: const Text('Excluir'),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
-                  if (confirmed == true) {
-                    await ref
-                        .read(ingredientsProvider.notifier)
-                        .deleteIngredient(ingredient.id);
-                  }
                 },
-              );
-            },
-          ),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ))),
+              ))),
       floatingActionButton: FloatingActionButton.extended(
         heroTag: 'fab_ingredient',
         onPressed: () {
           final plan = ref.read(currentPlanProvider);
           final ingredients = ref.read(ingredientsProvider).value ?? [];
-          final canAdd = PlanGate.checkLimit(context: context, ref: ref,
+          final canAdd = PlanGate.checkLimit(
+            context: context,
+            ref: ref,
             currentCount: ingredients.length,
             limit: plan.ingredientLimit,
             featureName: 'ingredientes',
@@ -202,7 +227,10 @@ class _IngredientCard extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.12),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(Icons.kitchen_rounded,
@@ -222,7 +250,8 @@ class _IngredientCard extends StatelessWidget {
                       Text(
                         '${ingredient.packageSize} ${ingredient.unitOfMeasure.label} • ${currencyFormat.format(ingredient.costPerPackage)}',
                         style: TextStyle(
-                            fontSize: 12, color: Theme.of(context).colorScheme.outline),
+                            fontSize: 12,
+                            color: Theme.of(context).colorScheme.outline),
                       ),
                     ],
                   ),
@@ -241,7 +270,9 @@ class _IngredientCard extends StatelessWidget {
                     Text(
                       'por ${ingredient.unitOfMeasure.label}',
                       style: TextStyle(
-                          fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          fontSize: 11,
+                          color:
+                              Theme.of(context).colorScheme.onSurfaceVariant),
                     ),
                   ],
                 ),
@@ -253,13 +284,12 @@ class _IngredientCard extends StatelessWidget {
                     if (v == 'delete') onDelete();
                   },
                   itemBuilder: (_) => [
-                    const PopupMenuItem(
-                        value: 'edit', child: Text('Editar')),
+                    const PopupMenuItem(value: 'edit', child: Text('Editar')),
                     PopupMenuItem(
                         value: 'delete',
                         child: Text('Excluir',
-                            style:
-                                TextStyle(color: Theme.of(context).colorScheme.error))),
+                            style: TextStyle(
+                                color: Theme.of(context).colorScheme.error))),
                   ],
                 ),
               ],
@@ -275,8 +305,7 @@ class IngredientFormSheet extends StatefulWidget {
   final IngredientEntity? existing;
   final WidgetRef ref;
 
-  const IngredientFormSheet(
-      {super.key, this.existing, required this.ref});
+  const IngredientFormSheet({super.key, this.existing, required this.ref});
 
   @override
   State<IngredientFormSheet> createState() => _IngredientFormSheetState();
@@ -395,8 +424,7 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
             // Unit of measure dropdown
             DropdownButtonFormField<UnitOfMeasure>(
               initialValue: _selectedUnit,
-              decoration:
-                  const InputDecoration(labelText: 'Unidade de Medida'),
+              decoration: const InputDecoration(labelText: 'Unidade de Medida'),
               items: UnitOfMeasure.values
                   .map((u) => DropdownMenuItem(
                         value: u,
@@ -414,17 +442,15 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
                     controller: _packageSizeCtrl,
                     decoration: const InputDecoration(
                         labelText: 'Tamanho da Embalagem'),
-                    keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'[0-9.]'))
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
                     ],
                     onChanged: (_) => setState(() {}),
                     validator: (v) {
                       if (v == null || v.isEmpty) return 'Obrigatório';
-                      if (double.tryParse(v) == null ||
-                          double.parse(v) <= 0) {
+                      if (double.tryParse(v) == null || double.parse(v) <= 0) {
                         return 'Valor inválido';
                       }
                       return null;
@@ -437,17 +463,15 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
                     controller: _costCtrl,
                     decoration: const InputDecoration(
                         labelText: 'Custo da Embalagem (R\$)'),
-                    keyboardType: const TextInputType.numberWithOptions(
-                        decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     inputFormatters: [
-                      FilteringTextInputFormatter.allow(
-                          RegExp(r'[0-9.]'))
+                      FilteringTextInputFormatter.allow(RegExp(r'[0-9.]'))
                     ],
                     onChanged: (_) => setState(() {}),
                     validator: (v) {
                       if (v == null || v.isEmpty) return 'Obrigatório';
-                      if (double.tryParse(v) == null ||
-                          double.parse(v) < 0) {
+                      if (double.tryParse(v) == null || double.parse(v) < 0) {
                         return 'Valor inválido';
                       }
                       return null;
@@ -461,10 +485,16 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.08),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
-                    color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.2)),
+                    color: Theme.of(context)
+                        .colorScheme
+                        .primary
+                        .withValues(alpha: 0.2)),
               ),
               child: Row(
                 children: [
@@ -476,7 +506,8 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
                     children: [
                       Text('Custo por unidade calculado',
                           style: TextStyle(
-                              fontSize: 11, color: Theme.of(context).colorScheme.outline)),
+                              fontSize: 11,
+                              color: Theme.of(context).colorScheme.outline)),
                       Text(
                         currencyFormat.format(_calculatedUnitCost),
                         style: TextStyle(
@@ -501,7 +532,8 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
                         height: 20,
                         width: 20,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Theme.of(context).colorScheme.onPrimary),
+                            strokeWidth: 2,
+                            color: Theme.of(context).colorScheme.onPrimary),
                       )
                     : Text(widget.existing == null
                         ? 'Salvar Ingrediente'
@@ -514,4 +546,3 @@ class _IngredientFormSheetState extends State<IngredientFormSheet> {
     );
   }
 }
-

@@ -25,7 +25,8 @@ class AppStrings {
   String get errorLoadingRecipes => 'Erro ao carregar receitas';
   String get tryAgain => 'Tentar novamente';
   String get deleteRecipe => 'Excluir receita';
-  String get deleteRecipeConfirm => 'Deseja excluir esta receita? Esta ação não pode ser desfeita.';
+  String get deleteRecipeConfirm =>
+      'Deseja excluir esta receita? Esta ação não pode ser desfeita.';
   String get cancel => 'Cancelar';
   String get delete => 'Excluir';
   String get edit => 'Editar';
@@ -70,7 +71,8 @@ class AppStrings {
   String get saveRecipe => 'Salvar Receita';
   String get updateRecipe => 'Atualizar Receita';
   String get addAtLeastOneIngredient => 'Adicione pelo menos um ingrediente';
-  String get noIngredientsWarning => 'Nenhum ingrediente cadastrado. Vá em Ingredientes para adicionar.';
+  String get noIngredientsWarning =>
+      'Nenhum ingrediente cadastrado. Vá em Ingredientes para adicionar.';
 
   // Settings Screen
   String get settingsTitle => 'Configurações';
@@ -83,18 +85,22 @@ class AppStrings {
   String get about => 'Sobre';
   String get version => 'Versão';
   String get aboutApp => 'Sobre o CustoDoce';
-  String get aboutDescription => 'Calculadora de custos para confeiteiros e empreendedores da culinária.';
+  String get aboutDescription =>
+      'Calculadora de custos para confeiteiros e empreendedores da culinária.';
   String get dataAndPrivacy => 'Dados e Privacidade';
   String get clearAllData => 'Limpar todos os dados';
-  String get clearAllDataConfirm => 'Isso irá apagar todas as receitas e ingredientes. Esta ação não pode ser desfeita.';
+  String get clearAllDataConfirm =>
+      'Isso irá apagar todas as receitas e ingredientes. Esta ação não pode ser desfeita.';
   String get confirm => 'Confirmar';
   String get pro => 'Pro';
   String get upgradeToPro => 'Upgrade para Pro';
-  String get upgradeDescription => 'Receitas ilimitadas + sincronização na nuvem';
+  String get upgradeDescription =>
+      'Receitas ilimitadas + sincronização na nuvem';
 
   // Paywall
   String get paywallTitle => 'CustoDoce Pro';
-  String get paywallSubtitle => 'Você atingiu o limite de 3 receitas do plano gratuito.';
+  String get paywallSubtitle =>
+      'Você atingiu o limite de 3 receitas do plano gratuito.';
   String get subscribeNow => 'Assinar Pro Agora 🚀';
   String get restorePurchases => 'Restaurar Compras';
 }

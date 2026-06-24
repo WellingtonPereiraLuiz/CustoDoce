@@ -4,8 +4,10 @@ import 'package:flutter/foundation.dart';
 Future<void> seedDatabase() async {
   try {
     final db = await DatabaseHelper.instance.database;
-    
-    final countResult = await db.rawQuery('SELECT COUNT(*) as count FROM ingredients WHERE name = ?', ['Leite Condensado']);
+
+    final countResult = await db.rawQuery(
+        'SELECT COUNT(*) as count FROM ingredients WHERE name = ?',
+        ['Leite Condensado']);
     final count = countResult.first['count'] as int;
     if (count > 0) return;
 
@@ -18,11 +20,11 @@ Future<void> seedDatabase() async {
     final leiteId = '${generateId()}5';
 
     final ingredients = [
-      [leiteCondId, 'Leite Condensado', 'g', 450.0, 7.00, 7.00/450.0, null],
-      [farinhaId, 'Farinha de Trigo', 'g', 1000.0, 5.50, 5.50/1000.0, null],
-      [ovoId, 'Ovo', 'unidade', 12.0, 10.0, 10.0/12.0, null],
-      [acucarId, 'Açúcar', 'g', 1000.0, 4.00, 4.00/1000.0, null],
-      [leiteId, 'Leite', 'ml', 1000.0, 5.00, 5.00/1000.0, null],
+      [leiteCondId, 'Leite Condensado', 'g', 450.0, 7.00, 7.00 / 450.0, null],
+      [farinhaId, 'Farinha de Trigo', 'g', 1000.0, 5.50, 5.50 / 1000.0, null],
+      [ovoId, 'Ovo', 'unidade', 12.0, 10.0, 10.0 / 12.0, null],
+      [acucarId, 'Açúcar', 'g', 1000.0, 4.00, 4.00 / 1000.0, null],
+      [leiteId, 'Leite', 'ml', 1000.0, 5.00, 5.00 / 1000.0, null],
     ];
 
     for (final ing in ingredients) {
@@ -38,9 +40,12 @@ Future<void> seedDatabase() async {
     }
 
     final recipeId = '${generateId()}6';
-    const totalCost = (10.0/12.0)*3 + (5.50/1000.0)*300 + (4.00/1000.0)*200 + (5.00/1000.0)*200; 
-    const suggestedPrice = totalCost + (totalCost * 0.50); 
-    
+    const totalCost = (10.0 / 12.0) * 3 +
+        (5.50 / 1000.0) * 300 +
+        (4.00 / 1000.0) * 200 +
+        (5.00 / 1000.0) * 200;
+    const suggestedPrice = totalCost + (totalCost * 0.50);
+
     await db.insert('recipes', {
       'id': recipeId,
       'name': 'Bolo Simples de Trigo',
@@ -53,10 +58,10 @@ Future<void> seedDatabase() async {
     });
 
     final recipeIngredients = [
-      [recipeId, ovoId, 3.0, (10.0/12.0)*3],
-      [recipeId, farinhaId, 300.0, (5.50/1000.0)*300],
-      [recipeId, acucarId, 200.0, (4.00/1000.0)*200],
-      [recipeId, leiteId, 200.0, (5.00/1000.0)*200],
+      [recipeId, ovoId, 3.0, (10.0 / 12.0) * 3],
+      [recipeId, farinhaId, 300.0, (5.50 / 1000.0) * 300],
+      [recipeId, acucarId, 200.0, (4.00 / 1000.0) * 200],
+      [recipeId, leiteId, 200.0, (5.00 / 1000.0) * 200],
     ];
 
     for (final ri in recipeIngredients) {

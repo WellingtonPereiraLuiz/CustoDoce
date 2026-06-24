@@ -24,135 +24,161 @@ class HomeScreen extends ConsumerWidget {
     final isPro = ref.watch(isProUserProvider);
     final recipesAsync = ref.watch(recipesProvider);
     final ingredientsAsync = ref.watch(ingredientsProvider);
-    final currencyFormat = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final currencyFormat =
+        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('CustoDoce'),
       ),
-      body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: Stack(
-        children: [
-          // Decorating Background Glows
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary.withValues(alpha: 0.05),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: 50,
-            left: -100,
-            child: Container(
-              width: 250,
-              height: 250,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: RadialGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.03),
-                    Colors.transparent,
-                  ],
-                ),
-              ),
-            ),
-          ),
-          // Foreground Content
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: RefreshIndicator(
-        color: Theme.of(context).colorScheme.primary,
-        onRefresh: () async {
-          ref.read(recipesProvider.notifier).refresh();
-        },
-        child: SingleChildScrollView(
-          physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildHeader(context, isPro, ref),
-              const SizedBox(height: 24),
-              _buildKpiRow(context, recipesAsync, ingredientsAsync),
-              if (!isPro) ...[
-                const SizedBox(height: 16),
-                _buildPaywallBanner(context, ref),
-              ],
-              const SizedBox(height: 24),
-              _buildQuickActions(context, ref, isPro, recipesAsync.valueOrNull?.length ?? 0),
-              const SizedBox(height: 16),
-              // Counter chip — só mostra se o plano tem limite
-              Builder(builder: (context) {
-                final plan = ref.read(currentPlanProvider);
-                final recipeCount = recipesAsync.valueOrNull?.length ?? 0;
-                if (plan.isUnlimitedRecipes) return const SizedBox.shrink();
-                final isAtLimit = recipeCount >= plan.recipeLimit;
-                return Align(
-                  alignment: Alignment.centerLeft,
-                  child: Chip(
-                    label: Text(
-                      '$recipeCount / ${plan.recipeLimit} receitas',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isAtLimit ? Theme.of(context).colorScheme.error : Theme.of(context).colorScheme.onSurface,
+      body: Center(
+          child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 600),
+              child: Stack(
+                children: [
+                  // Decorating Background Glows
+                  Positioned(
+                    top: -100,
+                    right: -100,
+                    child: Container(
+                      width: 300,
+                      height: 300,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(context)
+                                .colorScheme
+                                .primary
+                                .withValues(alpha: 0.05),
+                            Colors.transparent,
+                          ],
+                        ),
                       ),
                     ),
-                    backgroundColor: isAtLimit
-                        ? AppTheme.errorColor.withAlpha(20)
-                        : Theme.of(context).colorScheme.surfaceContainerHighest,
-                    side: BorderSide(
-                      color: isAtLimit
-                          ? AppTheme.errorColor.withAlpha(60)
-                          : Colors.transparent,
-                    ),
-                    padding: const EdgeInsets.symmetric(horizontal: 4),
                   ),
-                );
-              }),
-              const SizedBox(height: 16),
-              Text(
-                'Receitas Recentes',
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w700,
+                  Positioned(
+                    bottom: 50,
+                    left: -100,
+                    child: Container(
+                      width: 250,
+                      height: 250,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: RadialGradient(
+                          colors: [
+                            Theme.of(context)
+                                .colorScheme
+                                .onSurface
+                                .withValues(alpha: 0.03),
+                            Colors.transparent,
+                          ],
+                        ),
+                      ),
                     ),
-              ),
-              const SizedBox(height: 16),
-              _RecentRecipesSection(
-                recipesAsync: recipesAsync,
-                currencyFormat: currencyFormat,
-              ),
-            ],
-          ),
-        ),
-            ),
-          ),
-          ),
-        ],
-      ))),
+                  ),
+                  // Foreground Content
+                  Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 800),
+                      child: RefreshIndicator(
+                        color: Theme.of(context).colorScheme.primary,
+                        onRefresh: () async {
+                          ref.read(recipesProvider.notifier).refresh();
+                        },
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildHeader(context, isPro, ref),
+                              const SizedBox(height: 24),
+                              _buildKpiRow(
+                                  context, recipesAsync, ingredientsAsync),
+                              if (!isPro) ...[
+                                const SizedBox(height: 16),
+                                _buildPaywallBanner(context, ref),
+                              ],
+                              const SizedBox(height: 24),
+                              _buildQuickActions(context, ref, isPro,
+                                  recipesAsync.valueOrNull?.length ?? 0),
+                              const SizedBox(height: 16),
+                              // Counter chip — só mostra se o plano tem limite
+                              Builder(builder: (context) {
+                                final plan = ref.read(currentPlanProvider);
+                                final recipeCount =
+                                    recipesAsync.valueOrNull?.length ?? 0;
+                                if (plan.isUnlimitedRecipes)
+                                  return const SizedBox.shrink();
+                                final isAtLimit =
+                                    recipeCount >= plan.recipeLimit;
+                                return Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Chip(
+                                    label: Text(
+                                      '$recipeCount / ${plan.recipeLimit} receitas',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: isAtLimit
+                                            ? Theme.of(context)
+                                                .colorScheme
+                                                .error
+                                            : Theme.of(context)
+                                                .colorScheme
+                                                .onSurface,
+                                      ),
+                                    ),
+                                    backgroundColor: isAtLimit
+                                        ? AppTheme.errorColor.withAlpha(20)
+                                        : Theme.of(context)
+                                            .colorScheme
+                                            .surfaceContainerHighest,
+                                    side: BorderSide(
+                                      color: isAtLimit
+                                          ? AppTheme.errorColor.withAlpha(60)
+                                          : Colors.transparent,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 4),
+                                  ),
+                                );
+                              }),
+                              const SizedBox(height: 16),
+                              Text(
+                                'Receitas Recentes',
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                              const SizedBox(height: 16),
+                              _RecentRecipesSection(
+                                recipesAsync: recipesAsync,
+                                currencyFormat: currencyFormat,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ))),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           if (currentPlan.hasChatAi) {
             context.push('/ai-chat');
           } else {
             PlanGate.checkFeature(
-              context: context, 
-              ref: ref, 
-              hasAccess: false,
-              featureName: 'Assistente de IA', 
-              requiredPlan: 'Premium'
-            );
+                context: context,
+                ref: ref,
+                hasAccess: false,
+                featureName: 'Assistente de IA',
+                requiredPlan: 'Premium');
           }
         },
         icon: const Icon(Icons.auto_awesome),
@@ -162,7 +188,6 @@ class HomeScreen extends ConsumerWidget {
       ),
     );
   }
-
 
   Widget _buildHeader(BuildContext context, bool isPro, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
@@ -185,7 +210,11 @@ class HomeScreen extends ConsumerWidget {
             Text(
               'Pronto para precificar e lucrar?',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                    color: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.color
+                        ?.withValues(alpha: 0.7),
                   ),
             ),
           ],
@@ -208,7 +237,9 @@ class HomeScreen extends ConsumerWidget {
               Icon(
                 isPro ? Icons.star_rounded : Icons.star_outline_rounded,
                 size: 16,
-                color: isPro ? const Color(0xFFFFD700) : Theme.of(context).colorScheme.onSurfaceVariant,
+                color: isPro
+                    ? const Color(0xFFFFD700)
+                    : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 4),
               Text(
@@ -216,7 +247,9 @@ class HomeScreen extends ConsumerWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: isPro ? const Color(0xFFFFD700) : Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: isPro
+                      ? const Color(0xFFFFD700)
+                      : Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
             ],
@@ -226,14 +259,20 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildKpiRow(BuildContext context, AsyncValue<List<RecipeEntity>> recipesAsync, AsyncValue<List<IngredientEntity>> ingredientsAsync) {
+  Widget _buildKpiRow(
+      BuildContext context,
+      AsyncValue<List<RecipeEntity>> recipesAsync,
+      AsyncValue<List<IngredientEntity>> ingredientsAsync) {
     final recipes = recipesAsync.valueOrNull ?? [];
     final ingredients = ingredientsAsync.valueOrNull ?? [];
-    
+
     final recipeCount = recipes.length;
     final ingredientCount = ingredients.length;
-    final avgCost = recipes.isEmpty ? 0.0 : recipes.fold(0.0, (s, r) => s + r.totalCost) / recipes.length;
-    final currencyFormat = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final avgCost = recipes.isEmpty
+        ? 0.0
+        : recipes.fold(0.0, (s, r) => s + r.totalCost) / recipes.length;
+    final currencyFormat =
+        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
@@ -283,7 +322,10 @@ class HomeScreen extends ConsumerWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [Theme.of(context).colorScheme.primaryContainer, Theme.of(context).colorScheme.surfaceContainerHighest],
+            colors: [
+              Theme.of(context).colorScheme.primaryContainer,
+              Theme.of(context).colorScheme.surfaceContainerHighest
+            ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -298,7 +340,10 @@ class HomeScreen extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
+                color: Theme.of(context)
+                    .colorScheme
+                    .primary
+                    .withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(
@@ -325,7 +370,11 @@ class HomeScreen extends ConsumerWidget {
                     'Crie receitas ilimitadas e maximize seu lucro.',
                     style: TextStyle(
                       fontSize: 13,
-                      color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.color
+                          ?.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -341,7 +390,8 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildQuickActions(BuildContext context, WidgetRef ref, bool isPro, int recipeCount) {
+  Widget _buildQuickActions(
+      BuildContext context, WidgetRef ref, bool isPro, int recipeCount) {
     return Column(
       children: [
         SizedBox(
@@ -350,7 +400,9 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () {
               final plan = ref.read(currentPlanProvider);
               final recipes = ref.read(recipesProvider).value ?? [];
-              final canCreate = PlanGate.checkLimit(context: context, ref: ref,
+              final canCreate = PlanGate.checkLimit(
+                context: context,
+                ref: ref,
                 currentCount: recipes.length,
                 limit: plan.recipeLimit,
                 featureName: 'receitas',
@@ -363,15 +415,19 @@ class HomeScreen extends ConsumerWidget {
               backgroundColor: Theme.of(context).colorScheme.primary,
               foregroundColor: Theme.of(context).colorScheme.onPrimary,
               elevation: 8,
-              shadowColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              shadowColor:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
             child: const Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(Icons.add_circle_outline_rounded, size: 28),
                 SizedBox(width: 12),
-                Text('Criar Nova Receita', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+                Text('Criar Nova Receita',
+                    style:
+                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
           ),
@@ -386,21 +442,23 @@ class HomeScreen extends ConsumerWidget {
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               foregroundColor: Theme.of(context).colorScheme.onSurface,
-              side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              side: BorderSide(
+                  color: Theme.of(context).colorScheme.outlineVariant),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16)),
             ),
           ),
         ),
-
         const SizedBox(height: 12),
         Row(
           children: [
-
             Expanded(
               child: OutlinedButton.icon(
                 onPressed: () {
                   final plan = ref.read(currentPlanProvider);
-                  if (PlanGate.checkFeature(context: context, ref: ref,
+                  if (PlanGate.checkFeature(
+                    context: context,
+                    ref: ref,
                     hasAccess: plan.hasDigitalMenu,
                     featureName: 'Cardápio Digital',
                     requiredPlan: 'Pro',
@@ -413,8 +471,10 @@ class HomeScreen extends ConsumerWidget {
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   foregroundColor: Theme.of(context).colorScheme.onSurface,
-                  side: BorderSide(color: Theme.of(context).colorScheme.outlineVariant),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                  side: BorderSide(
+                      color: Theme.of(context).colorScheme.outlineVariant),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16)),
                 ),
               ),
             ),
@@ -429,7 +489,8 @@ class _RecentRecipesSection extends StatefulWidget {
   final AsyncValue<List<RecipeEntity>> recipesAsync;
   final NumberFormat currencyFormat;
 
-  const _RecentRecipesSection({required this.recipesAsync, required this.currencyFormat});
+  const _RecentRecipesSection(
+      {required this.recipesAsync, required this.currencyFormat});
 
   @override
   State<_RecentRecipesSection> createState() => _RecentRecipesSectionState();
@@ -451,9 +512,11 @@ class _RecentRecipesSectionState extends State<_RecentRecipesSection> {
           return const _EmptyStateWidget();
         }
 
-        final filtered = recipes.where(
-          (r) => r.name.toLowerCase().contains(_searchQuery.toLowerCase()),
-        ).toList();
+        final filtered = recipes
+            .where(
+              (r) => r.name.toLowerCase().contains(_searchQuery.toLowerCase()),
+            )
+            .toList();
 
         return Column(
           children: [
@@ -471,7 +534,10 @@ class _RecentRecipesSectionState extends State<_RecentRecipesSection> {
             ),
             const SizedBox(height: 16),
             if (filtered.isEmpty)
-              const Center(child: Padding(padding: EdgeInsets.all(16), child: Text('Nenhuma receita encontrada.')))
+              const Center(
+                  child: Padding(
+                      padding: EdgeInsets.all(16),
+                      child: Text('Nenhuma receita encontrada.')))
             else
               ListView.separated(
                 shrinkWrap: true,
@@ -529,7 +595,11 @@ class _DashboardCard extends StatelessWidget {
                 title,
                 style: TextStyle(
                   fontSize: 12,
-                  color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                  color: Theme.of(context)
+                      .textTheme
+                      .bodySmall
+                      ?.color
+                      ?.withValues(alpha: 0.7),
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -547,7 +617,8 @@ class _DashboardCard extends StatelessWidget {
           if (isLoading)
             Shimmer.fromColors(
               baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-              highlightColor: Theme.of(context).colorScheme.surfaceContainerHigh,
+              highlightColor:
+                  Theme.of(context).colorScheme.surfaceContainerHigh,
               child: Container(
                 height: 24,
                 width: 80,
@@ -580,7 +651,10 @@ class _EmptyStateWidget extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        color: Theme.of(context)
+            .colorScheme
+            .surfaceContainerHighest
+            .withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
           color: Theme.of(context).colorScheme.surfaceContainerHighest,
@@ -597,7 +671,8 @@ class _EmptyStateWidget extends StatelessWidget {
             child: Icon(
               Icons.soup_kitchen_rounded,
               size: 48,
-              color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
+              color:
+                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.8),
             ),
           ),
           const SizedBox(height: 24),
@@ -614,7 +689,11 @@ class _EmptyStateWidget extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 14,
-              color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.8),
+              color: Theme.of(context)
+                  .textTheme
+                  .bodySmall
+                  ?.color
+                  ?.withValues(alpha: 0.8),
               height: 1.5,
             ),
           ),
@@ -673,7 +752,11 @@ class _RecipeListTile extends StatelessWidget {
                   Text(
                     '${recipe.category.label} • Custo: ${currencyFormat.format(recipe.totalCost)}',
                     style: TextStyle(
-                      color: Theme.of(context).textTheme.bodySmall?.color?.withValues(alpha: 0.7),
+                      color: Theme.of(context)
+                          .textTheme
+                          .bodySmall
+                          ?.color
+                          ?.withValues(alpha: 0.7),
                       fontSize: 13,
                     ),
                   ),
@@ -692,7 +775,9 @@ class _RecipeListTile extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  currencyFormat.format(recipe.sellingPrice ?? PriceUtils.roundSuggestedPrice(recipe.suggestedSellPrice)),
+                  currencyFormat.format(recipe.sellingPrice ??
+                      PriceUtils.roundSuggestedPrice(
+                          recipe.suggestedSellPrice)),
                   style: const TextStyle(
                     fontWeight: FontWeight.w800,
                     fontSize: 16,
@@ -706,7 +791,6 @@ class _RecipeListTile extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildPlaceholder(BuildContext context) {
     return Container(

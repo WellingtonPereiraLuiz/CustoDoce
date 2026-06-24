@@ -27,7 +27,7 @@ class DatabaseHelper {
     }
     return await openDatabase(
       path,
-      version: 5,
+      version: 6,
       onCreate: _onCreate,
       onUpgrade: _onUpgrade,
       onConfigure: (db) async {
@@ -79,7 +79,42 @@ class DatabaseHelper {
       )
     ''');
 
+    await db.execute('''
+      CREATE TABLE assistant_conversations (
+        id TEXT PRIMARY KEY NOT NULL,
+        title TEXT NOT NULL,
+        last_intent TEXT,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      )
+    ''');
 
+    await db.execute('''
+      CREATE TABLE assistant_messages (
+        id TEXT PRIMARY KEY NOT NULL,
+        conversation_id TEXT NOT NULL,
+        role TEXT NOT NULL,
+        type TEXT NOT NULL,
+        content TEXT NOT NULL,
+        metadata TEXT,
+        created_at INTEGER NOT NULL,
+        FOREIGN KEY (conversation_id) REFERENCES assistant_conversations(id) ON DELETE CASCADE
+      )
+    ''');
+
+    await db.execute('''
+      CREATE TABLE assistant_actions (
+        id TEXT PRIMARY KEY NOT NULL,
+        conversation_id TEXT NOT NULL,
+        type TEXT NOT NULL,
+        status TEXT NOT NULL,
+        summary TEXT NOT NULL,
+        payload TEXT,
+        target_id TEXT,
+        created_at INTEGER NOT NULL,
+        FOREIGN KEY (conversation_id) REFERENCES assistant_conversations(id) ON DELETE CASCADE
+      )
+    ''');
   }
 
   Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
@@ -88,16 +123,55 @@ class DatabaseHelper {
       await db.execute('ALTER TABLE recipes ADD COLUMN user_id TEXT');
     }
     if (oldVersion < 3) {
-      await db.execute('ALTER TABLE recipes ADD COLUMN yield_quantity INTEGER NOT NULL DEFAULT 1');
-      await db.execute("ALTER TABLE recipes ADD COLUMN category TEXT NOT NULL DEFAULT 'outro'");
+      await db.execute(
+          'ALTER TABLE recipes ADD COLUMN yield_quantity INTEGER NOT NULL DEFAULT 1');
+      await db.execute(
+          "ALTER TABLE recipes ADD COLUMN category TEXT NOT NULL DEFAULT 'outro'");
     }
     if (oldVersion < 4) {
       await db.execute('ALTER TABLE recipes ADD COLUMN selling_price REAL');
       await db.execute('ALTER TABLE recipes ADD COLUMN image_path TEXT');
-      await db.execute('ALTER TABLE recipes ADD COLUMN show_in_menu INTEGER NOT NULL DEFAULT 0');
+      await db.execute(
+          'ALTER TABLE recipes ADD COLUMN show_in_menu INTEGER NOT NULL DEFAULT 0');
     }
     if (oldVersion < 5) {
       // reservado
+    }
+    if (oldVersion < 6) {
+      await db.execute('''
+        CREATE TABLE assistant_conversations (
+          id TEXT PRIMARY KEY NOT NULL,
+          title TEXT NOT NULL,
+          last_intent TEXT,
+          created_at INTEGER NOT NULL,
+          updated_at INTEGER NOT NULL
+        )
+      ''');
+      await db.execute('''
+        CREATE TABLE assistant_messages (
+          id TEXT PRIMARY KEY NOT NULL,
+          conversation_id TEXT NOT NULL,
+          role TEXT NOT NULL,
+          type TEXT NOT NULL,
+          content TEXT NOT NULL,
+          metadata TEXT,
+          created_at INTEGER NOT NULL,
+          FOREIGN KEY (conversation_id) REFERENCES assistant_conversations(id) ON DELETE CASCADE
+        )
+      ''');
+      await db.execute('''
+        CREATE TABLE assistant_actions (
+          id TEXT PRIMARY KEY NOT NULL,
+          conversation_id TEXT NOT NULL,
+          type TEXT NOT NULL,
+          status TEXT NOT NULL,
+          summary TEXT NOT NULL,
+          payload TEXT,
+          target_id TEXT,
+          created_at INTEGER NOT NULL,
+          FOREIGN KEY (conversation_id) REFERENCES assistant_conversations(id) ON DELETE CASCADE
+        )
+      ''');
     }
   }
 

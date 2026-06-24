@@ -33,8 +33,8 @@ class PlanGate {
     return false;
   }
 
-  static void _showUpgradeDialog(
-      BuildContext context, WidgetRef ref, String feature, int limit, String planName) {
+  static void _showUpgradeDialog(BuildContext context, WidgetRef ref,
+      String feature, int limit, String planName) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -61,8 +61,8 @@ class PlanGate {
     );
   }
 
-  static void _showFeatureDialog(
-      BuildContext context, WidgetRef ref, String feature, String requiredPlan) {
+  static void _showFeatureDialog(BuildContext context, WidgetRef ref,
+      String feature, String requiredPlan) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -121,4 +121,3 @@ class PlanGate {
     }
   }
 }
-
