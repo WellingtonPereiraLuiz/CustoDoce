@@ -183,34 +183,6 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // BUG-05 FIX: bloquear acesso direto quando usuário free atingiu limite
-    final isEditing = widget.editRecipeId != null;
-    if (!isEditing) {
-      final isPro = ref.watch(isProUserProvider);
-      final recipes = ref.watch(recipesProvider).valueOrNull ?? [];
-      const freeLimit = 3;
-
-      if (!isPro && recipes.length >= freeLimit) {
-        // Redirecionar para home com snackbar de upgrade
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (context.mounted) {
-            context.go('/');
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Limite de $freeLimit receitas atingido. Faça upgrade para Pro.',
-                  style: TextStyle(color: Theme.of(context).colorScheme.onError),
-                ),
-                backgroundColor: Theme.of(context).colorScheme.error,
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
-        });
-        return Scaffold(body: Center(child: ConstrainedBox(constraints: const BoxConstraints(maxWidth: 600), child: const Center(child: CircularProgressIndicator()))));
-      }
-    }
-
     final state = ref.watch(recipeBuilderProvider);
     final notifier = ref.read(recipeBuilderProvider.notifier);
     final ingredientsAsync = ref.watch(ingredientsProvider);

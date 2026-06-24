@@ -20,6 +20,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
 
+  String _loginLocation() {
+    final redirect = GoRouterState.of(context).uri.queryParameters['redirect'];
+    if (redirect == null || redirect.isEmpty) return '/login';
+    return Uri(path: '/login', queryParameters: {'redirect': redirect}).toString();
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     
@@ -34,7 +40,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Conta criada com sucesso!')),
         );
-        context.go('/login');
+        context.go(_loginLocation());
       }
     } catch (e) {
       if (mounted) {
@@ -148,7 +154,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 ),
                 const SizedBox(height: 16),
                 TextButton(
-                  onPressed: () => context.go('/login'),
+                  onPressed: () => context.go(_loginLocation()),
                   child: const Text(
                     'Já tem conta? Entrar',
                     style: TextStyle(color: AppTheme.primaryColor),

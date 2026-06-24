@@ -5,8 +5,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
-import 'package:custo_doce/core/providers/auth_provider.dart';
-import 'package:custo_doce/core/providers/guest_mode_provider.dart';
 import 'package:custo_doce/core/models/subscription_plan.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 
@@ -18,19 +16,6 @@ class PaywallScreen extends ConsumerStatefulWidget {
 }
 
 class _PaywallScreenState extends ConsumerState<PaywallScreen> {
-  @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!mounted) return;
-      final isGuest = ref.read(guestModeProvider);
-      final user = ref.read(currentUserProvider);
-      if (isGuest || user == null) {
-        context.push('/login', extra: {'redirect': '/paywall'});
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     if (kIsWeb) {

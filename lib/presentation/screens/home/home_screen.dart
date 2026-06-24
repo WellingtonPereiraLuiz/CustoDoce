@@ -20,6 +20,7 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final currentPlan = ref.watch(currentPlanProvider);
     final isPro = ref.watch(isProUserProvider);
     final recipesAsync = ref.watch(recipesProvider);
     final ingredientsAsync = ref.watch(ingredientsProvider);
@@ -142,15 +143,15 @@ class HomeScreen extends ConsumerWidget {
       ))),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          if (isPro) {
+          if (currentPlan.hasChatAi) {
             context.push('/ai-chat');
           } else {
             PlanGate.checkFeature(
               context: context, 
               ref: ref, 
-              hasAccess: false, 
+              hasAccess: false,
               featureName: 'Assistente de IA', 
-              requiredPlan: 'Pro'
+              requiredPlan: 'Premium'
             );
           }
         },
@@ -402,7 +403,7 @@ class HomeScreen extends ConsumerWidget {
                   if (PlanGate.checkFeature(context: context, ref: ref,
                     hasAccess: plan.hasDigitalMenu,
                     featureName: 'Cardápio Digital',
-                    requiredPlan: 'Premium',
+                    requiredPlan: 'Pro',
                   )) {
                     context.push('/menu');
                   }
