@@ -20,7 +20,7 @@
   - Higor Rodrigues Lauer
   - João Vitor Gomes Zeri
   - Erick Saymon Contadini Markoviscz
-- **Curso/Turma:** Tecnologia em Análise e Desenvolvimento de Sistemas (ADS) — IFRO Campus Ariquemes / 2024
+- **Curso/Turma:** Tecnologia em Análise e Desenvolvimento de Sistemas (ADS) — IFRO Campus Ariquemes 
 - **Categoria:** Desafio Livre de Impacto Regional
 
 ---
