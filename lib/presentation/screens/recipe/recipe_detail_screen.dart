@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:custo_doce/core/theme/app_theme.dart';
+import 'package:custo_doce/core/utils/image_utils.dart';
 import 'package:custo_doce/presentation/providers/recipe_providers.dart';
 import 'package:intl/intl.dart';
 import 'package:share_plus/share_plus.dart';
@@ -111,6 +111,26 @@ Calculado com CustoDoce 🍫
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if (recipe.imagePath != null &&
+                        recipe.imagePath!.isNotEmpty) ...[
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: AspectRatio(
+                          aspectRatio: 16 / 9,
+                          child: RecipeImage.build(
+                            imagePath: recipe.imagePath,
+                            width: double.infinity,
+                            height: double.infinity,
+                            placeholder: Container(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .surfaceContainerHighest,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                     // Category Chip
                     Chip(
                       label: Text(recipe.category.label),
@@ -217,10 +237,12 @@ Calculado com CustoDoce 🍫
                               Text(
                                 currencyFormat
                                     .format(i.calculatedIngredientCost),
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 15,
-                                  color: AppTheme.successColor,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer,
                                 ),
                               ),
                             ],

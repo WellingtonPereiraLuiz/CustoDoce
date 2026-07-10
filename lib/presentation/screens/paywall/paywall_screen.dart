@@ -3,11 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:purchases_ui_flutter/purchases_ui_flutter.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/foundation.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
 import 'package:custo_doce/core/models/subscription_plan.dart';
 import 'package:custo_doce/core/services/subscription_service.dart';
-import 'package:custo_doce/core/theme/app_theme.dart';
 
 class PaywallScreen extends ConsumerStatefulWidget {
   const PaywallScreen({super.key});
@@ -119,9 +117,9 @@ class _WebPlanSelector extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accent = isDark ? AppTheme.accentWarm : AppTheme.primaryColor;
-    final onAccent = isDark ? AppTheme.primaryColor : Colors.white;
+    final colorScheme = Theme.of(context).colorScheme;
+    final accent = colorScheme.secondaryContainer;
+    final onAccent = colorScheme.onSecondaryContainer;
     final currentPlan = ref.watch(subscriptionNotifierProvider);
 
     return Scaffold(
@@ -131,17 +129,11 @@ class _WebPlanSelector extends ConsumerWidget {
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: isDark
-                ? [
-                    const Color(0xFF1E1B1A),
-                    const Color(0xFF2C1A16),
-                    const Color(0xFF1A1210),
-                  ]
-                : [
-                    const Color(0xFFFFF8F6),
-                    const Color(0xFFF5E6E0),
-                    const Color(0xFFFAF0ED),
-                  ],
+            colors: [
+              colorScheme.surface,
+              colorScheme.surfaceContainerLow,
+              colorScheme.surfaceContainer,
+            ],
           ),
         ),
         child: SafeArea(
@@ -168,24 +160,16 @@ class _WebPlanSelector extends ConsumerWidget {
                     const SizedBox(height: 12),
                     Text(
                       headline ?? 'Escolha seu plano',
-                      style: GoogleFonts.sourceSerif4(
-                        fontSize: 28,
-                        fontWeight: FontWeight.w700,
-                        color: Theme.of(context).colorScheme.onSurface,
-                      ),
+                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
+                            fontSize: 28,
+                          ),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 4),
                     Text(
                       helperText ??
                           'Modo demonstração — pagamentos reais no app mobile.',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withAlpha(100),
-                      ),
+                      style: Theme.of(context).textTheme.bodySmall,
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 24),
@@ -231,25 +215,27 @@ class _WebPlanSelector extends ConsumerWidget {
                                         children: [
                                           Text(
                                             plan.name,
-                                            style: GoogleFonts.sourceSerif4(
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w700,
-                                              color: isSelected
-                                                  ? accent
-                                                  : Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface,
-                                            ),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .headlineSmall
+                                                ?.copyWith(
+                                                  color: isSelected
+                                                      ? accent
+                                                      : Theme.of(context)
+                                                          .colorScheme
+                                                          .onSurface,
+                                                ),
                                           ),
                                           Text(
                                             plan.priceLabel,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: Theme.of(context)
-                                                  .colorScheme
-                                                  .onSurface
-                                                  .withAlpha(160),
-                                            ),
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .bodyMedium
+                                                ?.copyWith(
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onSurfaceVariant,
+                                                ),
                                           ),
                                         ],
                                       ),
@@ -329,9 +315,6 @@ class _WebPlanSelector extends ConsumerWidget {
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: accent,
                                             foregroundColor: onAccent,
-                                            textStyle: GoogleFonts.workSans(
-                                              fontWeight: FontWeight.w700,
-                                            ),
                                           ),
                                           onPressed: () {
                                             ref
@@ -344,14 +327,15 @@ class _WebPlanSelector extends ConsumerWidget {
                                               SnackBar(
                                                 content: Text(
                                                     '✅ Plano ${plan.name} ativado!'),
-                                                backgroundColor:
-                                                    AppTheme.successColor,
+                                                backgroundColor: Theme.of(
+                                                        context)
+                                                    .colorScheme
+                                                    .secondaryContainer,
                                               ),
                                             );
                                             context.pop();
                                           },
-                                          child:
-                                              Text('Selecionar ${plan.name}'),
+                                          child: const Text('Assinar Agora'),
                                         ),
                                 ),
                               ],

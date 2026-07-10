@@ -12,6 +12,8 @@ import 'package:custo_doce/presentation/screens/ingredient_manager/ingredient_ma
 import 'package:custo_doce/presentation/screens/recipe_builder/recipe_builder_screen.dart';
 import 'package:custo_doce/presentation/screens/paywall/paywall_screen.dart';
 import 'package:custo_doce/presentation/screens/settings/settings_screen.dart';
+import 'package:custo_doce/presentation/screens/settings/personal_info_screen.dart';
+import 'package:custo_doce/presentation/screens/settings/change_password_screen.dart';
 import 'package:custo_doce/presentation/screens/auth/login_screen.dart';
 import 'package:custo_doce/presentation/screens/main/main_scaffold.dart';
 import 'package:custo_doce/presentation/screens/splash/splash_screen.dart';
@@ -176,6 +178,22 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => RouteGuardFeedback.wrap(
           state: state,
           child: const DigitalMenuScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/settings/personal-info',
+        name: 'personal-info',
+        builder: (context, state) => RouteGuardFeedback.wrap(
+          state: state,
+          child: const PersonalInfoScreen(),
+        ),
+      ),
+      GoRoute(
+        path: '/settings/change-password',
+        name: 'change-password',
+        builder: (context, state) => RouteGuardFeedback.wrap(
+          state: state,
+          child: const ChangePasswordScreen(),
         ),
       ),
       // Stateful shell route for bottom navigation

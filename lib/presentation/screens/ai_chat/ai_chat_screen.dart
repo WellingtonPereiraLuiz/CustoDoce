@@ -49,6 +49,12 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     });
   }
 
+  void _applyQuickAction(String prompt) {
+    _controller.text = prompt;
+    _controller.selection =
+        TextSelection.collapsed(offset: _controller.text.length);
+  }
+
   Future<void> _send() async {
     final imageDataUri = _selectedImageDataUri;
     final text = _controller.text;
@@ -144,7 +150,7 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                       Stack(
                         children: [
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(8),
                             child: Image.memory(
                               _selectedImageBytes!,
                               width: 96,
@@ -164,14 +170,15 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                               },
                               child: Container(
                                 padding: const EdgeInsets.all(4),
-                                decoration: const BoxDecoration(
-                                  color: Colors.black54,
+                                decoration: BoxDecoration(
+                                  color: theme.colorScheme.inverseSurface
+                                      .withValues(alpha: 0.7),
                                   shape: BoxShape.circle,
                                 ),
-                                child: const Icon(
+                                child: Icon(
                                   Icons.close,
                                   size: 14,
-                                  color: Colors.white,
+                                  color: theme.colorScheme.onInverseSurface,
                                 ),
                               ),
                             ),
@@ -179,6 +186,49 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                         ],
                       ),
                     ],
+                  ),
+                ),
+              if (!hasPending)
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        ActionChip(
+                          avatar: const Icon(Icons.calculate_outlined,
+                              size: 16),
+                          label: const Text('Calcular Custo'),
+                          onPressed: assistantState.isSending
+                              ? null
+                              : () => _applyQuickAction(
+                                  'Ajude-me a calcular o custo de uma receita.'),
+                        ),
+                        const SizedBox(width: 8),
+                        ActionChip(
+                          avatar: const Icon(Icons.swap_horiz_rounded,
+                              size: 16),
+                          label: const Text('Sugerir Substituição'),
+                          onPressed: assistantState.isSending
+                              ? null
+                              : () => _applyQuickAction(
+                                  'Sugira uma substituição para um ingrediente da minha receita.'),
+                        ),
+                        const SizedBox(width: 8),
+                        ActionChip(
+                          avatar:
+                              const Icon(Icons.receipt_long_outlined, size: 16),
+                          label: const Text('Ler Nota Fiscal'),
+                          onPressed: assistantState.isSending
+                              ? null
+                              : () async {
+                                  await _pickImage();
+                                  _applyQuickAction(
+                                      'Leia esta nota fiscal e atualize os ingredientes.');
+                                },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               SafeArea(

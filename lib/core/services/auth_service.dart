@@ -21,6 +21,22 @@ class AuthService {
     await _auth.currentUser?.updateDisplayName('$nome $sobrenome');
   }
 
+  Future<void> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    final user = _auth.currentUser;
+    if (user == null || user.email == null) {
+      throw Exception('Usuário não autenticado');
+    }
+    final credential = EmailAuthProvider.credential(
+      email: user.email!,
+      password: currentPassword,
+    );
+    await user.reauthenticateWithCredential(credential);
+    await user.updatePassword(newPassword);
+  }
+
   Future<UserCredential> signUp(String email, String password) async {
     return await _auth.createUserWithEmailAndPassword(
         email: email, password: password);

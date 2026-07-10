@@ -59,7 +59,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
             const SnackBar(
               content: Text(
                   'Aviso: O preço de venda está abaixo do preço sugerido!'),
-              backgroundColor: Colors.orange,
+              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
             ),
           );
         }
@@ -653,7 +653,7 @@ class _PricingDashboard extends StatelessWidget {
                       'Preço por unidade:',
                       style: TextStyle(
                         fontSize: 13,
-                        color: Colors.grey[600],
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
                       ),
                     ),
                     Text(
@@ -661,7 +661,7 @@ class _PricingDashboard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: Colors.grey[700],
+                        color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
                   ],

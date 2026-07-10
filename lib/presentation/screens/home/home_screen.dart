@@ -131,13 +131,19 @@ class HomeScreen extends ConsumerWidget {
                                       ),
                                     ),
                                     backgroundColor: isAtLimit
-                                        ? AppTheme.errorColor.withAlpha(20)
+                                        ? Theme.of(context)
+                                            .colorScheme
+                                            .error
+                                            .withAlpha(20)
                                         : Theme.of(context)
                                             .colorScheme
                                             .surfaceContainerHighest,
                                     side: BorderSide(
                                       color: isAtLimit
-                                          ? AppTheme.errorColor.withAlpha(60)
+                                          ? Theme.of(context)
+                                              .colorScheme
+                                              .error
+                                              .withAlpha(60)
                                           : Colors.transparent,
                                     ),
                                     padding: const EdgeInsets.symmetric(
@@ -146,16 +152,22 @@ class HomeScreen extends ConsumerWidget {
                                 );
                               }),
                               const SizedBox(height: 16),
-                              Text(
-                                'Receitas Recentes',
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .titleLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.w700,
-                                    ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Receitas Recentes',
+                                    style:
+                                        Theme.of(context).textTheme.headlineSmall,
+                                  ),
+                                  TextButton(
+                                    onPressed: () => context.push('/recipes'),
+                                    child: const Text('Ver Todas →'),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: 8),
                               _RecentRecipesSection(
                                 recipesAsync: recipesAsync,
                                 currencyFormat: currencyFormat,
@@ -182,9 +194,7 @@ class HomeScreen extends ConsumerWidget {
           }
         },
         icon: const Icon(Icons.auto_awesome),
-        label: const Text('Assistente'),
-        backgroundColor: Theme.of(context).colorScheme.primary,
-        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        label: const Text('Chef IA'),
       ),
     );
   }
@@ -223,12 +233,18 @@ class HomeScreen extends ConsumerWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: isPro
-                ? const Color(0xFFFFD700).withValues(alpha: 0.15)
+                ? Theme.of(context)
+                    .colorScheme
+                    .secondaryContainer
+                    .withValues(alpha: 0.15)
                 : Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(999),
             border: Border.all(
               color: isPro
-                  ? const Color(0xFFFFD700).withValues(alpha: 0.3)
+                  ? Theme.of(context)
+                      .colorScheme
+                      .secondaryContainer
+                      .withValues(alpha: 0.4)
                   : Theme.of(context).colorScheme.surfaceContainerHighest,
             ),
           ),
@@ -238,19 +254,17 @@ class HomeScreen extends ConsumerWidget {
                 isPro ? Icons.star_rounded : Icons.star_outline_rounded,
                 size: 16,
                 color: isPro
-                    ? const Color(0xFFFFD700)
+                    ? Theme.of(context).colorScheme.secondaryContainer
                     : Theme.of(context).colorScheme.onSurfaceVariant,
               ),
               const SizedBox(width: 4),
               Text(
                 isPro ? 'PRO' : 'Free Plan',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: isPro
-                      ? const Color(0xFFFFD700)
-                      : Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
+                style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                      color: isPro
+                          ? Theme.of(context).colorScheme.secondaryContainer
+                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                    ),
               ),
             ],
           ),
@@ -505,7 +519,7 @@ class _RecentRecipesSectionState extends State<_RecentRecipesSection> {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(
         child: Text('Erro ao carregar receitas: $e',
-            style: const TextStyle(color: AppTheme.errorColor)),
+            style: TextStyle(color: Theme.of(context).colorScheme.error)),
       ),
       data: (recipes) {
         if (recipes.isEmpty) {

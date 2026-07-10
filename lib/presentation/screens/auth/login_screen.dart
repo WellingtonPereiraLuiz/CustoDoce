@@ -83,11 +83,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Text(
                   'Precifique com confiança. Lucre com clareza.',
                   textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontStyle: FontStyle.italic,
-                    color: Colors.grey[600],
-                  ),
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                        fontStyle: FontStyle.italic,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
                 ),
                 const SizedBox(height: 32),
                 Form(

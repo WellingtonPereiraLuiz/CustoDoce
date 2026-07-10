@@ -95,6 +95,28 @@ class SettingsScreen extends ConsumerWidget {
                     const _SectionHeader(
                         title: 'Conta', icon: Icons.person_outline_rounded),
                     const SizedBox(height: 12),
+                    _SettingsTile(
+                      icon: Icons.badge_outlined,
+                      iconColor: accent,
+                      title: 'Informações Pessoais',
+                      subtitle: 'Nome, sobrenome e email',
+                      trailing: Icon(Icons.chevron_right_rounded,
+                          color: accent),
+                      onTap: () => context.push('/settings/personal-info'),
+                      cardBg: cardBg,
+                    ),
+                    const SizedBox(height: 8),
+                    _SettingsTile(
+                      icon: Icons.lock_outline_rounded,
+                      iconColor: accent,
+                      title: 'Alterar Senha',
+                      subtitle: 'Atualize sua senha de acesso',
+                      trailing: Icon(Icons.chevron_right_rounded,
+                          color: accent),
+                      onTap: () => context.push('/settings/change-password'),
+                      cardBg: cardBg,
+                    ),
+                    const SizedBox(height: 8),
                     if (isFree)
                       _SettingsTile(
                         icon: Icons.workspace_premium_rounded,
@@ -209,6 +231,18 @@ class SettingsScreen extends ConsumerWidget {
                       cardBg: cardBg,
                       titleColor: Theme.of(context).colorScheme.onSurface,
                     ),
+                    const SizedBox(height: 8),
+                    _SettingsTile(
+                      icon: Icons.help_outline_rounded,
+                      iconColor: Theme.of(context).colorScheme.primary,
+                      title: 'Central de Ajuda',
+                      subtitle: 'Perguntas frequentes e suporte',
+                      trailing: Icon(Icons.chevron_right_rounded,
+                          color: Theme.of(context).colorScheme.primary),
+                      onTap: () => _showHelpCenterDialog(context),
+                      cardBg: cardBg,
+                      titleColor: Theme.of(context).colorScheme.onSurface,
+                    ),
                     const SizedBox(height: 24),
 
                     // ── Data & Privacy ──────────────────────────────────────
@@ -285,6 +319,48 @@ class SettingsScreen extends ConsumerWidget {
               SizedBox(height: 8),
               Text(
                   '3. Use as barras de Custo Invisível e Margem de Lucro para descobrir por quanto vender seu doce.'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Fechar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showHelpCenterDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Central de Ajuda'),
+        content: const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Perguntas frequentes',
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 12),
+              Text('Como calculo o preço de venda de uma receita?',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              SizedBox(height: 4),
+              Text(
+                  'Cadastre os ingredientes com o custo da embalagem, monte a receita informando as quantidades usadas e ajuste a margem de lucro — o CustoDoce calcula o preço sugerido automaticamente.'),
+              SizedBox(height: 12),
+              Text('Meus dados ficam salvos no aparelho?',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              SizedBox(height: 4),
+              Text(
+                  'Sim, os dados ficam armazenados localmente. Faça login para poder recuperá-los caso troque de aparelho.'),
+              SizedBox(height: 12),
+              Text('Como falo com o suporte?',
+                  style: TextStyle(fontWeight: FontWeight.w600)),
+              SizedBox(height: 4),
+              Text('Envie um email para suporte@custodoce.app.'),
             ],
           ),
         ),

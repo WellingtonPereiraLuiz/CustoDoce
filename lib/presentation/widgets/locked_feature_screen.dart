@@ -1,6 +1,4 @@
-import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:custo_doce/core/utils/plan_gate.dart';
 
@@ -16,8 +14,8 @@ class LockedFeatureScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final accent = isDark ? AppTheme.accentWarm : AppTheme.primaryColor;
+    final colorScheme = Theme.of(context).colorScheme;
+    final accent = colorScheme.secondaryContainer;
 
     return Scaffold(
       appBar: AppBar(title: Text(featureName)),
@@ -27,21 +25,20 @@ class LockedFeatureScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.lock_outline_rounded,
-                  size: 64, color: accent.withAlpha(180)),
+              Icon(Icons.lock_outline_rounded, size: 64, color: accent),
               const SizedBox(height: 20),
               Text(
                 'Recurso $requiredPlan',
-                style: GoogleFonts.sourceSerif4(
-                    fontSize: 22, fontWeight: FontWeight.w700),
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
               const SizedBox(height: 12),
               Text(
                 '$featureName está disponível no plano $requiredPlan.',
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                    color:
-                        Theme.of(context).colorScheme.onSurface.withAlpha(160)),
+                style: Theme.of(context)
+                    .textTheme
+                    .bodyMedium
+                    ?.copyWith(color: colorScheme.onSurfaceVariant),
               ),
               const SizedBox(height: 28),
               FilledButton.icon(
@@ -50,8 +47,7 @@ class LockedFeatureScreen extends ConsumerWidget {
                 label: const Text('Ver planos'),
                 style: FilledButton.styleFrom(
                   backgroundColor: accent,
-                  foregroundColor:
-                      isDark ? AppTheme.primaryColor : Colors.white,
+                  foregroundColor: colorScheme.onSecondaryContainer,
                 ),
               ),
             ],

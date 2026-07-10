@@ -145,16 +145,20 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
   Widget _buildMenuImagePlaceholder() {
     return Container(
       height: 160,
-      decoration: const BoxDecoration(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(12)),
+      decoration: BoxDecoration(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
         gradient: LinearGradient(
-          colors: [Color(0xFFE8E0DD), Color(0xFFD4C3BF)],
+          colors: [
+            Theme.of(context).colorScheme.surfaceContainerHigh,
+            Theme.of(context).colorScheme.surfaceContainerHighest,
+          ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
       ),
-      child: const Center(
-        child: Icon(Icons.cake_rounded, size: 64, color: Colors.white70),
+      child: Center(
+        child: Icon(Icons.cake_rounded,
+            size: 64, color: Theme.of(context).colorScheme.outline),
       ),
     );
   }
@@ -162,12 +166,13 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
   Future<void> _exportAsPdf(List<RecipeEntity> recipes) async {
     final doc = pw.Document();
 
-    final primaryColor = PdfColor.fromHex('#3D1A10');
-    final accentColor = PdfColor.fromHex('#C4956A');
+    // Paleta Stitch v2 — mantida em hex pois package:pdf não lê ThemeData.
+    final primaryColor = PdfColor.fromHex('#0B0301');
+    final accentColor = PdfColor.fromHex('#FE6B00');
     final lightBg = PdfColor.fromHex('#FFF8F6');
-    final separatorColor = PdfColor.fromHex('#E8D5CB');
-    final textDark = PdfColor.fromHex('#1E0A07');
-    final textMuted = PdfColor.fromHex('#9E8A82');
+    final separatorColor = PdfColor.fromHex('#D3C3BF');
+    final textDark = PdfColor.fromHex('#1E1B1A');
+    final textMuted = PdfColor.fromHex('#817471');
 
     // Agrupar por categoria
     final Map<String, List<RecipeEntity>> grouped = {};
@@ -358,12 +363,13 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.menu_book_outlined,
-                            size: 64, color: Colors.grey),
+                        Icon(Icons.menu_book_outlined,
+                            size: 64,
+                            color: Theme.of(context).colorScheme.outline),
                         const SizedBox(height: 16),
                         Text(message,
                             textAlign: TextAlign.center,
-                            style: const TextStyle(fontSize: 16)),
+                            style: Theme.of(context).textTheme.bodyLarge),
                         const SizedBox(height: 24),
                         ElevatedButton(
                           onPressed: () => context.go('/paywall'),
@@ -458,23 +464,18 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                 children: [
                   const SizedBox(height: 16),
-                  const Text(
+                  Text(
                     'Cardápio',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontFamily: 'serif',
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: Theme.of(context).textTheme.displayLarge,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     'Toque para exportar',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Theme.of(context).colorScheme.onSurfaceVariant,
-                    ),
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurfaceVariant,
+                        ),
                   ),
                   const SizedBox(height: 24),
                   ...menuRecipes.map((recipe) {
@@ -509,9 +510,8 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                                     children: [
                                       Text(
                                         recipe.name,
-                                        style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold),
+                                        style:
+                                            Theme.of(context).textTheme.titleMedium,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
@@ -530,8 +530,11 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: const Color(0xFFFFF8F6),
-                                    borderRadius: BorderRadius.circular(16),
+                                    color: Theme.of(context)
+                                        .colorScheme
+                                        .secondaryContainer
+                                        .withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(999),
                                   ),
                                   child: Text(
                                     formatter.format(
@@ -539,11 +542,15 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
                                           PriceUtils.roundSuggestedPrice(
                                               recipe.suggestedSellPrice),
                                     ),
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Color(0xFF6B5A60),
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.w700,
+                                          color: Theme.of(context)
+                                              .colorScheme
+                                              .secondaryContainer,
+                                        ),
                                   ),
                                 ),
                               ],
