@@ -56,8 +56,8 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
         final sp = double.tryParse(_sellingPriceCtrl.text);
         if (sp != null && sp < state.finalPrice) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text(
+            SnackBar(
+              content: const Text(
                   'Aviso: O preço de venda está abaixo do preço sugerido!'),
               backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
             ),

@@ -185,11 +185,11 @@ class _WebPlanSelector extends ConsumerWidget {
                           width: double.infinity,
                           decoration: BoxDecoration(
                             color: isSelected
-                                ? accent.withAlpha(isDark ? 20 : 12)
+                                ? accent.withAlpha(20)
                                 : Theme.of(context)
                                     .colorScheme
                                     .surfaceContainerHighest
-                                    .withAlpha(isDark ? 200 : 180),
+                                    .withAlpha(180),
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(
                               color: isSelected
