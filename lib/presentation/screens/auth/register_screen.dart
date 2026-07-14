@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:custo_doce/core/theme/app_theme.dart';
 import 'package:custo_doce/core/providers/auth_provider.dart';
+import 'package:custo_doce/presentation/widgets/auth_split_layout.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -77,118 +78,118 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 400),
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Icon(Icons.person_add_rounded,
-                    size: 64, color: Theme.of(context).colorScheme.primary),
-                const SizedBox(height: 32),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextFormField(
-                        controller: _firstNameController,
-                        decoration: const InputDecoration(labelText: 'Nome'),
-                        textCapitalization: TextCapitalization.words,
-                        validator: (value) {
-                          if (value == null || value.trim().length < 2) {
-                            return 'Nome deve ter pelo menos 2 caracteres';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _lastNameController,
-                        decoration:
-                            const InputDecoration(labelText: 'Sobrenome'),
-                        textCapitalization: TextCapitalization.words,
-                        validator: (value) {
-                          if (value == null || value.trim().length < 2) {
-                            return 'Sobrenome deve ter pelo menos 2 caracteres';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _emailController,
-                        decoration: const InputDecoration(labelText: 'Email'),
-                        keyboardType: TextInputType.emailAddress,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Informe o email';
-                          }
-                          if (!value.contains('@') || !value.contains('.')) {
-                            return 'Email inválido';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _passwordController,
-                        decoration: const InputDecoration(labelText: 'Senha'),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Informe a senha';
-                          }
-                          if (value.length < 6) {
-                            return 'A senha deve ter no mínimo 6 caracteres';
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: _confirmPasswordController,
-                        decoration:
-                            const InputDecoration(labelText: 'Confirmar Senha'),
-                        obscureText: true,
-                        validator: (value) {
-                          if (value != _passwordController.text) {
-                            return 'As senhas não coincidem';
-                          }
-                          return null;
-                        },
-                      ),
-                    ],
-                  ),
+      body: AuthSplitLayout(
+        headline: 'Comece a precificar com confiança.',
+        subtitle:
+            'Crie sua conta gratuita e transforme sua confeitaria em um negócio lucrativo com cálculos precisos de custo e preço.',
+        formChild: SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Icon(Icons.person_add_rounded,
+                  size: 64, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(height: 32),
+              Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    TextFormField(
+                      controller: _firstNameController,
+                      decoration: const InputDecoration(labelText: 'Nome'),
+                      textCapitalization: TextCapitalization.words,
+                      validator: (value) {
+                        if (value == null || value.trim().length < 2) {
+                          return 'Nome deve ter pelo menos 2 caracteres';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _lastNameController,
+                      decoration:
+                          const InputDecoration(labelText: 'Sobrenome'),
+                      textCapitalization: TextCapitalization.words,
+                      validator: (value) {
+                        if (value == null || value.trim().length < 2) {
+                          return 'Sobrenome deve ter pelo menos 2 caracteres';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _emailController,
+                      decoration: const InputDecoration(labelText: 'Email'),
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe o email';
+                        }
+                        if (!value.contains('@') || !value.contains('.')) {
+                          return 'Email inválido';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _passwordController,
+                      decoration: const InputDecoration(labelText: 'Senha'),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Informe a senha';
+                        }
+                        if (value.length < 6) {
+                          return 'A senha deve ter no mínimo 6 caracteres';
+                        }
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _confirmPasswordController,
+                      decoration:
+                          const InputDecoration(labelText: 'Confirmar Senha'),
+                      obscureText: true,
+                      validator: (value) {
+                        if (value != _passwordController.text) {
+                          return 'As senhas não coincidem';
+                        }
+                        return null;
+                      },
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 32),
-                ElevatedButton(
-                  onPressed: _isLoading ? null : _submit,
-                  style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: _isLoading
-                      ? SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(
-                              color: Theme.of(context).colorScheme.onPrimary))
-                      : const Text('Criar conta'),
+              ),
+              const SizedBox(height: 32),
+              ElevatedButton(
+                onPressed: _isLoading ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
-                const SizedBox(height: 16),
-                TextButton(
-                  onPressed: () => context.go(_loginLocation()),
-                  child: Text(
-                    'Já tem conta? Entrar',
-                    style:
-                        TextStyle(color: Theme.of(context).colorScheme.primary),
-                  ),
+                child: _isLoading
+                    ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                            color: Theme.of(context).colorScheme.onPrimary))
+                    : const Text('Criar conta'),
+              ),
+              const SizedBox(height: 16),
+              TextButton(
+                onPressed: () => context.go(_loginLocation()),
+                child: Text(
+                  'Já tem conta? Entrar',
+                  style:
+                      TextStyle(color: Theme.of(context).colorScheme.primary),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
