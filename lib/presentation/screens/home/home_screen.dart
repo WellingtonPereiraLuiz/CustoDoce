@@ -13,6 +13,8 @@ import 'package:intl/intl.dart';
 import 'package:custo_doce/core/utils/price_utils.dart';
 
 import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
+import 'package:custo_doce/core/constants/layout_constants.dart';
+import 'package:custo_doce/core/models/subscription_plan.dart';
 import 'package:shimmer/shimmer.dart';
 
 class HomeScreen extends ConsumerWidget {
@@ -26,6 +28,16 @@ class HomeScreen extends ConsumerWidget {
     final ingredientsAsync = ref.watch(ingredientsProvider);
     final currencyFormat =
         NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final isDesktop = MediaQuery.of(context).size.width >= kDesktopBreakpoint;
+
+    if (isDesktop) {
+      return _DesktopHomeBody(
+        currentPlan: currentPlan,
+        recipesAsync: recipesAsync,
+        ingredientsAsync: ingredientsAsync,
+        currencyFormat: currencyFormat,
+      );
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -818,6 +830,389 @@ class _RecipeListTile extends StatelessWidget {
       child: Icon(
         Icons.cake_rounded,
         color: Theme.of(context).colorScheme.primary,
+      ),
+    );
+  }
+}
+
+/// Painel (dashboard) desktop — réplica do layout com sidebar/topbar de
+/// `dashboard_traduzido_custodoce_v2`: cards de estatística, tabela de
+/// receitas recentes e um card de CTA para criar receita.
+class _DesktopHomeBody extends ConsumerWidget {
+  final PlanLimits currentPlan;
+  final AsyncValue<List<RecipeEntity>> recipesAsync;
+  final AsyncValue<List<IngredientEntity>> ingredientsAsync;
+  final NumberFormat currencyFormat;
+
+  const _DesktopHomeBody({
+    required this.currentPlan,
+    required this.recipesAsync,
+    required this.ingredientsAsync,
+    required this.currencyFormat,
+  });
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(currentUserProvider);
+    final firstName = user?.displayName?.split(' ').first ?? 'Chef';
+    final recipes = recipesAsync.valueOrNull ?? [];
+    final ingredients = ingredientsAsync.valueOrNull ?? [];
+    final now = DateTime.now();
+    final newThisMonth = recipes
+        .where((r) =>
+            r.createdAt.year == now.year && r.createdAt.month == now.month)
+        .length;
+
+    final margins = recipes
+        .map((r) {
+          final price = r.sellingPrice ??
+              PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
+          if (price <= 0) return null;
+          return (price - r.totalCost) / price * 100;
+        })
+        .whereType<double>()
+        .toList();
+    final avgMargin = margins.isEmpty
+        ? 0.0
+        : margins.reduce((a, b) => a + b) / margins.length;
+
+    final recentRecipes = recipes.take(5).toList();
+
+    return Scaffold(
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+        child: Center(
+          child: ConstrainedBox(
+            constraints:
+                const BoxConstraints(maxWidth: kDesktopContentMaxWidth),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Bem-vindo de volta, $firstName',
+                    style: Theme.of(context).textTheme.displayLarge),
+                const SizedBox(height: 8),
+                Text(
+                  'Gerencie seu portfólio de doces e acompanhe os custos de produção com eficiência.',
+                  style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: _StatCard(
+                        icon: Icons.restaurant_rounded,
+                        title: 'Receitas Ativas',
+                        value: recipes.length.toString(),
+                        footnote:
+                            newThisMonth > 0 ? '+$newThisMonth este mês' : null,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _StatCard(
+                        icon: Icons.inventory_2_rounded,
+                        title: 'Ingredientes cadastrados',
+                        value: ingredients.length.toString(),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: _StatCard(
+                        icon: Icons.trending_up_rounded,
+                        title: 'Margem de Lucro Média',
+                        value: '${avgMargin.toStringAsFixed(0)}%',
+                        dark: true,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 24),
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        flex: 2,
+                        child: _RecentRecipesCard(
+                          recipes: recentRecipes,
+                          currencyFormat: currencyFormat,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _CreateRecipeCta(
+                          onTap: () {
+                            final plan = ref.read(currentPlanProvider);
+                            final canCreate = PlanGate.checkLimit(
+                              context: context,
+                              ref: ref,
+                              currentCount: recipes.length,
+                              limit: plan.recipeLimit,
+                              featureName: 'receitas',
+                              planName: plan.name,
+                            );
+                            if (canCreate) context.push('/recipe-builder');
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          if (currentPlan.hasChatAi) {
+            context.push('/ai-chat');
+          } else {
+            PlanGate.checkFeature(
+                context: context,
+                ref: ref,
+                hasAccess: false,
+                featureName: 'Assistente de IA',
+                requiredPlan: 'Premium');
+          }
+        },
+        icon: const Icon(Icons.auto_awesome),
+        label: const Text('Chef IA'),
+      ),
+    );
+  }
+}
+
+class _StatCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String value;
+  final String? footnote;
+  final bool dark;
+
+  const _StatCard({
+    required this.icon,
+    required this.title,
+    required this.value,
+    this.footnote,
+    this.dark = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final fg = dark ? colorScheme.onPrimary : colorScheme.onSurface;
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: dark ? colorScheme.primary : colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: (dark ? colorScheme.onPrimary : colorScheme.primary)
+                  .withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon,
+                size: 20, color: dark ? colorScheme.onPrimary : colorScheme.primary),
+          ),
+          const SizedBox(height: 16),
+          Text(title,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyMedium
+                  ?.copyWith(color: fg.withValues(alpha: 0.7))),
+          const SizedBox(height: 4),
+          Text(value,
+              style: Theme.of(context)
+                  .textTheme
+                  .displayLarge
+                  ?.copyWith(fontSize: 28, color: fg)),
+          if (footnote != null) ...[
+            const SizedBox(height: 4),
+            Text(footnote!,
+                style: Theme.of(context)
+                    .textTheme
+                    .labelSmall
+                    ?.copyWith(color: fg.withValues(alpha: 0.6))),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _RecentRecipesCard extends StatelessWidget {
+  final List<RecipeEntity> recipes;
+  final NumberFormat currencyFormat;
+
+  const _RecentRecipesCard(
+      {required this.recipes, required this.currencyFormat});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Receitas Recentes',
+                  style: Theme.of(context).textTheme.headlineSmall),
+              TextButton(
+                onPressed: () => context.push('/recipes'),
+                child: const Text('Ver Todas'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          if (recipes.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Text('Nenhuma receita cadastrada ainda.',
+                  style: Theme.of(context).textTheme.bodyMedium),
+            )
+          else
+            ...recipes.map((recipe) {
+              final price = recipe.sellingPrice ??
+                  PriceUtils.roundSuggestedPrice(recipe.suggestedSellPrice);
+              final margin = price > 0
+                  ? ((price - recipe.totalCost) / price * 100).round()
+                  : 0;
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: RecipeImage.build(
+                        imagePath: recipe.imagePath,
+                        width: 40,
+                        height: 40,
+                        placeholder: Container(
+                          width: 40,
+                          height: 40,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .surfaceContainerHighest,
+                          child: Icon(Icons.cake_rounded,
+                              size: 18,
+                              color: Theme.of(context).colorScheme.primary),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(recipe.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: Theme.of(context).textTheme.bodyLarge),
+                    ),
+                    SizedBox(
+                      width: 90,
+                      child: Text(currencyFormat.format(recipe.totalCost),
+                          style: Theme.of(context).textTheme.bodyMedium),
+                    ),
+                    SizedBox(
+                      width: 90,
+                      child: Text(currencyFormat.format(price),
+                          style: Theme.of(context).textTheme.bodyMedium),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context)
+                            .colorScheme
+                            .secondaryContainer
+                            .withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text('$margin%',
+                          style: Theme.of(context)
+                              .textTheme
+                              .labelSmall
+                              ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .secondaryContainer)),
+                    ),
+                  ],
+                ),
+              );
+            }),
+        ],
+      ),
+    );
+  }
+}
+
+class _CreateRecipeCta extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _CreateRecipeCta({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colorScheme.primary,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.onPrimary.withValues(alpha: 0.1),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(Icons.add, color: colorScheme.onPrimary),
+          ),
+          const SizedBox(height: 16),
+          Text('Criar Receita',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(color: colorScheme.onPrimary)),
+          const SizedBox(height: 4),
+          Text('Comece uma nova criação artesanal',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: colorScheme.onPrimary.withValues(alpha: 0.7))),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: onTap,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.secondaryContainer,
+                foregroundColor: colorScheme.onSecondaryContainer,
+              ),
+              icon: const Icon(Icons.restaurant_rounded, size: 18),
+              label: const Text('Nova Receita'),
+            ),
+          ),
+        ],
       ),
     );
   }
