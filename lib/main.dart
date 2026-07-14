@@ -15,7 +15,11 @@ import 'package:custo_doce/firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: '.env');
+  // .env é opcional: em builds via --dart-define-from-file=.env (web/CI)
+  // o arquivo não é empacotado como asset, e as chaves já chegam via
+  // String.fromEnvironment (ver AppConstants). dotenv é só um fallback
+  // para desenvolvimento local com o arquivo presente no disco.
+  await dotenv.load(fileName: '.env', isOptional: true);
 
   // Initialize Firebase
   await Firebase.initializeApp(
