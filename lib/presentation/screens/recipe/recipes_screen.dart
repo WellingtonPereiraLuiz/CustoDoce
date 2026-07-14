@@ -106,6 +106,7 @@ class RecipesScreen extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: 'fab_recipes_create',
         onPressed: () {
           final plan = ref.read(currentPlanProvider);
           final recipes = ref.read(recipesProvider).value ?? [];
@@ -225,9 +226,8 @@ class _DesktopRecipesBodyState extends ConsumerState<_DesktopRecipesBody> {
                         ? 0.0
                         : margins.reduce((a, b) => a + b) / margins.length;
 
-                    return IntrinsicHeight(
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                    return Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
                             width: 260,
@@ -246,8 +246,7 @@ class _DesktopRecipesBodyState extends ConsumerState<_DesktopRecipesBody> {
                                   ),
                           ),
                         ],
-                      ),
-                    );
+                      );
                   },
                 ),
               ],
@@ -290,6 +289,7 @@ class _PortfolioHealthCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -329,8 +329,7 @@ class _PortfolioHealthCard extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 color: colorScheme.onPrimary.withValues(alpha: 0.7)),
           ),
-          const Spacer(),
-          const SizedBox(height: 16),
+          const SizedBox(height: 24),
           SizedBox(
             width: double.infinity,
             child: ElevatedButton.icon(

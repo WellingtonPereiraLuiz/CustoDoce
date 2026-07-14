@@ -194,6 +194,7 @@ class HomeScreen extends ConsumerWidget {
                 ],
               ))),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab_home_chef_ia',
         onPressed: () {
           if (currentPlan.hasChatAi) {
             context.push('/ai-chat');
@@ -898,36 +899,39 @@ class _DesktopHomeBody extends ConsumerWidget {
                       color: Theme.of(context).colorScheme.onSurfaceVariant),
                 ),
                 const SizedBox(height: 24),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      child: _StatCard(
-                        icon: Icons.restaurant_rounded,
-                        title: 'Receitas Ativas',
-                        value: recipes.length.toString(),
-                        footnote:
-                            newThisMonth > 0 ? '+$newThisMonth este mês' : null,
+                IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.restaurant_rounded,
+                          title: 'Receitas Ativas',
+                          value: recipes.length.toString(),
+                          footnote: newThisMonth > 0
+                              ? '+$newThisMonth este mês'
+                              : null,
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _StatCard(
-                        icon: Icons.inventory_2_rounded,
-                        title: 'Ingredientes cadastrados',
-                        value: ingredients.length.toString(),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.inventory_2_rounded,
+                          title: 'Ingredientes cadastrados',
+                          value: ingredients.length.toString(),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: _StatCard(
-                        icon: Icons.trending_up_rounded,
-                        title: 'Margem de Lucro Média',
-                        value: '${avgMargin.toStringAsFixed(0)}%',
-                        dark: true,
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: _StatCard(
+                          icon: Icons.trending_up_rounded,
+                          title: 'Margem de Lucro Média',
+                          value: '${avgMargin.toStringAsFixed(0)}%',
+                          dark: true,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
                 const SizedBox(height: 24),
                 IntrinsicHeight(
@@ -967,6 +971,7 @@ class _DesktopHomeBody extends ConsumerWidget {
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'fab_home_desktop_chef_ia',
         onPressed: () {
           if (currentPlan.hasChatAi) {
             context.push('/ai-chat');
