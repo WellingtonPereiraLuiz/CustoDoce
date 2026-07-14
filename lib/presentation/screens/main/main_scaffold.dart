@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:custo_doce/core/providers/auth_provider.dart';
 import 'package:custo_doce/core/providers/guest_mode_provider.dart';
+import 'package:custo_doce/presentation/widgets/desktop_sidebar.dart';
+import 'package:custo_doce/presentation/widgets/desktop_topbar.dart';
+import 'package:custo_doce/core/constants/layout_constants.dart';
 
 class MainScaffold extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
@@ -85,9 +88,16 @@ class MainScaffold extends ConsumerWidget {
     return Icon(Icons.person, color: Theme.of(context).colorScheme.primary);
   }
 
+  static const _searchHints = [
+    'Buscar receitas...',
+    'Buscar receitas...',
+    'Buscar ingredientes...',
+    'Buscar...',
+  ];
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isWide = MediaQuery.of(context).size.width > 600;
+    final isDesktop = MediaQuery.of(context).size.width >= kDesktopBreakpoint;
 
     final destinations = [
       (
@@ -115,27 +125,49 @@ class MainScaffold extends ConsumerWidget {
       ),
     ];
 
-    if (isWide) {
+    if (isDesktop) {
+      const sidebarDestinations = [
+        DesktopSidebarDestination(
+          icon: Icons.dashboard_outlined,
+          selectedIcon: Icons.dashboard_rounded,
+          label: 'Painel',
+        ),
+        DesktopSidebarDestination(
+          icon: Icons.menu_book_outlined,
+          selectedIcon: Icons.menu_book_rounded,
+          label: 'Minhas Receitas',
+        ),
+        DesktopSidebarDestination(
+          icon: Icons.inventory_2_outlined,
+          selectedIcon: Icons.inventory_2_rounded,
+          label: 'Ingredientes',
+        ),
+        DesktopSidebarDestination(
+          icon: Icons.settings_outlined,
+          selectedIcon: Icons.settings_rounded,
+          label: 'Configurações',
+        ),
+      ];
+
       return Scaffold(
         body: Row(
           children: [
-            NavigationRail(
+            DesktopSidebar(
               selectedIndex: navigationShell.currentIndex,
               onDestinationSelected: _goBranch,
-              backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-              indicatorColor:
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.15),
-              labelType: NavigationRailLabelType.all,
-              destinations: destinations
-                  .map((d) => NavigationRailDestination(
-                        icon: d.icon,
-                        selectedIcon: d.selectedIcon,
-                        label: Text(d.label),
-                      ))
-                  .toList(),
+              destinations: sidebarDestinations,
             ),
-            const VerticalDivider(thickness: 1, width: 1),
-            Expanded(child: navigationShell),
+            Expanded(
+              child: Column(
+                children: [
+                  DesktopTopBar(
+                    searchHint: _searchHints[navigationShell.currentIndex],
+                  ),
+                  const Divider(height: 1),
+                  Expanded(child: navigationShell),
+                ],
+              ),
+            ),
           ],
         ),
       );
