@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:custo_doce/core/providers/subscription_provider.dart';
 import 'package:custo_doce/core/models/subscription_plan.dart';
 import 'package:custo_doce/core/services/subscription_service.dart';
+import 'package:custo_doce/core/constants/layout_constants.dart';
 
 class PaywallScreen extends ConsumerStatefulWidget {
   const PaywallScreen({super.key});
@@ -115,12 +116,22 @@ class _WebPlanSelector extends ConsumerWidget {
         (label: 'Assistente de IA', ok: p.hasChatAi),
       ];
 
+  void _selectPlan(BuildContext context, WidgetRef ref, PlanLimits plan) {
+    ref.read(subscriptionNotifierProvider.notifier).setPlan(plan.plan);
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('✅ Plano ${plan.name} ativado!'),
+        backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
+      ),
+    );
+    context.pop();
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colorScheme = Theme.of(context).colorScheme;
-    final accent = colorScheme.secondaryContainer;
-    final onAccent = colorScheme.onSecondaryContainer;
     final currentPlan = ref.watch(subscriptionNotifierProvider);
+    final isDesktop = MediaQuery.of(context).size.width >= kDesktopBreakpoint;
 
     return Scaffold(
       body: Container(
@@ -137,12 +148,14 @@ class _WebPlanSelector extends ConsumerWidget {
           ),
         ),
         child: SafeArea(
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 480),
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+                horizontal: isDesktop ? 32 : 24, vertical: 32),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                    maxWidth:
+                        isDesktop ? kDesktopContentMaxWidth : 480),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
@@ -150,205 +163,209 @@ class _WebPlanSelector extends ConsumerWidget {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: IconButton(
-                        icon: Icon(Icons.close_rounded, color: accent),
+                        icon: Icon(Icons.close_rounded,
+                            color: colorScheme.secondaryContainer),
                         onPressed: () => context.pop(),
                       ),
                     ),
                     const SizedBox(height: 8),
-                    Icon(Icons.workspace_premium_rounded,
-                        color: accent, size: 40),
-                    const SizedBox(height: 12),
                     Text(
-                      headline ?? 'Escolha seu plano',
-                      style: Theme.of(context).textTheme.displayLarge?.copyWith(
-                            fontSize: 28,
-                          ),
+                      headline ?? 'Escolha o seu plano',
+                      style: Theme.of(context).textTheme.displayLarge,
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 8),
                     Text(
                       helperText ??
-                          'Modo demonstração — pagamentos reais no app mobile.',
-                      style: Theme.of(context).textTheme.bodySmall,
+                          'Eleve o nível da sua produção artesanal com ferramentas de precisão.',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                          color: colorScheme.onSurfaceVariant),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 32),
 
                     // Plan cards
-                    ...PlanLimits.all.map((plan) {
-                      final isSelected = currentPlan == plan.plan;
-                      final rows = _featureRows(plan);
-                      return Padding(
-                        padding: const EdgeInsets.only(bottom: 16),
-                        child: AnimatedContainer(
-                          duration: const Duration(milliseconds: 200),
-                          width: double.infinity,
-                          decoration: BoxDecoration(
-                            color: isSelected
-                                ? accent.withAlpha(20)
-                                : Theme.of(context)
-                                    .colorScheme
-                                    .surfaceContainerHighest
-                                    .withAlpha(180),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: isSelected
-                                  ? accent
-                                  : Theme.of(context)
-                                      .colorScheme
-                                      .outlineVariant,
-                              width: isSelected ? 2 : 1,
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Name + price + badge
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            plan.name,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .headlineSmall
-                                                ?.copyWith(
-                                                  color: isSelected
-                                                      ? accent
-                                                      : Theme.of(context)
-                                                          .colorScheme
-                                                          .onSurface,
-                                                ),
-                                          ),
-                                          Text(
-                                            plan.priceLabel,
-                                            style: Theme.of(context)
-                                                .textTheme
-                                                .bodyMedium
-                                                ?.copyWith(
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurfaceVariant,
-                                                ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    if (isSelected)
-                                      Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 4),
-                                        decoration: BoxDecoration(
-                                          color: accent,
-                                          borderRadius:
-                                              BorderRadius.circular(20),
-                                        ),
-                                        child: Text(
-                                          'ATUAL',
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            fontWeight: FontWeight.w800,
-                                            color: onAccent,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
+                    if (isDesktop)
+                      IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final plan in PlanLimits.all)
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8),
+                                  child: _PlanCard(
+                                    plan: plan,
+                                    rows: _featureRows(plan),
+                                    isSelected: currentPlan == plan.plan,
+                                    isFeatured: plan.plan ==
+                                        SubscriptionPlan.pro,
+                                    onSelect: () =>
+                                        _selectPlan(context, ref, plan),
+                                  ),
                                 ),
-                                const SizedBox(height: 16),
-
-                                // Feature rows
-                                ...rows.map((row) => Padding(
-                                      padding: const EdgeInsets.only(bottom: 6),
-                                      child: Row(
-                                        children: [
-                                          Icon(
-                                            row.ok
-                                                ? Icons.check_rounded
-                                                : Icons.close_rounded,
-                                            size: 16,
-                                            color: row.ok
-                                                ? accent
-                                                : Theme.of(context)
-                                                    .colorScheme
-                                                    .onSurface
-                                                    .withAlpha(60),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            row.label,
-                                            style: TextStyle(
-                                              fontSize: 13,
-                                              color: row.ok
-                                                  ? Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface
-                                                  : Theme.of(context)
-                                                      .colorScheme
-                                                      .onSurface
-                                                      .withAlpha(80),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    )),
-                                const SizedBox(height: 16),
-
-                                // Select button
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: isSelected
-                                      ? OutlinedButton(
-                                          onPressed: null,
-                                          style: OutlinedButton.styleFrom(
-                                            side: BorderSide(color: accent),
-                                            foregroundColor: accent,
-                                          ),
-                                          child: const Text('Plano atual'),
-                                        )
-                                      : ElevatedButton(
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: accent,
-                                            foregroundColor: onAccent,
-                                          ),
-                                          onPressed: () {
-                                            ref
-                                                .read(
-                                                    subscriptionNotifierProvider
-                                                        .notifier)
-                                                .setPlan(plan.plan);
-                                            ScaffoldMessenger.of(context)
-                                                .showSnackBar(
-                                              SnackBar(
-                                                content: Text(
-                                                    '✅ Plano ${plan.name} ativado!'),
-                                                backgroundColor: Theme.of(
-                                                        context)
-                                                    .colorScheme
-                                                    .secondaryContainer,
-                                              ),
-                                            );
-                                            context.pop();
-                                          },
-                                          child: const Text('Assinar Agora'),
-                                        ),
-                                ),
-                              ],
-                            ),
-                          ),
+                              ),
+                          ],
                         ),
-                      );
-                    }),
+                      )
+                    else
+                      ...PlanLimits.all.map((plan) => Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: _PlanCard(
+                              plan: plan,
+                              rows: _featureRows(plan),
+                              isSelected: currentPlan == plan.plan,
+                              isFeatured: plan.plan == SubscriptionPlan.pro,
+                              onSelect: () => _selectPlan(context, ref, plan),
+                            ),
+                          )),
                   ],
                 ),
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class _PlanCard extends StatelessWidget {
+  final PlanLimits plan;
+  final List<({String label, bool ok})> rows;
+  final bool isSelected;
+  final bool isFeatured;
+  final VoidCallback onSelect;
+
+  const _PlanCard({
+    required this.plan,
+    required this.rows,
+    required this.isSelected,
+    required this.isFeatured,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final accent = colorScheme.secondaryContainer;
+    final dark = isFeatured;
+    final fg = dark ? colorScheme.onPrimary : colorScheme.onSurface;
+    final fgMuted = dark
+        ? colorScheme.onPrimary.withValues(alpha: 0.7)
+        : colorScheme.onSurfaceVariant;
+
+    return Container(
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: dark
+            ? colorScheme.primary
+            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isSelected
+              ? accent
+              : (dark ? accent : colorScheme.outlineVariant),
+          width: isSelected || dark ? 2 : 1,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(plan.name,
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall
+                          ?.copyWith(color: fg)),
+                ),
+                if (isFeatured)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: accent,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text('MAIS POPULAR',
+                        style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w800,
+                            color: colorScheme.onSecondaryContainer)),
+                  )
+                else if (isSelected)
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 10, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: accent,
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text('ATUAL',
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            color: colorScheme.onSecondaryContainer)),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 4),
+            Text(plan.priceLabel,
+                style: Theme.of(context)
+                    .textTheme
+                    .displayLarge
+                    ?.copyWith(fontSize: 24, color: dark ? accent : fg)),
+            const SizedBox(height: 20),
+            ...rows.map((row) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    children: [
+                      Icon(
+                        row.ok ? Icons.check_circle_rounded : Icons.close_rounded,
+                        size: 16,
+                        color: row.ok
+                            ? (dark ? accent : colorScheme.primary)
+                            : fgMuted.withValues(alpha: 0.5),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(row.label,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyMedium
+                                ?.copyWith(color: row.ok ? fg : fgMuted)),
+                      ),
+                    ],
+                  ),
+                )),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: isSelected
+                  ? OutlinedButton(
+                      onPressed: null,
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: accent),
+                        foregroundColor: accent,
+                      ),
+                      child: const Text('Plano atual'),
+                    )
+                  : ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: accent,
+                        foregroundColor: colorScheme.onSecondaryContainer,
+                      ),
+                      onPressed: onSelect,
+                      child: Text(
+                          isFeatured ? 'Assinar Agora' : 'Selecionar'),
+                    ),
+            ),
+          ],
         ),
       ),
     );

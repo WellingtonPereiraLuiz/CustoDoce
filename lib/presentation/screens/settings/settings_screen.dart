@@ -13,6 +13,7 @@ import 'package:custo_doce/presentation/providers/ingredient_providers.dart';
 import 'package:custo_doce/core/providers/auth_provider.dart'
     as custo_doce_auth;
 import 'package:custo_doce/core/providers/guest_mode_provider.dart';
+import 'package:custo_doce/core/constants/layout_constants.dart';
 
 class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
@@ -30,15 +31,18 @@ class SettingsScreen extends ConsumerWidget {
     final onAccent = isDark
         ? Theme.of(context).colorScheme.primary
         : Theme.of(context).colorScheme.onPrimary;
+    final isDesktop = MediaQuery.of(context).size.width >= kDesktopBreakpoint;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(s.settingsTitle),
-        leading: const BackButton(),
-      ),
+      appBar: isDesktop
+          ? null
+          : AppBar(
+              title: Text(s.settingsTitle),
+              leading: const BackButton(),
+            ),
       body: Center(
           child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
+              constraints: BoxConstraints(maxWidth: isDesktop ? 720 : 600),
               child: settingsAsync.when(
                 loading: () => Center(
                   child: CircularProgressIndicator(
@@ -48,6 +52,13 @@ class SettingsScreen extends ConsumerWidget {
                 data: (settings) => ListView(
                   padding: const EdgeInsets.all(16),
                   children: [
+                    if (isDesktop) ...[
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Text(s.settingsTitle,
+                            style: Theme.of(context).textTheme.displayLarge),
+                      ),
+                    ],
                     if (ref.watch(guestModeProvider))
                       Card(
                         color: Theme.of(context).colorScheme.errorContainer,
