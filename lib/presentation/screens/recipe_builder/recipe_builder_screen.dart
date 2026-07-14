@@ -16,6 +16,7 @@ import 'dart:convert';
 import 'package:image_picker/image_picker.dart';
 import 'package:custo_doce/core/utils/price_utils.dart';
 import 'package:custo_doce/core/utils/plan_gate.dart';
+import 'package:custo_doce/core/constants/layout_constants.dart';
 
 class RecipeBuilderScreen extends ConsumerStatefulWidget {
   final String? editRecipeId;
@@ -197,28 +198,38 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
     final notifier = ref.read(recipeBuilderProvider.notifier);
     final ingredientsAsync = ref.watch(ingredientsProvider);
     final ingredients = ingredientsAsync.valueOrNull ?? [];
+    final isDesktop = MediaQuery.of(context).size.width >= kDesktopBreakpoint;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
             widget.editRecipeId != null ? 'Editar Receita' : 'Nova Receita'),
         actions: [
-          TextButton(
-            onPressed: _isSaving ? null : _save,
-            child: _isSaving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : Text('Salvar',
-                    style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold)),
-          ),
+          if (!isDesktop)
+            TextButton(
+              onPressed: _isSaving ? null : _save,
+              child: _isSaving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : Text('Salvar',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold)),
+            ),
           const SizedBox(width: 8),
         ],
       ),
-      body: Align(
+      body: isDesktop
+          ? _buildDesktopBody(context, state, notifier, ingredients)
+          : _buildMobileBody(context, state, notifier, ingredients),
+    );
+  }
+
+  Widget _buildMobileBody(BuildContext context, RecipeBuilderState state,
+      RecipeBuilderNotifier notifier, List<IngredientEntity> ingredients) {
+    return Align(
         alignment: Alignment.topCenter,
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
@@ -227,6 +238,77 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
             child: ListView(
               padding: const EdgeInsets.all(16),
               children: [
+                ..._buildFormFields(context, state, notifier, ingredients),
+                const SizedBox(height: 32),
+                _PricingDashboard(
+                    state: state, currencyFormat: _currencyFormat),
+                const SizedBox(height: 48),
+              ],
+            ),
+          ),
+        ));
+  }
+
+  Widget _buildDesktopBody(BuildContext context, RecipeBuilderState state,
+      RecipeBuilderNotifier notifier, List<IngredientEntity> ingredients) {
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: kDesktopContentMaxWidth),
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Form(
+            key: _formKey,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  flex: 2,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Criador de Receitas',
+                            style: Theme.of(context).textTheme.displayLarge),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Escalando sua produção artesanal com modelagem financeira precisa.',
+                          style: Theme.of(context)
+                              .textTheme
+                              .bodyLarge
+                              ?.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant),
+                        ),
+                        const SizedBox(height: 24),
+                        ..._buildFormFields(
+                            context, state, notifier, ingredients),
+                        const SizedBox(height: 48),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 24),
+                SizedBox(
+                  width: 340,
+                  child: _DesktopPricingPanel(
+                    state: state,
+                    currencyFormat: _currencyFormat,
+                    isSaving: _isSaving,
+                    onSave: _save,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildFormFields(BuildContext context, RecipeBuilderState state,
+      RecipeBuilderNotifier notifier, List<IngredientEntity> ingredients) {
+    return [
                 Center(
                   child: GestureDetector(
                       onTap: _pickImage,
@@ -525,18 +607,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   onChanged: (v) =>
                       notifier.setSellingPrice(double.tryParse(v)),
                 ),
-                const SizedBox(height: 32),
-
-                // Dashboard Chart
-                _PricingDashboard(
-                    state: state, currencyFormat: _currencyFormat),
-                const SizedBox(height: 48),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
+    ];
   }
 }
 
@@ -573,6 +644,185 @@ class _SectionHeader extends StatelessWidget {
         const SizedBox(width: 12),
         const Expanded(child: Divider()),
       ],
+    );
+  }
+}
+
+/// Painel fixo "Resumo Financeiro" do layout desktop (réplica de
+/// `criador_de_receitas_custodoce_v2_desktop`), com os mesmos valores já
+/// calculados pelo `recipeBuilderProvider` — nenhum cálculo novo.
+class _DesktopPricingPanel extends StatelessWidget {
+  final RecipeBuilderState state;
+  final NumberFormat currencyFormat;
+  final bool isSaving;
+  final VoidCallback onSave;
+
+  const _DesktopPricingPanel({
+    required this.state,
+    required this.currencyFormat,
+    required this.isSaving,
+    required this.onSave,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final suggestedPrice = PriceUtils.roundSuggestedPrice(state.finalPrice);
+    final finalPrice = state.sellingPrice ?? suggestedPrice;
+    final pricePerUnit =
+        state.yieldQuantity > 0 ? finalPrice / state.yieldQuantity : finalPrice;
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: colorScheme.primary,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Resumo Financeiro',
+              style: Theme.of(context)
+                  .textTheme
+                  .headlineSmall
+                  ?.copyWith(color: colorScheme.onPrimary)),
+          const SizedBox(height: 20),
+          _DesktopStatRow('Custo Bruto',
+              state.totalIngredientsCost + state.fixedOperationalCost,
+              currencyFormat, colorScheme.onPrimary.withValues(alpha: 0.7)),
+          _DesktopStatRow('Custo Invisível', state.invisibleCost,
+              currencyFormat, colorScheme.onPrimary.withValues(alpha: 0.7)),
+          const SizedBox(height: 8),
+          Divider(color: colorScheme.onPrimary.withValues(alpha: 0.15)),
+          const SizedBox(height: 8),
+          _DesktopStatRow('Custo Líquido Total', state.totalCost,
+              currencyFormat, colorScheme.onPrimary,
+              isBold: true),
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.onPrimary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Preço Sugerido',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: colorScheme.onPrimary.withValues(alpha: 0.7))),
+                Text(currencyFormat.format(suggestedPrice),
+                    style: Theme.of(context)
+                        .textTheme
+                        .displayLarge
+                        ?.copyWith(
+                            fontSize: 26,
+                            color: colorScheme.secondaryContainer)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Expanded(
+                child: _DesktopMiniStat(
+                  label: 'Lucro Líquido',
+                  value: currencyFormat.format(state.netProfit),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _DesktopMiniStat(
+                  label: 'Preço Unitário',
+                  value: currencyFormat.format(pricePerUnit),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: isSaving ? null : onSave,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.secondaryContainer,
+                foregroundColor: colorScheme.onSecondaryContainer,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+              ),
+              child: isSaving
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Text('Finalizar e Salvar Receita'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _DesktopStatRow extends StatelessWidget {
+  final String label;
+  final double value;
+  final NumberFormat format;
+  final Color color;
+  final bool isBold;
+
+  const _DesktopStatRow(this.label, this.value, this.format, this.color,
+      {this.isBold = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: color,
+                  fontWeight: isBold ? FontWeight.w700 : FontWeight.w400)),
+          Text(format.format(value),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: color,
+                  fontWeight: isBold ? FontWeight.w700 : FontWeight.w400)),
+        ],
+      ),
+    );
+  }
+}
+
+class _DesktopMiniStat extends StatelessWidget {
+  final String label;
+  final String value;
+
+  const _DesktopMiniStat({required this.label, required this.value});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: colorScheme.onPrimary.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label,
+              style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                  color: colorScheme.onPrimary.withValues(alpha: 0.7))),
+          const SizedBox(height: 4),
+          Text(value,
+              style: Theme.of(context)
+                  .textTheme
+                  .bodyLarge
+                  ?.copyWith(color: colorScheme.onPrimary, fontWeight: FontWeight.w700)),
+        ],
+      ),
     );
   }
 }
