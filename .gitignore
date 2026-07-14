@@ -50,3 +50,6 @@ app.*.map.json
 
 # Android Google Services
 android/app/google-services.json
+
+# Firebase CLI local cache (deploy hashes, machine-specific)
+/.firebase/
