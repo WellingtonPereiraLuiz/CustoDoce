@@ -46,8 +46,6 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
         return 'Bebidas';
       case RecipeCategory.outro:
         return 'Outros';
-      default:
-        return 'Outros';
     }
   }
 
@@ -112,7 +110,10 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
     buffer.writeln('Calculado com CustoDoce 🍬');
     buffer.writeln('custodoce-b07ce.web.app');
 
-    await Share.share(buffer.toString(), subject: 'Meu Cardápio — CustoDoce');
+    await SharePlus.instance.share(ShareParams(
+      text: buffer.toString(),
+      subject: 'Meu Cardápio — CustoDoce',
+    ));
   }
 
   Future<void> _exportAsJpg() async {
@@ -127,16 +128,19 @@ class _DigitalMenuScreenState extends ConsumerState<DigitalMenuScreen> {
       return;
     }
 
+    final messenger = ScaffoldMessenger.of(context);
     try {
       final image = await _screenshotController.capture(pixelRatio: 2.0);
       if (image == null) return;
       final dir = await getTemporaryDirectory();
       final file =
           await File('${dir.path}/cardapio_custodoce.png').writeAsBytes(image);
-      await Share.shareXFiles([XFile(file.path)],
-          text: 'Meu cardápio CustoDoce');
+      await SharePlus.instance.share(ShareParams(
+        files: [XFile(file.path)],
+        text: 'Meu cardápio CustoDoce',
+      ));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
+      messenger.showSnackBar(
         SnackBar(content: Text('Erro ao exportar imagem: $e')),
       );
     }

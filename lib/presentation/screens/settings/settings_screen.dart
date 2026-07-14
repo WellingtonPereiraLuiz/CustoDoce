@@ -158,7 +158,7 @@ class SettingsScreen extends ConsumerWidget {
                           ),
                           child: Text(
                             currentPlan.name.toUpperCase(),
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: AppTheme.successColor,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w800),
@@ -178,7 +178,7 @@ class SettingsScreen extends ConsumerWidget {
                       subtitle: 'Link compartilhável com seus produtos',
                       trailing: currentPlan.hasDigitalMenu
                           ? Icon(Icons.chevron_right_rounded, color: accent)
-                          : Icon(Icons.lock_outline_rounded,
+                          : const Icon(Icons.lock_outline_rounded,
                               size: 18, color: AppTheme.secondaryColor),
                       onTap: () {
                         if (PlanGate.checkFeature(
@@ -201,7 +201,7 @@ class SettingsScreen extends ConsumerWidget {
                       subtitle: 'Sincronize seus dados com segurança',
                       trailing: currentPlan.hasCloudBackup
                           ? Icon(Icons.chevron_right_rounded, color: accent)
-                          : Icon(Icons.lock_outline_rounded,
+                          : const Icon(Icons.lock_outline_rounded,
                               size: 18, color: AppTheme.secondaryColor),
                       onTap: () {
                         PlanGate.checkFeature(
@@ -254,7 +254,7 @@ class SettingsScreen extends ConsumerWidget {
                       iconColor: AppTheme.errorColor,
                       title: s.clearAllData,
                       subtitle: 'Apagar todas as receitas e ingredientes',
-                      trailing: Icon(Icons.chevron_right_rounded,
+                      trailing: const Icon(Icons.chevron_right_rounded,
                           color: AppTheme.errorColor),
                       onTap: () => _confirmClearData(context, ref, s),
                       cardBg: cardBg,
@@ -266,7 +266,7 @@ class SettingsScreen extends ConsumerWidget {
                       iconColor: AppTheme.errorColor,
                       title: 'Sair da Conta',
                       subtitle: 'Desconectar do aplicativo',
-                      trailing: Icon(Icons.chevron_right_rounded,
+                      trailing: const Icon(Icons.chevron_right_rounded,
                           color: AppTheme.errorColor),
                       onTap: () async {
                         final auth =
@@ -293,7 +293,8 @@ class SettingsScreen extends ConsumerWidget {
         title: Row(
           children: [
             Image.asset('assets/images/CustoDoce.png',
-                height: 40, errorBuilder: (_, __, ___) => Icon(Icons.cake)),
+                height: 40,
+                errorBuilder: (_, __, ___) => const Icon(Icons.cake)),
             const SizedBox(width: 12),
             const Text('CustoDoce'),
           ],

@@ -65,8 +65,9 @@ class IngredientManagerScreen extends ConsumerWidget {
                           Builder(builder: (context) {
                             final plan = ref.read(currentPlanProvider);
                             final count = ingredients.length;
-                            if (plan.isUnlimitedIngredients)
+                            if (plan.isUnlimitedIngredients) {
                               return const SizedBox.shrink();
+                            }
                             final isAtLimit = count >= plan.ingredientLimit;
                             final errorColor =
                                 Theme.of(context).colorScheme.error;

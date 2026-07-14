@@ -99,8 +99,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         decoration: const InputDecoration(labelText: 'Nome'),
                         textCapitalization: TextCapitalization.words,
                         validator: (value) {
-                          if (value == null || value.trim().length < 2)
+                          if (value == null || value.trim().length < 2) {
                             return 'Nome deve ter pelo menos 2 caracteres';
+                          }
                           return null;
                         },
                       ),
@@ -111,8 +112,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             const InputDecoration(labelText: 'Sobrenome'),
                         textCapitalization: TextCapitalization.words,
                         validator: (value) {
-                          if (value == null || value.trim().length < 2)
+                          if (value == null || value.trim().length < 2) {
                             return 'Sobrenome deve ter pelo menos 2 caracteres';
+                          }
                           return null;
                         },
                       ),
@@ -122,10 +124,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         decoration: const InputDecoration(labelText: 'Email'),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Informe o email';
-                          if (!value.contains('@') || !value.contains('.'))
+                          }
+                          if (!value.contains('@') || !value.contains('.')) {
                             return 'Email inválido';
+                          }
                           return null;
                         },
                       ),
@@ -135,10 +139,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                         decoration: const InputDecoration(labelText: 'Senha'),
                         obscureText: true,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Informe a senha';
-                          if (value.length < 6)
+                          }
+                          if (value.length < 6) {
                             return 'A senha deve ter no mínimo 6 caracteres';
+                          }
                           return null;
                         },
                       ),
@@ -149,8 +155,9 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                             const InputDecoration(labelText: 'Confirmar Senha'),
                         obscureText: true,
                         validator: (value) {
-                          if (value != _passwordController.text)
+                          if (value != _passwordController.text) {
                             return 'As senhas não coincidem';
+                          }
                           return null;
                         },
                       ),

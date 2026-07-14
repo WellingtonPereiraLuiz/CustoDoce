@@ -109,8 +109,9 @@ class HomeScreen extends ConsumerWidget {
                                 final plan = ref.read(currentPlanProvider);
                                 final recipeCount =
                                     recipesAsync.valueOrNull?.length ?? 0;
-                                if (plan.isUnlimitedRecipes)
+                                if (plan.isUnlimitedRecipes) {
                                   return const SizedBox.shrink();
+                                }
                                 final isAtLimit =
                                     recipeCount >= plan.recipeLimit;
                                 return Align(

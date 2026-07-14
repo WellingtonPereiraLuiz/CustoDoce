@@ -305,10 +305,9 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                   ],
                 ),
                 const SizedBox(height: 24),
-                const SizedBox(height: 24),
 
                 // Ingredients
-                _SectionHeader(
+                const _SectionHeader(
                     title: 'Ingredientes Base', icon: Icons.kitchen_rounded),
                 const SizedBox(height: 12),
                 Row(
@@ -506,7 +505,7 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
                 const SizedBox(height: 32),
 
                 // Selling Price
-                _SectionHeader(
+                const _SectionHeader(
                     title: 'Preço de Venda', icon: Icons.sell_rounded),
                 const SizedBox(height: 12),
                 TextFormField(

@@ -30,21 +30,20 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _isLoading = true);
+    final redirectTarget = _resolveRedirectTarget();
+    final router = GoRouter.of(context);
+    final messenger = ScaffoldMessenger.of(context);
     try {
       final authService = ref.read(authServiceProvider);
       await authService.signIn(
           _emailController.text.trim(), _passwordController.text);
-      if (mounted) {
-        ref.read(guestModeProvider.notifier).state = false;
-        context.go(_resolveRedirectTarget());
-      }
+      ref.read(guestModeProvider.notifier).state = false;
+      router.go(redirectTarget);
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-              content: Text('Erro: $e'), backgroundColor: AppTheme.errorColor),
-        );
-      }
+      messenger.showSnackBar(
+        SnackBar(
+            content: Text('Erro: $e'), backgroundColor: AppTheme.errorColor),
+      );
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
@@ -99,10 +98,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         decoration: const InputDecoration(labelText: 'Email'),
                         keyboardType: TextInputType.emailAddress,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Informe o email';
-                          if (!value.contains('@') || !value.contains('.'))
+                          }
+                          if (!value.contains('@') || !value.contains('.')) {
                             return 'Email inválido';
+                          }
                           return null;
                         },
                       ),
@@ -112,10 +113,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                         decoration: const InputDecoration(labelText: 'Senha'),
                         obscureText: true,
                         validator: (value) {
-                          if (value == null || value.isEmpty)
+                          if (value == null || value.isEmpty) {
                             return 'Informe a senha';
-                          if (value.length < 6)
+                          }
+                          if (value.length < 6) {
                             return 'A senha deve ter no mínimo 6 caracteres';
+                          }
                           return null;
                         },
                       ),
@@ -165,13 +168,13 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             final cred = await ref
                                 .read(authServiceProvider)
                                 .signInWithGoogle();
-                            if (cred != null && mounted) {
+                            if (cred != null && context.mounted) {
                               ref.read(guestModeProvider.notifier).state =
                                   false;
                               context.go(_resolveRedirectTarget());
                             }
                           } catch (e) {
-                            if (mounted) {
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                     content:
@@ -182,7 +185,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                             if (mounted) setState(() => _isLoading = false);
                           }
                         },
-                  icon: Icon(Icons.g_mobiledata_rounded, size: 32),
+                  icon: const Icon(Icons.g_mobiledata_rounded, size: 32),
                   label: const Text('Entrar com Google'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),

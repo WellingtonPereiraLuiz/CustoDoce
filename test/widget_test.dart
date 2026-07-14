@@ -144,18 +144,15 @@ void main() {
   });
 
   group('Autenticação e modo visitante', () {
+    bool canAccessPaywall(bool isGuest, bool isLoggedIn) =>
+        !isGuest && isLoggedIn;
+
     test('visitante não pode acessar paywall', () {
-      const isGuest = true;
-      const isLoggedIn = false;
-      const canAccessPaywall = !isGuest && isLoggedIn;
-      expect(canAccessPaywall, isFalse);
+      expect(canAccessPaywall(true, false), isFalse);
     });
 
     test('usuário logado pode acessar paywall', () {
-      const isGuest = false;
-      const isLoggedIn = true;
-      const canAccessPaywall = !isGuest && isLoggedIn;
-      expect(canAccessPaywall, isTrue);
+      expect(canAccessPaywall(false, true), isTrue);
     });
   });
 
@@ -207,7 +204,6 @@ void main() {
     });
 
     test('preço exibido usa sellingPrice se definido', () {
-      const sugerido = 15.0;
       const sellingPrice = 18.0;
       const exibido = sellingPrice;
       expect(exibido, equals(18.0));
