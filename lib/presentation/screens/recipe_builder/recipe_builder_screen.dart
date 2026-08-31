@@ -204,26 +204,18 @@ class _RecipeBuilderScreenState extends ConsumerState<RecipeBuilderScreen> {
       appBar: AppBar(
         title: Text(
             widget.editRecipeId != null ? 'Editar Receita' : 'Nova Receita'),
-        actions: [
-          if (!isDesktop)
-            TextButton(
-              onPressed: _isSaving ? null : _save,
-              child: _isSaving
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : Text('Salvar',
-                      style: TextStyle(
-                          color: Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold)),
-            ),
-          const SizedBox(width: 8),
-        ],
       ),
       body: isDesktop
           ? _buildDesktopBody(context, state, notifier, ingredients)
           : _buildMobileBody(context, state, notifier, ingredients),
+      bottomNavigationBar: !isDesktop
+          ? _MobileBottomPanel(
+              state: state,
+              currencyFormat: _currencyFormat,
+              isSaving: _isSaving,
+              onSave: _save,
+            )
+          : null,
     );
   }
 
@@ -1036,6 +1028,113 @@ class _NumericInputState extends State<_NumericInput> {
           widget.onChanged(val);
         }
       },
+    );
+  }
+}
+
+class _MobileBottomPanel extends StatelessWidget {
+  final RecipeBuilderState state;
+  final NumberFormat currencyFormat;
+  final bool isSaving;
+  final VoidCallback onSave;
+
+  const _MobileBottomPanel({
+    required this.state,
+    required this.currencyFormat,
+    required this.isSaving,
+    required this.onSave,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final totalPrice = state.sellingPrice ?? PriceUtils.roundSuggestedPrice(state.finalPrice);
+    final finalPricePerUnit = state.yieldQuantity > 0 ? totalPrice / state.yieldQuantity : totalPrice;
+
+    return Container(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 12,
+        bottom: MediaQuery.of(context).padding.bottom > 0
+            ? MediaQuery.of(context).padding.bottom
+            : 24,
+      ),
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainer,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+        boxShadow: [
+          BoxShadow(
+            color: colorScheme.shadow.withValues(alpha: 0.08),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
+          ),
+        ],
+        border: Border(
+          top: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.2)),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('CUSTO ESTIMADO',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          letterSpacing: 1.2)),
+                  Text(currencyFormat.format(state.totalCost),
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                          color: colorScheme.primary,
+                          fontWeight: FontWeight.bold)),
+                ],
+              ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text('Preço por porção (${state.yieldQuantity})',
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant)),
+                  Text(currencyFormat.format(finalPricePerUnit),
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: colorScheme.secondary,
+                          fontWeight: FontWeight.w600)),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: isSaving ? null : onSave,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: colorScheme.primary,
+                foregroundColor: colorScheme.onPrimary,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              icon: isSaving
+                  ? SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2, color: colorScheme.onPrimary))
+                  : const Icon(Icons.check_circle, size: 20),
+              label: const Text(
+                'Salvar Receita',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

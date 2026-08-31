@@ -212,7 +212,7 @@ class _WebPlanSelector extends ConsumerWidget {
                     else
                       ...PlanLimits.all.map((plan) => Padding(
                             padding: const EdgeInsets.only(bottom: 16),
-                            child: _PlanCard(
+                            child: _V2MobilePlanCard(
                               plan: plan,
                               rows: _featureRows(plan),
                               isSelected: currentPlan == plan.plan,
@@ -371,3 +371,121 @@ class _PlanCard extends StatelessWidget {
     );
   }
 }
+
+class _V2MobilePlanCard extends StatelessWidget {
+  final PlanLimits plan;
+  final List<({String label, bool ok})> rows;
+  final bool isSelected;
+  final bool isFeatured;
+  final VoidCallback onSelect;
+
+  const _V2MobilePlanCard({
+    required this.plan,
+    required this.rows,
+    required this.isSelected,
+    required this.isFeatured,
+    required this.onSelect,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: isFeatured ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.outlineVariant,
+          width: isFeatured ? 2 : 1,
+        ),
+        boxShadow: isFeatured ? [BoxShadow(color: Colors.black.withValues(alpha: 0.12), blurRadius: 24, offset: const Offset(0, 8))] : null,
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isFeatured) const SizedBox(height: 12),
+                Text(plan.name, style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)),
+                const SizedBox(height: 4),
+                Text('Para o seu negócio', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                const SizedBox(height: 16),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(plan.priceLabel, style: Theme.of(context).textTheme.displaySmall?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary, fontSize: 26)),
+                    if (plan.plan != SubscriptionPlan.free)
+                      Text('/mês', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: isFeatured ? Theme.of(context).colorScheme.primaryContainer : Colors.transparent,
+                      foregroundColor: isFeatured ? Theme.of(context).colorScheme.onPrimary : Theme.of(context).colorScheme.primaryContainer,
+                      elevation: 0,
+                      side: isFeatured ? null : BorderSide(color: Theme.of(context).colorScheme.primaryContainer, width: 2),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    onPressed: isSelected ? null : onSelect,
+                    child: Text(isSelected ? 'Plano atual' : 'Assinar Agora', style: const TextStyle(fontWeight: FontWeight.bold)),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Divider(color: Theme.of(context).colorScheme.outlineVariant),
+                const SizedBox(height: 16),
+                ...rows.map((row) => Padding(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  child: Row(
+                    children: [
+                      Icon(
+                        row.ok ? Icons.check_circle : Icons.cancel,
+                        size: 20,
+                        color: row.ok ? Theme.of(context).colorScheme.secondaryContainer : Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(row.label, style: Theme.of(context).textTheme.bodyMedium),
+                      ),
+                    ],
+                  ),
+                )),
+              ],
+            ),
+          ),
+          if (isFeatured)
+            Positioned(
+              top: -12,
+              left: 0,
+              right: 0,
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.secondaryContainer,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Text(
+                    'MAIS POPULAR',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onSecondary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+

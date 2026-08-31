@@ -27,13 +27,6 @@ class SettingsScreen extends ConsumerWidget {
     final currentPlan = ref.watch(currentPlanProvider);
     final isFree = currentPlan.plan == SubscriptionPlan.free;
     final s = AppStrings(Localizations.localeOf(context));
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final cardBg = Theme.of(context).colorScheme.surfaceContainerHighest;
-    final accent =
-        isDark ? AppTheme.accentWarm : Theme.of(context).colorScheme.primary;
-    final onAccent = isDark
-        ? Theme.of(context).colorScheme.primary
-        : Theme.of(context).colorScheme.onPrimary;
 
     return Scaffold(
       appBar: AppBar(
@@ -49,244 +42,259 @@ class SettingsScreen extends ConsumerWidget {
                       color: Theme.of(context).colorScheme.primary),
                 ),
                 error: (e, _) => Center(child: Text('Erro: $e')),
-                data: (settings) => ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    if (ref.watch(guestModeProvider))
-                      Card(
-                        color: Theme.of(context).colorScheme.errorContainer,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            children: [
-                              Text(
-                                'Você está usando sem login. Faça login para sincronizar seus dados.',
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onErrorContainer),
-                              ),
-                              const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: () {
-                                  ref.read(guestModeProvider.notifier).state =
-                                      false;
-                                  context.go('/login');
-                                },
-                                child: const Text('Fazer login'),
-                              ),
-                            ],
+                data: (settings) {
+                  final isGuest = ref.watch(guestModeProvider);
+                  final user = ref.watch(custo_doce_auth.currentUserProvider);
+                  final displayName = (user?.displayName?.trim().isNotEmpty ?? false)
+                      ? user!.displayName!.trim()
+                      : (isGuest ? 'Visitante' : 'Chef');
+                  final email = user?.email ?? (isGuest ? 'Sem login' : 'chef@email.com');
+
+                  return ListView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                    children: [
+                      if (isGuest)
+                        Card(
+                          color: Theme.of(context).colorScheme.errorContainer,
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  'Você está usando sem login. Faça login para sincronizar seus dados.',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Theme.of(context).colorScheme.onErrorContainer),
+                                ),
+                                const SizedBox(height: 8),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    ref.read(guestModeProvider.notifier).state = false;
+                                    context.go('/login');
+                                  },
+                                  child: const Text('Fazer login'),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
+                      if (isGuest) const SizedBox(height: 24),
+                      // User Profile Snapshot
+                      Center(
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 96,
+                              height: 96,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Theme.of(context).colorScheme.surfaceContainer,
+                                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+                              ),
+                              child: Center(
+                                child: Icon(Icons.person, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant),
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(displayName, style: Theme.of(context).textTheme.headlineMedium?.copyWith(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold)),
+                            const SizedBox(height: 4),
+                            Text(email, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+                            const SizedBox(height: 8),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).colorScheme.secondaryContainer,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Text(isFree ? 'Plano Light' : 'Plano ${currentPlan.name}', style: TextStyle(color: Theme.of(context).colorScheme.onSecondaryContainer, fontSize: 12, fontWeight: FontWeight.bold)),
+                            ),
+                          ],
+                        ),
                       ),
-                    if (ref.watch(guestModeProvider))
                       const SizedBox(height: 24),
-                    // ── Appearance ──────────────────────────────────────────
-                    _SectionHeader(
-                        title: s.appearance, icon: Icons.palette_outlined),
-                    const SizedBox(height: 12),
-                    _ThemeSelector(
-                      currentMode: settings.themeMode,
-                      s: s,
-                      onSelect: (mode) => ref
-                          .read(settingsProvider.notifier)
-                          .setThemeMode(mode),
-                    ),
-                    const SizedBox(height: 24),
-
-                    // ── Account ─────────────────────────────────────────────
-                    const _SectionHeader(
-                        title: 'Conta', icon: Icons.person_outline_rounded),
-                    const SizedBox(height: 12),
-                    _SettingsTile(
-                      icon: Icons.badge_outlined,
-                      iconColor: accent,
-                      title: 'Informações Pessoais',
-                      subtitle: 'Nome, sobrenome e email',
-                      trailing: Icon(Icons.chevron_right_rounded,
-                          color: accent),
-                      onTap: () => context.push('/settings/personal-info'),
-                      cardBg: cardBg,
-                    ),
-                    const SizedBox(height: 8),
-                    _SettingsTile(
-                      icon: Icons.lock_outline_rounded,
-                      iconColor: accent,
-                      title: 'Alterar Senha',
-                      subtitle: 'Atualize sua senha de acesso',
-                      trailing: Icon(Icons.chevron_right_rounded,
-                          color: accent),
-                      onTap: () => context.push('/settings/change-password'),
-                      cardBg: cardBg,
-                    ),
-                    const SizedBox(height: 8),
-                    if (isFree)
-                      _SettingsTile(
-                        icon: Icons.workspace_premium_rounded,
-                        iconColor: accent,
-                        title: s.upgradeToPro,
-                        subtitle: s.upgradeDescription,
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: accent,
-                            borderRadius: BorderRadius.circular(8),
+                      // Settings Groups
+                      _V2SettingsGroup(
+                        title: 'Perfil',
+                        children: [
+                          _V2SettingsTile(
+                            icon: Icons.person,
+                            title: 'Informações Pessoais',
+                            onTap: () => context.push('/settings/personal-info'),
                           ),
-                          child: Text(
-                            'LIGHT',
-                            style: TextStyle(
-                                color: onAccent,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800),
+                          _V2SettingsTile(
+                            icon: Icons.payments,
+                            title: 'Assinatura e Pagamento',
+                            onTap: () => PlanGate.navigateToPaywall(context, ref),
                           ),
-                        ),
-                        onTap: () => PlanGate.navigateToPaywall(context, ref),
-                        cardBg: cardBg,
-                      )
-                    else
-                      _SettingsTile(
-                        icon: Icons.verified_rounded,
-                        iconColor: AppTheme.successColor,
-                        title: 'Plano ${currentPlan.name}',
-                        subtitle: 'Toque para gerenciar ou trocar de plano',
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 10, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: AppTheme.successColor.withAlpha(20),
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                                color: AppTheme.successColor.withAlpha(80)),
-                          ),
-                          child: Text(
-                            currentPlan.name.toUpperCase(),
-                            style: const TextStyle(
-                                color: AppTheme.successColor,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800),
-                          ),
-                        ),
-                        onTap: () => PlanGate.navigateToPaywall(context, ref),
-                        cardBg: cardBg,
-                        titleColor: Theme.of(context).colorScheme.onSurface,
+                        ],
                       ),
-                    const SizedBox(height: 12),
-                    // ── Features Pro/Premium (protegidas por gates) ─────────
-                    const SizedBox(height: 8),
-                    _SettingsTile(
-                      icon: Icons.restaurant_menu_rounded,
-                      iconColor: accent,
-                      title: 'Cardápio Digital',
-                      subtitle: 'Link compartilhável com seus produtos',
-                      trailing: currentPlan.hasDigitalMenu
-                          ? Icon(Icons.chevron_right_rounded, color: accent)
-                          : const Icon(Icons.lock_outline_rounded,
-                              size: 18, color: AppTheme.secondaryColor),
-                      onTap: () {
-                        if (PlanGate.checkFeature(
-                          context: context,
-                          ref: ref,
-                          hasAccess: currentPlan.hasDigitalMenu,
-                          featureName: 'Cardápio digital',
-                          requiredPlan: 'Pro',
-                        )) {
-                          context.push('/menu');
-                        }
-                      },
-                      cardBg: cardBg,
-                    ),
-                    const SizedBox(height: 8),
-                    _SettingsTile(
-                      icon: Icons.cloud_sync_rounded,
-                      iconColor: accent,
-                      title: 'Backup em Nuvem',
-                      subtitle: 'Sincronize seus dados com segurança',
-                      trailing: currentPlan.hasCloudBackup
-                          ? Icon(Icons.chevron_right_rounded, color: accent)
-                          : const Icon(Icons.lock_outline_rounded,
-                              size: 18, color: AppTheme.secondaryColor),
-                      onTap: () {
-                        PlanGate.checkFeature(
-                          context: context,
-                          ref: ref,
-                          hasAccess: currentPlan.hasCloudBackup,
-                          featureName: 'Backup em nuvem',
-                          requiredPlan: 'Pro',
-                        );
-                      },
-                      cardBg: cardBg,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // ── About ───────────────────────────────────────────────
-                    _SectionHeader(
-                        title: s.about, icon: Icons.info_outline_rounded),
-                    const SizedBox(height: 12),
-                    _SettingsTile(
-                      icon: Icons.info_outline_rounded,
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      title: 'Sobre o CustoDoce',
-                      subtitle: 'Versão, como usar e informações',
-                      trailing: Icon(Icons.chevron_right_rounded,
-                          color: Theme.of(context).colorScheme.primary),
-                      onTap: () => showAppAboutDialog(context, s),
-                      cardBg: cardBg,
-                      titleColor: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    const SizedBox(height: 8),
-                    _SettingsTile(
-                      icon: Icons.help_outline_rounded,
-                      iconColor: Theme.of(context).colorScheme.primary,
-                      title: 'Central de Ajuda',
-                      subtitle: 'Perguntas frequentes e suporte',
-                      trailing: Icon(Icons.chevron_right_rounded,
-                          color: Theme.of(context).colorScheme.primary),
-                      onTap: () => showHelpCenterDialog(context),
-                      cardBg: cardBg,
-                      titleColor: Theme.of(context).colorScheme.onSurface,
-                    ),
-                    const SizedBox(height: 24),
-
-                    // ── Data & Privacy ──────────────────────────────────────
-                    _SectionHeader(
-                        title: s.dataAndPrivacy, icon: Icons.security_rounded),
-                    const SizedBox(height: 12),
-                    _SettingsTile(
-                      icon: Icons.delete_forever_rounded,
-                      iconColor: AppTheme.errorColor,
-                      title: s.clearAllData,
-                      subtitle: 'Apagar todas as receitas e ingredientes',
-                      trailing: const Icon(Icons.chevron_right_rounded,
-                          color: AppTheme.errorColor),
-                      onTap: () => confirmClearData(context, ref, s),
-                      cardBg: cardBg,
-                      titleColor: AppTheme.errorColor,
-                    ),
-                    const SizedBox(height: 24),
-                    _SettingsTile(
-                      icon: Icons.logout_rounded,
-                      iconColor: AppTheme.errorColor,
-                      title: 'Sair da Conta',
-                      subtitle: 'Desconectar do aplicativo',
-                      trailing: const Icon(Icons.chevron_right_rounded,
-                          color: AppTheme.errorColor),
-                      onTap: () async {
-                        final auth =
-                            ref.read(custo_doce_auth.authServiceProvider);
-                        await auth.signOut();
-                        if (context.mounted) {
-                          context.go('/login');
-                        }
-                      },
-                      cardBg: cardBg,
-                      titleColor: AppTheme.errorColor,
-                    ),
-                    const SizedBox(height: 48),
-                  ],
-                ),
+                      const SizedBox(height: 16),
+                      _V2SettingsGroup(
+                        title: 'Preferências do App',
+                        children: [
+                          _V2SettingsTile(
+                            icon: Icons.dark_mode,
+                            title: 'Tema',
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(settings.themeMode == ThemeMode.light ? 'Claro' : (settings.themeMode == ThemeMode.dark ? 'Escuro' : 'Sistema')),
+                                const Icon(Icons.chevron_right, size: 20),
+                              ],
+                            ),
+                            onTap: () {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  title: const Text('Escolher Tema'),
+                                  content: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      ListTile(
+                                        title: const Text('Sistema'),
+                                        onTap: () {
+                                          ref.read(settingsProvider.notifier).setThemeMode(ThemeMode.system);
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                      ListTile(
+                                        title: const Text('Claro'),
+                                        onTap: () {
+                                          ref.read(settingsProvider.notifier).setThemeMode(ThemeMode.light);
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                      ListTile(
+                                        title: const Text('Escuro'),
+                                        onTap: () {
+                                          ref.read(settingsProvider.notifier).setThemeMode(ThemeMode.dark);
+                                          Navigator.pop(context);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _V2SettingsGroup(
+                        title: 'Segurança',
+                        children: [
+                          _V2SettingsTile(
+                            icon: Icons.lock,
+                            title: 'Alterar Senha',
+                            onTap: () => context.push('/settings/change-password'),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      _V2SettingsGroup(
+                        title: 'Suporte',
+                        children: [
+                          _V2SettingsTile(
+                            icon: Icons.help_center,
+                            title: 'Central de Ajuda',
+                            onTap: () => showHelpCenterDialog(context),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      OutlinedButton.icon(
+                        onPressed: () async {
+                          final auth = ref.read(custo_doce_auth.authServiceProvider);
+                          await auth.signOut();
+                          if (context.mounted) {
+                            context.go('/login');
+                          }
+                        },
+                        icon: const Icon(Icons.logout),
+                        label: const Text('Sair da Conta'),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Theme.of(context).colorScheme.error,
+                          side: BorderSide(color: Theme.of(context).colorScheme.error),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        ),
+                      ),
+                      const SizedBox(height: 48),
+                    ],
+                  );
+                },
               ))),
+    );
+  }
+}
+
+class _V2SettingsGroup extends StatelessWidget {
+  final String title;
+  final List<Widget> children;
+  
+  const _V2SettingsGroup({required this.title, required this.children});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLowest,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surfaceContainerLow,
+              borderRadius: const BorderRadius.only(topLeft: Radius.circular(12), topRight: Radius.circular(12)),
+              border: Border(bottom: BorderSide(color: Theme.of(context).colorScheme.outlineVariant)),
+            ),
+            child: Text(title.toUpperCase(), style: Theme.of(context).textTheme.labelMedium?.copyWith(fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant)),
+          ),
+          ...children.asMap().entries.map((e) {
+            final idx = e.key;
+            final widget = e.value;
+            return Column(
+              children: [
+                widget,
+                if (idx < children.length - 1)
+                  Divider(height: 1, color: Theme.of(context).colorScheme.outlineVariant),
+              ],
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+class _V2SettingsTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final Widget? trailing;
+  final VoidCallback onTap;
+
+  const _V2SettingsTile({required this.icon, required this.title, this.trailing, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          children: [
+            Icon(icon, color: Theme.of(context).colorScheme.primary),
+            const SizedBox(width: 12),
+            Expanded(child: Text(title, style: Theme.of(context).textTheme.bodyMedium)),
+            if (trailing != null) trailing! else Icon(Icons.chevron_right, color: Theme.of(context).colorScheme.outline),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1066,42 +1074,6 @@ Future<void> confirmClearData(
   }
 }
 
-class _SectionHeader extends StatelessWidget {
-  final String title;
-  final IconData icon;
-
-  const _SectionHeader({required this.title, required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
-    final textColor =
-        isDark ? AppTheme.accentWarm : Theme.of(context).colorScheme.onSurface;
-
-    return Row(
-      children: [
-        Icon(icon,
-            color: isDark
-                ? AppTheme.accentWarm
-                : Theme.of(context).colorScheme.onSurface,
-            size: 18),
-        const SizedBox(width: 8),
-        Text(
-          title,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w800,
-            color: textColor,
-            letterSpacing: 0.8,
-          ),
-        ),
-        const SizedBox(width: 12),
-        const Expanded(child: Divider()),
-      ],
-    );
-  }
-}
-
 class _ThemeSelector extends StatelessWidget {
   final ThemeMode currentMode;
   final AppStrings s;
@@ -1215,82 +1187,3 @@ class _ThemeOption extends StatelessWidget {
   }
 }
 
-class _SettingsTile extends StatelessWidget {
-  final IconData icon;
-  final Color iconColor;
-  final String title;
-  final String? subtitle;
-  final Widget? trailing;
-  final VoidCallback? onTap;
-  final Color cardBg;
-  final Color? titleColor;
-
-  const _SettingsTile({
-    required this.icon,
-    required this.iconColor,
-    required this.title,
-    this.subtitle,
-    this.trailing,
-    this.onTap,
-    required this.cardBg,
-    this.titleColor,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Material(
-      color: cardBg,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(14),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Row(
-            children: [
-              Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  color: iconColor.withAlpha(25),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Icon(icon, color: iconColor, size: 20),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w600,
-                        color: titleColor,
-                      ),
-                    ),
-                    if (subtitle != null) ...[
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle!,
-                        style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context)
-                                .textTheme
-                                .bodySmall
-                                ?.color
-                                ?.withValues(alpha: 0.7)),
-                      ),
-                    ],
-                  ],
-                ),
-              ),
-              if (trailing != null) trailing!,
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}

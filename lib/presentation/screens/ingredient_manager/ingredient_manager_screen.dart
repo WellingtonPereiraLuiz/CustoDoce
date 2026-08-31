@@ -53,138 +53,192 @@ class IngredientManagerScreen extends ConsumerWidget {
       );
     }
 
+    return _MobileIngredientsBody(currencyFormat: currencyFormat);
+  }
+}
+
+/// Layout mobile de "Ingredientes" — réplica de `ingredientes_mobile_custodoce_v2`:
+/// header com título e subtítulo, busca com filtro e a lista de insumos.
+class _MobileIngredientsBody extends ConsumerStatefulWidget {
+  final NumberFormat currencyFormat;
+
+  const _MobileIngredientsBody({required this.currencyFormat});
+
+  @override
+  ConsumerState<_MobileIngredientsBody> createState() =>
+      _MobileIngredientsBodyState();
+}
+
+class _MobileIngredientsBodyState
+    extends ConsumerState<_MobileIngredientsBody> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _query = '';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  void _addIngredient() {
+    final plan = ref.read(currentPlanProvider);
+    final ingredients = ref.read(ingredientsProvider).value ?? [];
+    final canAdd = PlanGate.checkLimit(
+      context: context,
+      ref: ref,
+      currentCount: ingredients.length,
+      limit: plan.ingredientLimit,
+      featureName: 'ingredientes',
+      planName: plan.name,
+    );
+    if (canAdd) _showIngredientForm(context, ref, null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final ingredientsAsync = ref.watch(ingredientsProvider);
+
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Ingredientes'),
-        leading: BackButton(
-          onPressed: () => Navigator.of(context).pop(),
+        backgroundColor: colorScheme.surface,
+        leading: const BackButton(),
+        title: Row(
+          children: [
+            Icon(Icons.bakery_dining_outlined,
+                color: colorScheme.primary, size: 26),
+            const SizedBox(width: 8),
+            Text('CustoDoce',
+                style: textTheme.titleLarge?.copyWith(
+                      color: colorScheme.primary,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.5,
+                    )),
+          ],
         ),
       ),
-      body: Center(
-          child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: ingredientsAsync.when(
-                loading: () => Center(
-                    child: CircularProgressIndicator(
-                        color: Theme.of(context).colorScheme.primary)),
-                error: (e, _) => Center(child: Text('Erro: $e')),
-                data: (ingredients) {
-                  if (ingredients.isEmpty) {
-                    return Center(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(Icons.inventory_2_outlined,
-                              size: 64,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurfaceVariant),
-                          const SizedBox(height: 16),
-                          Text('Nenhum ingrediente cadastrado',
-                              style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(height: 8),
-                          Text('Toque em + para adicionar',
-                              style: TextStyle(
-                                  color:
-                                      Theme.of(context).colorScheme.outline)),
-                        ],
-                      ),
-                    );
-                  }
-                  return Align(
-                    alignment: Alignment.topCenter,
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 800),
-                      child: Column(
-                        children: [
-                          // Counter chip
-                          Builder(builder: (context) {
-                            final plan = ref.read(currentPlanProvider);
-                            final count = ingredients.length;
-                            if (plan.isUnlimitedIngredients) {
-                              return const SizedBox.shrink();
-                            }
-                            final isAtLimit = count >= plan.ingredientLimit;
-                            final errorColor =
-                                Theme.of(context).colorScheme.error;
-                            return Padding(
-                              padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
-                              child: Align(
-                                alignment: Alignment.centerLeft,
-                                child: Chip(
-                                  label: Text(
-                                    '$count / ${plan.ingredientLimit} ingredientes',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: isAtLimit ? errorColor : null,
-                                    ),
-                                  ),
-                                  backgroundColor: isAtLimit
-                                      ? errorColor.withAlpha(20)
-                                      : Theme.of(context)
-                                          .colorScheme
-                                          .surfaceContainerHighest,
-                                  side: BorderSide(
-                                    color: isAtLimit
-                                        ? errorColor.withAlpha(60)
-                                        : Colors.transparent,
-                                  ),
-                                  padding:
-                                      const EdgeInsets.symmetric(horizontal: 4),
-                                ),
-                              ),
-                            );
-                          }),
-                          Expanded(
-                            child: ListView.builder(
-                              padding:
-                                  const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                              itemCount: ingredients.length,
-                              itemBuilder: (context, index) {
-                                final ingredient = ingredients[index];
-                                return IngredientItem(
-                                  ingredient: ingredient,
-                                  currencyFormat: currencyFormat,
-                                  onEdit: () => _showIngredientForm(
-                                      context, ref, ingredient),
-                                  onDelete: () async {
-                                    final confirmed =
-                                        await _confirmDeleteIngredient(
-                                            context, ingredient);
-                                    if (confirmed) {
-                                      await ref
-                                          .read(ingredientsProvider.notifier)
-                                          .deleteIngredient(ingredient.id);
-                                    }
-                                  },
-                                );
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ))),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: FloatingActionButton(
         heroTag: 'fab_ingredient',
-        onPressed: () {
-          final plan = ref.read(currentPlanProvider);
-          final ingredients = ref.read(ingredientsProvider).value ?? [];
-          final canAdd = PlanGate.checkLimit(
-            context: context,
-            ref: ref,
-            currentCount: ingredients.length,
-            limit: plan.ingredientLimit,
-            featureName: 'ingredientes',
-            planName: plan.name,
-          );
-          if (canAdd) _showIngredientForm(context, ref, null);
-        },
-        icon: const Icon(Icons.add_rounded),
-        label: const Text('Novo Ingrediente'),
+        onPressed: _addIngredient,
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add_rounded),
+      ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+            child: Text('Ingredientes',
+                style: textTheme.headlineMedium
+                    ?.copyWith(fontWeight: FontWeight.w700)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+            child: Text('Gerencie seus ingredientes e insumos.',
+                style: textTheme.bodyMedium
+                    ?.copyWith(color: colorScheme.onSurfaceVariant)),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+            child: TextField(
+              controller: _searchCtrl,
+              onChanged: (v) => setState(() => _query = v),
+              decoration: InputDecoration(
+                hintText: 'Buscar ingrediente...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: colorScheme.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: ingredientsAsync.when(
+              loading: () => Center(
+                  child: CircularProgressIndicator(
+                      color: colorScheme.primary)),
+              error: (e, _) => Center(child: Text('Erro: $e')),
+              data: (ingredients) {
+                final filtered = ingredients
+                    .where((i) =>
+                        i.name.toLowerCase().contains(_query.toLowerCase()))
+                    .toList();
+
+                if (ingredients.isEmpty) {
+                  return _IngredientsEmptyState(onAdd: _addIngredient);
+                }
+                if (filtered.isEmpty) {
+                  return Center(
+                    child: Text('Nenhum ingrediente encontrado.',
+                        style: TextStyle(color: colorScheme.onSurfaceVariant)),
+                  );
+                }
+
+                return ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 0, 16, 96),
+                  itemCount: filtered.length,
+                  itemBuilder: (context, index) {
+                    final ingredient = filtered[index];
+                    return IngredientItem(
+                      ingredient: ingredient,
+                      currencyFormat: widget.currencyFormat,
+                      onEdit: () =>
+                          _showIngredientForm(context, ref, ingredient),
+                      onDelete: () async {
+                        final confirmed = await _confirmDeleteIngredient(
+                            context, ingredient);
+                        if (confirmed) {
+                          await ref
+                              .read(ingredientsProvider.notifier)
+                              .deleteIngredient(ingredient.id);
+                        }
+                      },
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _IngredientsEmptyState extends StatelessWidget {
+  final VoidCallback onAdd;
+
+  const _IngredientsEmptyState({required this.onAdd});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.inventory_2_outlined,
+              size: 64, color: colorScheme.onSurfaceVariant),
+          const SizedBox(height: 16),
+          Text('Nenhum ingrediente cadastrado',
+              style: Theme.of(context).textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Text('Toque em + para adicionar',
+              style: TextStyle(color: colorScheme.outline)),
+          const SizedBox(height: 20),
+          FilledButton.icon(
+            onPressed: onAdd,
+            icon: const Icon(Icons.add_rounded, size: 18),
+            label: const Text('Novo Ingrediente'),
+          ),
+        ],
       ),
     );
   }
@@ -247,8 +301,7 @@ class _DesktopIngredientsBody extends ConsumerWidget {
                             style: Theme.of(context)
                                 .textTheme
                                 .bodyLarge
-                                ?.copyWith(
-                                    color: colorScheme.onSurfaceVariant),
+                                ?.copyWith(color: colorScheme.onSurfaceVariant),
                           ),
                         ],
                       ),
@@ -283,8 +336,7 @@ class _DesktopIngredientsBody extends ConsumerWidget {
                   data: (ingredients) {
                     if (ingredients.isEmpty) {
                       return _DesktopIngredientsEmptyState(
-                        onCreate: () =>
-                            _showIngredientForm(context, ref, null),
+                        onCreate: () => _showIngredientForm(context, ref, null),
                       );
                     }
 

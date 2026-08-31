@@ -7,6 +7,7 @@ import 'package:custo_doce/core/enums/assistant_message_type.dart';
 import 'package:custo_doce/core/services/assistant_models.dart';
 import 'package:custo_doce/domain/entities/assistant_message_entity.dart';
 import 'package:custo_doce/presentation/providers/assistant_provider.dart';
+import 'package:custo_doce/core/constants/layout_constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -83,8 +84,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  Widget _buildDesktop(
+      BuildContext context, AsyncValue<AssistantState> assistantAsync) {
     final assistantAsync = ref.watch(assistantProvider);
 
     return Scaffold(
@@ -196,8 +197,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                     child: Row(
                       children: [
                         ActionChip(
-                          avatar: const Icon(Icons.calculate_outlined,
-                              size: 16),
+                          avatar:
+                              const Icon(Icons.calculate_outlined, size: 16),
                           label: const Text('Calcular Custo'),
                           onPressed: assistantState.isSending
                               ? null
@@ -206,8 +207,8 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
                         ),
                         const SizedBox(width: 8),
                         ActionChip(
-                          avatar: const Icon(Icons.swap_horiz_rounded,
-                              size: 16),
+                          avatar:
+                              const Icon(Icons.swap_horiz_rounded, size: 16),
                           label: const Text('Sugerir Substituição'),
                           onPressed: assistantState.isSending
                               ? null
@@ -276,6 +277,274 @@ class _AiChatScreenState extends ConsumerState<AiChatScreen> {
         },
       ),
     );
+  }
+
+  Widget _buildMobile(
+      BuildContext context, AsyncValue<AssistantState> assistantAsync) {
+    final theme = Theme.of(context);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.secondaryContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.smart_toy,
+                size: 16,
+                color: theme.colorScheme.onSecondaryContainer,
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Chef IA',
+                    style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: theme.colorScheme.primary)),
+                Text('Assistente de Confeitaria',
+                    style: theme.textTheme.labelSmall
+                        ?.copyWith(color: theme.colorScheme.onSurfaceVariant)),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.more_vert),
+            onPressed: () {},
+          ),
+        ],
+      ),
+      body: assistantAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (error, _) => Center(child: Text('Erro: $error')),
+        data: (assistantState) {
+          final hasPending = assistantState.pendingResponse != null;
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(16),
+                  itemCount: assistantState.messages.isEmpty
+                      ? 1
+                      : assistantState.messages.length,
+                  itemBuilder: (context, index) {
+                    if (assistantState.messages.isEmpty) {
+                      return Column(
+                        children: [
+                          const SizedBox(height: 24),
+                          Container(
+                            width: 64,
+                            height: 64,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.surfaceContainerHighest,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.cake,
+                                size: 32,
+                                color: theme.colorScheme.onSurfaceVariant),
+                          ),
+                          const SizedBox(height: 8),
+                          Text('Como posso ajudar na sua cozinha hoje?',
+                              style: theme.textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.bold),
+                              textAlign: TextAlign.center),
+                          const SizedBox(height: 4),
+                          Text(
+                              'Especialista em custos, receitas e notas fiscais.',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                  color: theme.colorScheme.onSurfaceVariant),
+                              textAlign: TextAlign.center),
+                          const SizedBox(height: 32),
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: [
+                                ActionChip(
+                                  avatar: const Icon(Icons.calculate_outlined,
+                                      size: 16),
+                                  label:
+                                      const Text('Calcular custo de receita'),
+                                  onPressed: () => _applyQuickAction(
+                                      'Calcular custo de receita'),
+                                ),
+                                const SizedBox(width: 8),
+                                ActionChip(
+                                  avatar: const Icon(
+                                      Icons.find_replace_outlined,
+                                      size: 16),
+                                  label: const Text('Sugerir substituição'),
+                                  onPressed: () =>
+                                      _applyQuickAction('Sugerir substituição'),
+                                ),
+                                const SizedBox(width: 8),
+                                ActionChip(
+                                  avatar: const Icon(
+                                      Icons.receipt_long_outlined,
+                                      size: 16),
+                                  label: const Text('Analisar nota fiscal'),
+                                  onPressed: () =>
+                                      _applyQuickAction('Analisar nota fiscal'),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      );
+                    }
+                    return _MessageBubble(
+                        message: assistantState.messages[index]);
+                  },
+                ),
+              ),
+              if (hasPending)
+                _PendingActionBar(
+                  isApplying: assistantState.isApplying,
+                  onConfirm: () => ref
+                      .read(assistantProvider.notifier)
+                      .confirmPendingAction(),
+                  onCancel: () => ref
+                      .read(assistantProvider.notifier)
+                      .cancelPendingAction(),
+                ),
+              if (_selectedImageBytes != null)
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  child: Stack(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.memory(
+                          _selectedImageBytes!,
+                          width: 96,
+                          height: 96,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: InkWell(
+                          onTap: () {
+                            setState(() {
+                              _selectedImageBytes = null;
+                              _selectedImageDataUri = null;
+                            });
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.inverseSurface
+                                  .withValues(alpha: 0.7),
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.close,
+                                size: 14,
+                                color: theme.colorScheme.onInverseSurface),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.surface,
+                  border: Border(
+                      top: BorderSide(color: theme.colorScheme.surfaceContainerHighest)),
+                ),
+                child: SafeArea(
+                  child: Column(
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.attach_file),
+                            onPressed:
+                                assistantState.isSending ? null : _pickImage,
+                          ),
+                          Expanded(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color:
+                                    theme.colorScheme.surfaceContainerHighest,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: TextField(
+                                controller: _controller,
+                                minLines: 1,
+                                maxLines: 4,
+                                textInputAction: TextInputAction.send,
+                                onSubmitted: (_) => _send(),
+                                decoration: const InputDecoration(
+                                  hintText: 'Digite sua mensagem ou pedido...',
+                                  border: InputBorder.none,
+                                  contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 16, vertical: 12),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.secondaryContainer,
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: IconButton(
+                              onPressed:
+                                  assistantState.isSending ? null : _send,
+                              icon: assistantState.isSending
+                                  ? const SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2))
+                                  : Icon(Icons.send,
+                                      color: theme
+                                          .colorScheme.onSecondaryContainer),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'IA pode cometer erros. Verifique os cálculos importantes.',
+                        style: theme.textTheme.labelSmall?.copyWith(
+                            color: theme.colorScheme.onSurfaceVariant
+                                .withValues(alpha: 0.5)),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final assistantAsync = ref.watch(assistantProvider);
+    final isDesktop = MediaQuery.of(context).size.width >= kDesktopBreakpoint;
+
+    if (isDesktop) {
+      return _buildDesktop(context, assistantAsync);
+    }
+
+    return _buildMobile(context, assistantAsync);
   }
 }
 

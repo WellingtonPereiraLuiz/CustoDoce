@@ -40,160 +40,67 @@ class HomeScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('CustoDoce'),
-      ),
-      body: Center(
-          child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 600),
-              child: Stack(
-                children: [
-                  // Decorating Background Glows
-                  Positioned(
-                    top: -100,
-                    right: -100,
-                    child: Container(
-                      width: 300,
-                      height: 300,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            Theme.of(context)
-                                .colorScheme
-                                .primary
-                                .withValues(alpha: 0.05),
-                            Colors.transparent,
-                          ],
-                        ),
+      backgroundColor: Theme.of(context).colorScheme.surface,
+      body: SafeArea(
+        child: RefreshIndicator(
+          color: Theme.of(context).colorScheme.primary,
+          onRefresh: () async {
+            ref.read(recipesProvider.notifier).refresh();
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildHeaderMobile(context, ref),
+                const SizedBox(height: 16),
+                _buildKpiRow(context, recipesAsync, ingredientsAsync),
+                const SizedBox(height: 24),
+                _buildQuickActions(context, ref, isPro, recipesAsync.valueOrNull?.length ?? 0),
+                if (!isPro) ...[
+                  const SizedBox(height: 24),
+                  _buildPaywallBanner(context, ref),
+                ],
+                const SizedBox(height: 24),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        'Receitas Recentes',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              fontWeight: FontWeight.w600,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
                       ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 50,
-                    left: -100,
-                    child: Container(
-                      width: 250,
-                      height: 250,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: RadialGradient(
-                          colors: [
-                            Theme.of(context)
-                                .colorScheme
-                                .onSurface
-                                .withValues(alpha: 0.03),
-                            Colors.transparent,
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  // Foreground Content
-                  Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 800),
-                      child: RefreshIndicator(
-                        color: Theme.of(context).colorScheme.primary,
-                        onRefresh: () async {
-                          ref.read(recipesProvider.notifier).refresh();
-                        },
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildHeader(context, isPro, ref),
-                              const SizedBox(height: 24),
-                              _buildKpiRow(
-                                  context, recipesAsync, ingredientsAsync),
-                              if (!isPro) ...[
-                                const SizedBox(height: 16),
-                                _buildPaywallBanner(context, ref),
-                              ],
-                              const SizedBox(height: 24),
-                              _buildQuickActions(context, ref, isPro,
-                                  recipesAsync.valueOrNull?.length ?? 0),
-                              const SizedBox(height: 16),
-                              // Counter chip — só mostra se o plano tem limite
-                              Builder(builder: (context) {
-                                final plan = ref.read(currentPlanProvider);
-                                final recipeCount =
-                                    recipesAsync.valueOrNull?.length ?? 0;
-                                if (plan.isUnlimitedRecipes) {
-                                  return const SizedBox.shrink();
-                                }
-                                final isAtLimit =
-                                    recipeCount >= plan.recipeLimit;
-                                return Align(
-                                  alignment: Alignment.centerLeft,
-                                  child: Chip(
-                                    label: Text(
-                                      '$recipeCount / ${plan.recipeLimit} receitas',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: isAtLimit
-                                            ? Theme.of(context)
-                                                .colorScheme
-                                                .error
-                                            : Theme.of(context)
-                                                .colorScheme
-                                                .onSurface,
-                                      ),
-                                    ),
-                                    backgroundColor: isAtLimit
-                                        ? Theme.of(context)
-                                            .colorScheme
-                                            .error
-                                            .withAlpha(20)
-                                        : Theme.of(context)
-                                            .colorScheme
-                                            .surfaceContainerHighest,
-                                    side: BorderSide(
-                                      color: isAtLimit
-                                          ? Theme.of(context)
-                                              .colorScheme
-                                              .error
-                                              .withAlpha(60)
-                                          : Colors.transparent,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 4),
-                                  ),
-                                );
-                              }),
-                              const SizedBox(height: 16),
-                              Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Receitas Recentes',
-                                    style:
-                                        Theme.of(context).textTheme.headlineSmall,
-                                  ),
-                                  TextButton(
-                                    onPressed: () => context.push('/recipes'),
-                                    child: const Text('Ver Todas →'),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 8),
-                              _RecentRecipesSection(
-                                recipesAsync: recipesAsync,
-                                currencyFormat: currencyFormat,
-                              ),
-                            ],
+                      TextButton(
+                        onPressed: () => context.push('/recipes'),
+                        child: const Text(
+                          'Ver todas',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            color: AppTheme.secondaryColor,
                           ),
                         ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
-              ))),
-      floatingActionButton: FloatingActionButton.extended(
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _RecentRecipesSection(
+                    recipesAsync: recipesAsync,
+                    currencyFormat: currencyFormat,
+                  ),
+                ),
+                const SizedBox(height: 100),
+              ],
+            ),
+          ),
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
         heroTag: 'fab_home_chef_ia',
         onPressed: () {
           if (currentPlan.hasChatAi) {
@@ -207,83 +114,69 @@ class HomeScreen extends ConsumerWidget {
                 requiredPlan: 'Premium');
           }
         },
-        icon: const Icon(Icons.auto_awesome),
-        label: const Text('Chef IA'),
+        backgroundColor: Theme.of(context).colorScheme.primary,
+        foregroundColor: Theme.of(context).colorScheme.onPrimary,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.auto_awesome),
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context, bool isPro, WidgetRef ref) {
+  Widget _buildHeaderMobile(BuildContext context, WidgetRef ref) {
     final user = ref.watch(currentUserProvider);
     final firstName = user?.displayName?.split(' ').first ?? 'Chef';
+    final photoUrl = user?.photoURL;
 
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Olá, $firstName! 👨‍🍳',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: Theme.of(context).colorScheme.onSurface,
-                  ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              'Pronto para precificar e lucrar?',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .textTheme
-                        .bodySmall
-                        ?.color
-                        ?.withValues(alpha: 0.7),
-                  ),
-            ),
-          ],
-        ),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: isPro
-                ? Theme.of(context)
-                    .colorScheme
-                    .secondaryContainer
-                    .withValues(alpha: 0.15)
-                : Theme.of(context).colorScheme.surfaceContainerHighest,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(
-              color: isPro
-                  ? Theme.of(context)
-                      .colorScheme
-                      .secondaryContainer
-                      .withValues(alpha: 0.4)
-                  : Theme.of(context).colorScheme.surfaceContainerHighest,
-            ),
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        border: Border(
+          bottom: BorderSide(
+            color: Theme.of(context).colorScheme.outlineVariant,
           ),
-          child: Row(
+        ),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(
-                isPro ? Icons.star_rounded : Icons.star_outline_rounded,
-                size: 16,
-                color: isPro
-                    ? Theme.of(context).colorScheme.secondaryContainer
-                    : Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(width: 4),
               Text(
-                isPro ? 'PRO' : 'Free Plan',
-                style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                      color: isPro
-                          ? Theme.of(context).colorScheme.secondaryContainer
-                          : Theme.of(context).colorScheme.onSurfaceVariant,
+                'Olá, $firstName!',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Pronto para adoçar o dia?',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
               ),
             ],
           ),
-        ),
-      ],
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: Theme.of(context).colorScheme.primaryContainer,
+                width: 2,
+              ),
+            ),
+            child: ClipOval(
+              child: photoUrl != null
+                  ? Image.network(photoUrl, fit: BoxFit.cover)
+                  : Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -296,47 +189,42 @@ class HomeScreen extends ConsumerWidget {
 
     final recipeCount = recipes.length;
     final ingredientCount = ingredients.length;
-    final avgCost = recipes.isEmpty
-        ? 0.0
-        : recipes.fold(0.0, (s, r) => s + r.totalCost) / recipes.length;
-    final currencyFormat =
-        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    
+    final margins = recipes.map((r) {
+      final price = r.sellingPrice ?? PriceUtils.roundSuggestedPrice(r.suggestedSellPrice);
+      if (price <= 0) return null;
+      return (price - r.totalCost) / price * 100;
+    }).whereType<double>().toList();
+    
+    final avgMargin = margins.isEmpty ? 0.0 : margins.reduce((a, b) => a + b) / margins.length;
 
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         children: [
-          SizedBox(
-            width: 140,
-            child: _DashboardCard(
-              title: 'Receitas',
-              value: recipeCount.toString(),
-              icon: Icons.cake_rounded,
-              iconColor: Theme.of(context).colorScheme.primary,
-              isLoading: recipesAsync.isLoading,
-            ),
+          _DashboardCard(
+            title: 'Receitas',
+            value: recipeCount.toString(),
+            icon: Icons.cake,
+            iconColor: AppTheme.secondaryColor,
+            isLoading: recipesAsync.isLoading,
           ),
           const SizedBox(width: 12),
-          SizedBox(
-            width: 140,
-            child: _DashboardCard(
-              title: 'Ingredientes',
-              value: ingredientCount.toString(),
-              icon: Icons.kitchen_rounded,
-              iconColor: AppTheme.secondaryColor,
-              isLoading: ingredientsAsync.isLoading,
-            ),
+          _DashboardCard(
+            title: 'Ingredientes',
+            value: ingredientCount.toString(),
+            icon: Icons.kitchen,
+            iconColor: AppTheme.secondaryColor,
+            isLoading: ingredientsAsync.isLoading,
           ),
           const SizedBox(width: 12),
-          SizedBox(
-            width: 160,
-            child: _DashboardCard(
-              title: 'Custo Médio',
-              value: currencyFormat.format(avgCost),
-              icon: Icons.trending_down_rounded,
-              iconColor: AppTheme.successColor,
-              isLoading: recipesAsync.isLoading,
-            ),
+          _DashboardCard(
+            title: 'Margem Média',
+            value: '${avgMargin.toStringAsFixed(0)}%',
+            icon: Icons.trending_up,
+            iconColor: Theme.of(context).colorScheme.secondaryContainer,
+            isLoading: recipesAsync.isLoading,
           ),
         ],
       ),
@@ -344,75 +232,76 @@ class HomeScreen extends ConsumerWidget {
   }
 
   Widget _buildPaywallBanner(BuildContext context, WidgetRef ref) {
-    return GestureDetector(
-      onTap: () => PlanGate.navigateToPaywall(context, ref),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.primaryContainer,
-              Theme.of(context).colorScheme.surfaceContainerHighest
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: InkWell(
+        onTap: () => PlanGate.navigateToPaywall(context, ref),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerLow,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.secondaryContainer.withValues(alpha: 0.2),
+                  shape: BoxShape.circle,
+                ),
+                child: const Center(
+                  child: Icon(
+                    Icons.star,
+                    color: AppTheme.secondaryColor,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'DESBLOQUEIE TODO O POTENCIAL',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w700,
+                        color: Theme.of(context).colorScheme.primary,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Conheça o Plano Pro',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(999),
+                  border: Border.all(color: AppTheme.secondaryColor),
+                ),
+                child: const Text(
+                  'Ver Planos',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: AppTheme.secondaryColor,
+                  ),
+                ),
+              ),
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
           ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha: 0.3),
-            width: 1.5,
-          ),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Theme.of(context)
-                    .colorScheme
-                    .primary
-                    .withValues(alpha: 0.15),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                Icons.workspace_premium_rounded,
-                color: Theme.of(context).colorScheme.primary,
-                size: 28,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Desbloquear CustoDoce Pro',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Crie receitas ilimitadas e maximize seu lucro.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.color
-                          ?.withValues(alpha: 0.8),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-          ],
         ),
       ),
     );
@@ -420,69 +309,80 @@ class HomeScreen extends ConsumerWidget {
 
   Widget _buildQuickActions(
       BuildContext context, WidgetRef ref, bool isPro, int recipeCount) {
-    return Column(
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton(
-            onPressed: () {
-              final plan = ref.read(currentPlanProvider);
-              final recipes = ref.read(recipesProvider).value ?? [];
-              final canCreate = PlanGate.checkLimit(
-                context: context,
-                ref: ref,
-                currentCount: recipes.length,
-                limit: plan.recipeLimit,
-                featureName: 'receitas',
-                planName: plan.name,
-              );
-              if (canCreate) context.push('/recipe-builder');
-            },
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              backgroundColor: Theme.of(context).colorScheme.primary,
-              foregroundColor: Theme.of(context).colorScheme.onPrimary,
-              elevation: 8,
-              shadowColor:
-                  Theme.of(context).colorScheme.primary.withValues(alpha: 0.5),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
+    Widget buildBtn(IconData icon, String label, bool isPrimary, VoidCallback onTap) {
+      final colorScheme = Theme.of(context).colorScheme;
+      return InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          width: 140,
+          height: 100,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: isPrimary ? colorScheme.primary : colorScheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: isPrimary ? colorScheme.primary : colorScheme.outlineVariant,
             ),
-            child: const Row(
-              mainAxisAlignment: MainAxisAlignment.center,
+          ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                icon,
+                color: isPrimary ? colorScheme.onPrimary : AppTheme.secondaryColor,
+                size: 28,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                label.toUpperCase(),
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  color: isPrimary ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Ações Rápidas',
+            style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+          ),
+          const SizedBox(height: 12),
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: Row(
               children: [
-                Icon(Icons.add_circle_outline_rounded, size: 28),
-                SizedBox(width: 12),
-                Text('Criar Nova Receita',
-                    style:
-                        TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-              ],
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: () => context.push('/ingredients'),
-            icon: const Icon(Icons.kitchen_rounded),
-            label: const Text('Gerenciar Ingredientes'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              foregroundColor: Theme.of(context).colorScheme.onSurface,
-              side: BorderSide(
-                  color: Theme.of(context).colorScheme.outlineVariant),
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16)),
-            ),
-          ),
-        ),
-        const SizedBox(height: 12),
-        Row(
-          children: [
-            Expanded(
-              child: OutlinedButton.icon(
-                onPressed: () {
+                buildBtn(Icons.add_circle, 'Criar Nova Receita', true, () {
+                  final plan = ref.read(currentPlanProvider);
+                  final recipes = ref.read(recipesProvider).value ?? [];
+                  final canCreate = PlanGate.checkLimit(
+                    context: context,
+                    ref: ref,
+                    currentCount: recipes.length,
+                    limit: plan.recipeLimit,
+                    featureName: 'receitas',
+                    planName: plan.name,
+                  );
+                  if (canCreate) context.push('/recipe-builder');
+                }),
+                const SizedBox(width: 12),
+                buildBtn(Icons.kitchen, 'Gerenciar Ingredientes', false, () => context.push('/ingredients')),
+                const SizedBox(width: 12),
+                buildBtn(Icons.restaurant_menu, 'Cardápio', false, () {
                   final plan = ref.read(currentPlanProvider);
                   if (PlanGate.checkFeature(
                     context: context,
@@ -493,22 +393,12 @@ class HomeScreen extends ConsumerWidget {
                   )) {
                     context.push('/menu');
                   }
-                },
-                icon: const Icon(Icons.restaurant_menu_rounded),
-                label: const Text('Cardápio'),
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  foregroundColor: Theme.of(context).colorScheme.onSurface,
-                  side: BorderSide(
-                      color: Theme.of(context).colorScheme.outlineVariant),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
-                ),
-              ),
+                }),
+              ],
             ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -525,8 +415,6 @@ class _RecentRecipesSection extends StatefulWidget {
 }
 
 class _RecentRecipesSectionState extends State<_RecentRecipesSection> {
-  String _searchQuery = '';
-
   @override
   Widget build(BuildContext context) {
     return widget.recipesAsync.when(
@@ -540,47 +428,24 @@ class _RecentRecipesSectionState extends State<_RecentRecipesSection> {
           return const _EmptyStateWidget();
         }
 
-        final filtered = recipes
-            .where(
-              (r) => r.name.toLowerCase().contains(_searchQuery.toLowerCase()),
-            )
-            .toList();
+        final recentRecipes = recipes.take(10).toList();
 
         return Column(
           children: [
-            TextField(
-              decoration: InputDecoration(
-                prefixIcon: const Icon(Icons.search),
-                hintText: 'Buscar receita...',
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-              ),
-              onChanged: (v) => setState(() => _searchQuery = v),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: recentRecipes.length,
+              separatorBuilder: (_, __) => const SizedBox(height: 12),
+              itemBuilder: (context, index) {
+                final recipe = recentRecipes[index];
+                return _RecipeListTile(
+                  recipe: recipe,
+                  currencyFormat: widget.currencyFormat,
+                  onTap: () => context.push('/recipe/${recipe.id}'),
+                );
+              },
             ),
-            const SizedBox(height: 16),
-            if (filtered.isEmpty)
-              const Center(
-                  child: Padding(
-                      padding: EdgeInsets.all(16),
-                      child: Text('Nenhuma receita encontrada.')))
-            else
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: filtered.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 12),
-                itemBuilder: (context, index) {
-                  final recipe = filtered[index];
-                  return _RecipeListTile(
-                    recipe: recipe,
-                    currencyFormat: widget.currencyFormat,
-                    onTap: () => context.push('/recipe/${recipe.id}'),
-                  );
-                },
-              ),
           ],
         );
       },
@@ -593,6 +458,7 @@ class _DashboardCard extends StatelessWidget {
   final String value;
   final IconData icon;
   final Color iconColor;
+  final bool isLoading;
 
   const _DashboardCard({
     required this.title,
@@ -602,54 +468,38 @@ class _DashboardCard extends StatelessWidget {
     this.isLoading = false,
   });
 
-  final bool isLoading;
-
   @override
   Widget build(BuildContext context) {
     return Container(
+      width: 144,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: iconColor.withValues(alpha: 0.2)),
+        color: Theme.of(context).colorScheme.surfaceContainerHigh,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                title,
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.color
-                      ?.withValues(alpha: 0.7),
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(6),
-                decoration: BoxDecoration(
-                  color: iconColor.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, size: 16, color: iconColor),
-              )
-            ],
+          Icon(icon, color: iconColor, size: 24),
+          const SizedBox(height: 8),
+          Text(
+            title.toUpperCase(),
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+              letterSpacing: 1.2,
+            ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 4),
           if (isLoading)
             Shimmer.fromColors(
               baseColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-              highlightColor:
-                  Theme.of(context).colorScheme.surfaceContainerHigh,
+              highlightColor: Theme.of(context).colorScheme.surfaceContainerHigh,
               child: Container(
                 height: 24,
-                width: 80,
+                width: 60,
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.surface,
                   borderRadius: BorderRadius.circular(4),
@@ -659,9 +509,10 @@ class _DashboardCard extends StatelessWidget {
           else
             Text(
               value,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w800,
+              style: TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.primary,
               ),
             ),
         ],
@@ -744,23 +595,27 @@ class _RecipeListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final price = recipe.sellingPrice ?? PriceUtils.roundSuggestedPrice(recipe.suggestedSellPrice);
+    final profit = price - recipe.totalCost;
+
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(8),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surfaceContainerHighest,
-          borderRadius: BorderRadius.circular(16),
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
         ),
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(6),
               child: RecipeImage.build(
                 imagePath: recipe.imagePath,
-                width: 48,
-                height: 48,
+                width: 64,
+                height: 64,
                 placeholder: _buildPlaceholder(context),
               ),
             ),
@@ -771,48 +626,53 @@ class _RecipeListTile extends StatelessWidget {
                 children: [
                   Text(
                     recipe.name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 20,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${recipe.category.label} • Custo: ${currencyFormat.format(recipe.totalCost)}',
+                    currencyFormat.format(price),
                     style: TextStyle(
-                      color: Theme.of(context)
-                          .textTheme
-                          .bodySmall
-                          ?.color
-                          ?.withValues(alpha: 0.7),
-                      fontSize: 13,
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontSize: 14,
                     ),
                   ),
                 ],
               ),
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Text(
-                  recipe.sellingPrice != null ? 'Venda' : 'Sugerido',
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AppTheme.successColor,
-                    fontWeight: FontWeight.w600,
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                borderRadius: BorderRadius.circular(999),
+                border: Border.all(color: Theme.of(context).colorScheme.outlineVariant),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Text(
+                    'Lucro',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.secondaryContainer,
+                    ),
                   ),
-                ),
-                Text(
-                  currencyFormat.format(recipe.sellingPrice ??
-                      PriceUtils.roundSuggestedPrice(
-                          recipe.suggestedSellPrice)),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                    color: AppTheme.successColor,
+                  Text(
+                    currencyFormat.format(profit > 0 ? profit : 0),
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w700,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         ),
@@ -822,12 +682,9 @@ class _RecipeListTile extends StatelessWidget {
 
   Widget _buildPlaceholder(BuildContext context) {
     return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      width: 64,
+      height: 64,
+      color: Theme.of(context).colorScheme.surfaceContainerHighest,
       child: Icon(
         Icons.cake_rounded,
         color: Theme.of(context).colorScheme.primary,

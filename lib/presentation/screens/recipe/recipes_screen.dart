@@ -9,6 +9,8 @@ import 'package:custo_doce/core/utils/price_utils.dart';
 import 'package:custo_doce/core/constants/layout_constants.dart';
 import 'package:custo_doce/domain/entities/recipe_entity.dart';
 import 'package:custo_doce/presentation/widgets/recipe_card_widget.dart';
+import 'package:custo_doce/core/utils/image_utils.dart';
+import 'package:custo_doce/core/theme/app_theme.dart';
 
 Future<void> _confirmDeleteRecipe(
     BuildContext context, WidgetRef ref, String recipeId) async {
@@ -47,80 +49,328 @@ class RecipesScreen extends ConsumerWidget {
       return const _DesktopRecipesBody();
     }
 
+    return _MobileRecipesBody(recipesAsync: recipesAsync);
+  }
+}
+
+class _MobileRecipesBody extends ConsumerStatefulWidget {
+  final AsyncValue<List<RecipeEntity>> recipesAsync;
+  const _MobileRecipesBody({required this.recipesAsync});
+
+  @override
+  ConsumerState<_MobileRecipesBody> createState() => _MobileRecipesBodyState();
+}
+
+class _MobileRecipesBodyState extends ConsumerState<_MobileRecipesBody> {
+  final TextEditingController _searchCtrl = TextEditingController();
+  String _searchQuery = '';
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
+
+  void _createRecipe(BuildContext context, WidgetRef ref) {
+    final plan = ref.read(currentPlanProvider);
+    final recipes = ref.read(recipesProvider).value ?? [];
+    final canCreate = PlanGate.checkLimit(
+      context: context,
+      ref: ref,
+      currentCount: recipes.length,
+      limit: plan.recipeLimit,
+      featureName: 'receitas',
+      planName: plan.name,
+    );
+    if (canCreate) context.push('/recipe-builder');
+  }
+
+  void _openAssistant(BuildContext context, WidgetRef ref) {
+    final plan = ref.read(currentPlanProvider);
+    if (plan.hasChatAi) {
+      context.push('/ai-chat');
+    } else {
+      PlanGate.checkFeature(
+        context: context,
+        ref: ref,
+        hasAccess: false,
+        featureName: 'Assistente de IA',
+        requiredPlan: 'Premium',
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        title: const Text('Receitas'),
+        backgroundColor: colorScheme.surface,
+        title: const Text('Minhas Receitas'),
       ),
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: recipesAsync.when(
+      floatingActionButton: FloatingActionButton(
+        heroTag: 'fab_recipes_chef_ia',
+        onPressed: () => _openAssistant(context, ref),
+        backgroundColor: colorScheme.primary,
+        foregroundColor: colorScheme.onPrimary,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.auto_awesome),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+            child: TextField(
+              controller: _searchCtrl,
+              decoration: InputDecoration(
+                hintText: 'Buscar receitas...',
+                prefixIcon: const Icon(Icons.search),
+                filled: true,
+                fillColor: colorScheme.surfaceContainerHighest,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(8),
+                  borderSide: BorderSide.none,
+                ),
+              ),
+              onChanged: (value) => setState(() => _searchQuery = value),
+            ),
+          ),
+          Expanded(
+            child: widget.recipesAsync.when(
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) =>
                   Center(child: Text('Erro ao carregar receitas: $e')),
               data: (recipes) {
-                if (recipes.isEmpty) {
-                  return Center(
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.cake_rounded,
-                              size: 64,
-                              color: Theme.of(context).colorScheme.outline),
-                          const SizedBox(height: 16),
-                          Text('Nenhuma receita ainda',
-                              style: Theme.of(context).textTheme.headlineSmall),
-                        ]),
-                  );
-                }
-                return LayoutBuilder(
-                  builder: (context, constraints) {
-                    final width = constraints.maxWidth;
-                    final crossAxisCount =
-                        width >= 900 ? 3 : (width >= 600 ? 2 : 1);
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: crossAxisCount,
-                        childAspectRatio: 0.78,
-                        mainAxisSpacing: 16,
-                        crossAxisSpacing: 16,
-                      ),
-                      itemCount: recipes.length,
-                      itemBuilder: (context, index) {
-                        final recipe = recipes[index];
-                        return RecipeCard(
-                          recipe: recipe,
-                          onTap: () => context.push('/recipe/${recipe.id}'),
-                          onDelete: () =>
-                              _confirmDeleteRecipe(context, ref, recipe.id),
-                        );
-                      },
+                final filtered = recipes
+                    .where((r) => r.name
+                        .toLowerCase()
+                        .contains(_searchQuery.toLowerCase()))
+                    .toList();
+
+                return ListView.separated(
+                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 96),
+                  itemCount: filtered.length + 1,
+                  separatorBuilder: (_, __) => const SizedBox(height: 12),
+                  itemBuilder: (context, index) {
+                    if (index == filtered.length) {
+                      return _CreateRecipeCard(
+                        onTap: () => _createRecipe(context, ref),
+                      );
+                    }
+                    final recipe = filtered[index];
+                    return _RecipeListItem(
+                      recipe: recipe,
+                      onTap: () => context.push('/recipe/${recipe.id}'),
+                      onDelete: () =>
+                          _confirmDeleteRecipe(context, ref, recipe.id),
                     );
                   },
                 );
               },
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Card de receita da listagem mobile — réplica de `minhas_receitas_custodoce_v2`:
+/// thumbnail + chip de categoria, nome, rendimento e as linhas de custo de
+/// produção e preço sugerido.
+class _RecipeListItem extends StatelessWidget {
+  final RecipeEntity recipe;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+
+  const _RecipeListItem({
+    required this.recipe,
+    required this.onTap,
+    required this.onDelete,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    final currencyFormat =
+        NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
+    final suggested = PriceUtils.roundSuggestedPrice(recipe.suggestedSellPrice);
+
+    return Material(
+      color: colorScheme.surfaceContainerLowest,
+      borderRadius: BorderRadius.circular(16),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: colorScheme.outlineVariant),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: RecipeImage.build(
+                      imagePath: recipe.imagePath,
+                      width: 56,
+                      height: 56,
+                      placeholder: Container(
+                        width: 56,
+                        height: 56,
+                        color: colorScheme.surfaceContainerHighest,
+                        alignment: Alignment.center,
+                        child: Icon(Icons.cake_rounded,
+                            color: colorScheme.outline, size: 24),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 10, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: colorScheme.secondaryContainer
+                                  .withValues(alpha: 0.18),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: Text(
+                              recipe.category.label,
+                              style: textTheme.labelSmall?.copyWith(
+                                color: colorScheme.onSurface,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          recipe.name,
+                          style: textTheme.titleMedium
+                              ?.copyWith(fontWeight: FontWeight.w700),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'Rendimento: ${recipe.yieldQuantity} '
+                          '${recipe.yieldQuantity == 1 ? 'unidade' : 'unidades'}',
+                          style: textTheme.bodySmall?.copyWith(
+                              color: colorScheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Divider(height: 1, color: colorScheme.outlineVariant),
+              const SizedBox(height: 12),
+              _PriceRow(
+                label: 'Custo de Produção',
+                value: currencyFormat.format(recipe.totalCost),
+              ),
+              const SizedBox(height: 6),
+              _PriceRow(
+                label: 'Preço Sugerido',
+                value: currencyFormat.format(recipe.sellingPrice ?? suggested),
+                highlight: true,
+              ),
+            ],
+          ),
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        heroTag: 'fab_recipes_create',
-        onPressed: () {
-          final plan = ref.read(currentPlanProvider);
-          final recipes = ref.read(recipesProvider).value ?? [];
-          final canCreate = PlanGate.checkLimit(
-            context: context,
-            ref: ref,
-            currentCount: recipes.length,
-            limit: plan.recipeLimit,
-            featureName: 'receitas',
-            planName: plan.name,
-          );
-          if (canCreate) context.push('/recipe-builder');
-        },
-        child: const Icon(Icons.add),
+    );
+  }
+}
+
+class _PriceRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool highlight;
+
+  const _PriceRow({
+    required this.label,
+    required this.value,
+    this.highlight = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label,
+            style: textTheme.bodyMedium
+                ?.copyWith(color: colorScheme.onSurfaceVariant)),
+        Text(
+          value,
+          style: textTheme.bodyMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: highlight ? AppTheme.secondaryColor : colorScheme.onSurface,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _CreateRecipeCard extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _CreateRecipeCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 28),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: colorScheme.outlineVariant,
+            width: 1.5,
+          ),
+        ),
+        child: Column(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainer,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.add, color: colorScheme.onSurfaceVariant),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              'Criar Nova Receita',
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                  ),
+            ),
+          ],
+        ),
       ),
     );
   }
